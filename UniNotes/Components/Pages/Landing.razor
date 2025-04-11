@@ -2,14 +2,52 @@
 
 <PageTitle>UniNotes</PageTitle>
 
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+
 <!-- Particles.js -->
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-
+<script>
+	particlesJS.load('particles-js', 'js/particles.js/particles.json', function () {});
+</script>
 <div id="particles-js"></div>
 <div class="full-page-background">
-<center><h1>Αυτή η ιστοσελίδα είναι υπό κατασκευή :D</h1></center>
+<center>
+    <h1 class="logo">UniNotes</h1>
+    <h2>2025</h2>
+</center>
+	<div class="typewriter">
+		<span id="text"></span><span class="cursor">|</span>
+	</div>
+    <script>
+        const phrases = ["Ανάρτηση υλικού.", "Προβολή και αξιοποίηση υλικού.", "Διαχείριση προφίλ και αναρτήσεων."];
+        const textElement = document.getElementById("text");
+        let currentPhrase = 0;
+        let currentChar = 0;
+        let isDeleting = false;
+
+        function type() {
+          const current = phrases[currentPhrase];
+          const visibleText = current.slice(0, currentChar);
+          textElement.textContent = visibleText;
+
+          if (!isDeleting && currentChar < current.length) {
+            currentChar++;
+            setTimeout(type, 100);
+          } else if (isDeleting && currentChar > 0) {
+            currentChar--;
+            setTimeout(type, 50);
+          } else {
+            setTimeout(() => {
+              isDeleting = !isDeleting;
+              if (!isDeleting) {
+                currentPhrase = (currentPhrase + 1) % phrases.length;
+              }
+
+              type();
+            }, 500);
+          }
+        }
+        type();
+    </script>
 </div>
 
-<script>
-    particlesJS.load('particles-js', 'js/particles.js/particles.json', function () {});
-</script>
