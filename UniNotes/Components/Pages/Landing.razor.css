@@ -11,15 +11,37 @@
     font-family: "Lobster", sans-serif;
     font-weight: 400;
     font-style: normal;
-    font-size: 120px !important;
+    font-size: min(120px, 15vw) !important;
 }
 
 .typewriter {
     font-family: monospace;
-    font-size: 1.5rem;
-    white-space: nowrap;
+    font-size: min(1.5rem, 4vw);
+    white-space: normal;
+    max-width: 90vw;
     overflow: hidden;
     display: inline-block;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .full-page-background h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 12vw !important;
+    }
+
+    .full-page-background h2 {
+        font-size: 1.2rem;
+    }
+
+    .typewriter {
+        font-size: 0.9rem;
+    }
 }
 
 .cursor {
