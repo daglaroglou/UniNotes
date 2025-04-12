@@ -24,47 +24,6 @@
     text-align: center;
 }
 
-.button-container {
-    display: flex;
-    gap: 20px;
-    margin-top: 40px;
-    justify-content: center;
-}
-
-.action-button {
-    background-color: transparent;
-    color: white;
-    border: 2px solid #e0e0e0;
-    padding: 12px 30px;
-    border-radius: 25px;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-    .action-button:hover {
-        background-color: #e0e0e0;
-        color: black;
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
-    }
-
-@media (max-width: 480px) {
-    .button-container {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .action-button {
-        padding: 10px 25px;
-        font-size: 0.9rem;
-    }
-}
-
-
 @media (max-width: 768px) {
     .full-page-background h2 {
         font-size: 1.5rem;
@@ -131,7 +90,7 @@
 
     /* Ensure links within .full-page-background are clickable */
     .full-page-background a {
-        color: #e0e0e0;
+        color: mediumpurple;
         text-decoration: none;
         pointer-events: auto;
     }
