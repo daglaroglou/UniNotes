@@ -1,12 +1,20 @@
 ﻿@page "/"
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@attribute [StreamRendering]
 
 <PageTitle>UniNotes</PageTitle>
 
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 
-<!-- Particles.js -->
-<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <div id="particles-js"></div>
+
+<script src="js/particles/particles.js"></script>
+
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
 <div class="full-page-background">
 	<center>
 		<h1 class="logo">UniNotes</h1>
@@ -16,8 +24,34 @@
 		<span id="text"></span><span class="cursor">|</span>
 	</div>
 	<div class="button-container">
-		<a href="login" class="action-button">Login</a>
-		<a href="register" class="action-button">Register</a>
+		<button class="action-button" @onclick='() => navigateTo("login")'>Login</button>
+		<button class="action-button" @onclick='() => navigateTo("register")'>Register</button>
 	</div>
 </div>
 <script src="js/landing.js"></script>
+
+@code{
+
+	/// <summary>
+	/// Refreshes the DOM after the component has rendered.
+	/// </summary>
+	/// <param name="firstRender"></param>
+	/// <returns></returns>
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await JSRuntime.InvokeVoidAsync("startTypewriter");
+		}
+	}
+
+	/// <summary>
+    /// Navigates to a specified page, properly.
+    /// </summary>
+    /// <param name="page"></param>
+    private void navigateTo(string page)
+    {
+        Navigation.NavigateTo($"/{page}");
+    }
+	
+}

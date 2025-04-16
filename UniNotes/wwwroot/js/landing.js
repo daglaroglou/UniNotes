@@ -1,7 +1,12 @@
-﻿// Landing page typewriter effect
-document.addEventListener('DOMContentLoaded', function () {
-    const phrases = ["Ανάρτηση υλικού.", "Προβολή και αξιοποίηση υλικού.", "Διαχείριση προφίλ και αναρτήσεων."];
+﻿window.startTypewriter = function () {
+    const phrases = [
+        "Ανάρτηση υλικού.",
+        "Προβολή και αξιοποίηση υλικού.",
+        "Διαχείριση προφίλ και αναρτήσεων."
+    ];
     const textElement = document.getElementById("text");
+    if (!textElement) return;
+
     let currentPhrase = 0;
     let currentChar = 0;
     let isDeleting = false;
@@ -29,10 +34,5 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Initialize particles.js if needed
-    if (typeof particlesJS !== 'undefined') {
-        particlesJS.load('particles-js', 'js/particles.js/particles.json', function () { });
-    }
-
     type();
-});
+};
