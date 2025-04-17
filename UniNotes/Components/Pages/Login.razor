@@ -3,7 +3,7 @@
 @inject IJSRuntime JSRuntime
 @attribute [StreamRendering]
 
-<script>document.title = 'UniNotes - Login'</script>
+<PageTitle>UniNotes - Login</PageTitle>
 
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 
@@ -87,7 +87,6 @@
 
     private bool IsValidEmail(string email)
     {
-        var emailPattern = @"^(ics|iis)24\d{2}@uom\.edu\.gr$";
-        return System.Text.RegularExpressions.Regex.IsMatch(email, emailPattern);
+        return new Regex(@"(ics|iis)[0-9]{5}@uom\.edu\.gr", RegexOptions.IgnoreCase).IsMatch(email);
     }
 }
