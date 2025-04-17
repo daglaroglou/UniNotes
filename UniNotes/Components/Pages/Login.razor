@@ -87,6 +87,6 @@
 
     private bool IsValidEmail(string email)
     {
-        return new Regex(@"(ics|iis)[0-9]{5}@uom\.edu\.gr", RegexOptions.IgnoreCase).IsMatch(email);
+        return new Regex(@"(ics|iis)24[0-9]{3}@uom\.edu\.gr", RegexOptions.IgnoreCase).IsMatch(email);
     }
 }
