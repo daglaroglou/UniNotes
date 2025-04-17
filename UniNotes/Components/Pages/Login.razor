@@ -50,11 +50,10 @@
 
         if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password) && IsValidEmail(email) && password.Length >= 8)
         {
-            // Tha to kanw implement meta
+            // Tha to kanw implement meta (logika)
         }
         else
         {
-            // Handle all possible validation scenarios
             if (string.IsNullOrEmpty(email) && string.IsNullOrEmpty(password))
             {
                 errorMessage = "Please enter both email and password";
@@ -63,7 +62,6 @@
             {
                 var errors = new List<string>();
 
-                // Check email validation
                 if (string.IsNullOrEmpty(email))
                 {
                     errors.Add("Email is required");
@@ -73,7 +71,6 @@
                     errors.Add("Please enter a valid email address");
                 }
 
-                // Check password validation
                 if (string.IsNullOrEmpty(password))
                 {
                     errors.Add("Password is required");
@@ -83,7 +80,6 @@
                     errors.Add("Password must be at least 8 characters");
                 }
 
-                // Join all errors with line breaks
                 errorMessage = string.Join("<br>", errors);
             }
         }
@@ -91,14 +87,7 @@
 
     private bool IsValidEmail(string email)
     {
-        try
-        {
-            var addr = new System.Net.Mail.MailAddress(email);
-            return addr.Address == email;
-        }
-        catch
-        {
-            return false;
-        }
+        var emailPattern = @"^(ics|iis)24\d{2}@uom\.edu\.gr$";
+        return System.Text.RegularExpressions.Regex.IsMatch(email, emailPattern);
     }
 }
