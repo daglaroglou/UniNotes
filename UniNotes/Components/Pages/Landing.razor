@@ -31,12 +31,6 @@
 <script src="js/landing.js"></script>
 
 @code{
-
-	/// <summary>
-	/// Refreshes the DOM after the component has rendered.
-	/// </summary>
-	/// <param name="firstRender"></param>
-	/// <returns></returns>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -45,13 +39,8 @@
 		}
 	}
 
-	/// <summary>
-    /// Navigates to a specified page, properly.
-    /// </summary>
-    /// <param name="page"></param>
     private void navigateTo(string page)
     {
         Navigation.NavigateTo($"/{page}");
-    }
-	
+    }	
 }

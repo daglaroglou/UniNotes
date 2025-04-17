@@ -1,12 +1,104 @@
 ﻿@page "/login"
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@attribute [StreamRendering]
 
-<PageTitle>UniNotes - Login</PageTitle>
+<script>document.title = 'UniNotes - Login'</script>
 
-<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-<script>
-	particlesJS.load('particles-js', 'js/particles.js/particles.json', function () {});
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+
 <div id="particles-js"></div>
+
+<script src="js/particles/particles.js"></script>
+
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
 <div class="full-page-background">
-	<h1>Login</h1>
+    <center>
+        <h1 class="logo">Login</h1>
+    </center>
+
+    <div class="login-form">
+        <div class="input-container">
+            <input type="email" placeholder="Email" class="action-input" @bind="email" />
+        </div>
+        <div class="input-container">
+            <input type="password" placeholder="Password" class="action-input" @bind="password" />
+        </div>
+        <div class="button-container">
+            <button class="action-button" @onclick="HandleLogin">Login</button>
+        </div>
+        <br>
+    </div>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-message">@((MarkupString)errorMessage)</div>
+    }
 </div>
+
+@code {
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string errorMessage = string.Empty;
+
+    private void HandleLogin()
+    {
+        // Clear previous errors
+        errorMessage = string.Empty;
+
+        if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password) && IsValidEmail(email) && password.Length >= 8)
+        {
+            // Tha to kanw implement meta
+        }
+        else
+        {
+            // Handle all possible validation scenarios
+            if (string.IsNullOrEmpty(email) && string.IsNullOrEmpty(password))
+            {
+                errorMessage = "Please enter both email and password";
+            }
+            else
+            {
+                var errors = new List<string>();
+
+                // Check email validation
+                if (string.IsNullOrEmpty(email))
+                {
+                    errors.Add("Email is required");
+                }
+                else if (!IsValidEmail(email))
+                {
+                    errors.Add("Please enter a valid email address");
+                }
+
+                // Check password validation
+                if (string.IsNullOrEmpty(password))
+                {
+                    errors.Add("Password is required");
+                }
+                else if (password.Length < 8)
+                {
+                    errors.Add("Password must be at least 8 characters");
+                }
+
+                // Join all errors with line breaks
+                errorMessage = string.Join("<br>", errors);
+            }
+        }
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
