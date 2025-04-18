@@ -24,8 +24,8 @@
 		<span id="text"></span><span class="cursor">|</span>
 	</div>
 	<div class="button-container">
-		<button class="action-button" @onclick='() => navigateTo("login")'>Login</button>
-		<button class="action-button" @onclick='() => navigateTo("register")'>Register</button>
+		<button class="action-button" @onclick='() => Navigation.NavigateTo("login")'>Login</button>
+		<button class="action-button" @onclick='() => Navigation.NavigateTo("register")'>Register</button>
 	</div>
 </div>
 <script src="js/landing.js"></script>
@@ -37,10 +37,5 @@
 		{
 			await JSRuntime.InvokeVoidAsync("startTypewriter");
 		}
-	}
-
-    private void navigateTo(string page)
-    {
-        Navigation.NavigateTo($"/{page}");
-    }	
+	}	
 }

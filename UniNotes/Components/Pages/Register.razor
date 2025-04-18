@@ -1,6 +1,8 @@
 ﻿@page "/register"
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
+@inject UserService UserService
+
 @attribute [StreamRendering]
 
 <PageTitle>UniNotes - Register</PageTitle>
@@ -46,7 +48,7 @@
             </div>
         </div>
         <div class="button-container">
-            <button class="action-button" @onclick="HandleRegister">Register</button>
+            <button class="action-button" @onclick="() => HandleRegister()">Register</button>
         </div>
         <br>
     </div>
@@ -65,7 +67,7 @@
     private string uniIdNumber = string.Empty;
     private string errorMessage = string.Empty;
 
-    private void HandleRegister()
+    private async Task HandleRegister()
     {
         // Clear previous errors
         errorMessage = string.Empty;
@@ -80,7 +82,28 @@
             password.Length >= 8 &&
             Funcs.Misc.IsValidUniID(uniIdNumber))
         {
-            // Implementation for registration logic
+            // Create new user
+            var newUser = new User
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Username = username,
+                    Email = email,
+                    UniIdNumber = uniIdNumber
+                };
+
+            // Save to MongoDB
+            bool result = await UserService.CreateAsync(newUser, password);
+
+            if (result)
+            {
+                // Redirect to login page
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                errorMessage = "Registration failed. Username or email already be in use.";
+            }
         }
         else
         {

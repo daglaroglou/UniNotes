@@ -1,6 +1,8 @@
 ﻿@page "/login"
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
+@inject UserService UserService
+
 @attribute [StreamRendering]
 
 <PageTitle>UniNotes - Login</PageTitle>
@@ -28,7 +30,7 @@
             <input type="password" placeholder="Password" class="action-input" @bind="password" />
         </div>
         <div class="button-container">
-            <button class="action-button" @onclick="HandleLogin">Login</button>
+            <button class="action-button" @onclick="() => HandleLogin()">Login</button>
         </div>
         <br>
     </div>
@@ -43,14 +45,24 @@
     private string password = string.Empty;
     private string errorMessage = string.Empty;
 
-    private void HandleLogin()
+    private async Task HandleLogin()
     {
         // Clear previous errors
         errorMessage = string.Empty;
 
         if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password) && Funcs.Misc.IsValidEmail(email) && password.Length >= 8)
         {
-            // Tha to kanw implement meta (logika)
+            // Authenticate me to MongoDB database
+            bool isAuthenticated = await UserService.AuthenticateAsync(email, password);
+
+            if (isAuthenticated)
+            {
+                Navigation.NavigateTo("/dashboard");
+            }
+            else
+            {
+                errorMessage = "Invalid email or password";
+            }
         }
         else
         {

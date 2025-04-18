@@ -1,0 +1,62 @@
+﻿@page "/dashboard"
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+
+<PageTitle>UniNotes - Dashboard</PageTitle>
+
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+<div id="particles-js"></div>
+
+<script src="js/particles/particles.js"></script>
+
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<div class="full-page-background">
+    <center>
+        <h1 class="logo">Dashboard</h1>
+        @if (isLoading)
+        {
+            <div class="spinner-container">
+                <div class="spinner"></div>
+            </div>
+        }
+        else
+        {
+			<h3 class="welcome">Welcome back <b>@(user?.Username ?? "")</b>,</h3>
+			<br />
+			<h3 class="welcome">You are logged in from: <b>@(user?.LastLoginIp ?? "")</b></h3>
+            <div class="button-container">
+                <button class="action-button logout-button" @onclick="() => HandleLogout()">Logout</button>
+            </div>
+        }
+    </center>
+</div>
+
+@code {
+    private User? user;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserService.GetCurrentUserAsync();
+
+        if (string.IsNullOrEmpty(user?.Username))
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleLogout()
+    {
+		NavigationManager.NavigateTo("/");
+        await UserService.LogoutAsync();
+    }
+}

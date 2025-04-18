@@ -1,10 +1,20 @@
 using UniNotes.Components;
+using UniNotes.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure builder to use environment variables
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Add HttpContextAccessor for IP address capture
+builder.Services.AddHttpContextAccessor();
+
+// Add MongoDB service
+builder.Services.AddSingleton<UserService>();
 
 var app = builder.Build();
 
@@ -17,7 +27,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 
 app.UseAntiforgery();
 

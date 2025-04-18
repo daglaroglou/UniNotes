@@ -1,9 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>9366725e-20f4-4bbe-be32-81d8427cb091</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Bson" Version="3.3.0" />
+    <PackageReference Include="MongoDB.Driver" Version="3.3.0" />
+  </ItemGroup>
 
 </Project>
