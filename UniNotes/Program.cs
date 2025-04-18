@@ -3,9 +3,6 @@ using UniNotes.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure builder to use environment variables
-builder.Configuration.AddEnvironmentVariables();
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
