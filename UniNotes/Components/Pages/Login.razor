@@ -48,7 +48,7 @@
         // Clear previous errors
         errorMessage = string.Empty;
 
-        if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password) && IsValidEmail(email) && password.Length >= 8)
+        if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password) && Funcs.Misc.IsValidEmail(email) && password.Length >= 8)
         {
             // Tha to kanw implement meta (logika)
         }
@@ -66,7 +66,7 @@
                 {
                     errors.Add("Email is required");
                 }
-                else if (!IsValidEmail(email))
+                else if (!Funcs.Misc.IsValidEmail(email))
                 {
                     errors.Add("Please enter a valid email address");
                 }
@@ -83,10 +83,5 @@
                 errorMessage = string.Join("<br>", errors);
             }
         }
-    }
-
-    private bool IsValidEmail(string email)
-    {
-        return new Regex(@"(ics|iis)24[0-9]{3}@uom\.edu\.gr", RegexOptions.IgnoreCase).IsMatch(email);
     }
 }

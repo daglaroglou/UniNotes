@@ -1,0 +1,134 @@
+﻿@page "/register"
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@attribute [StreamRendering]
+
+<PageTitle>UniNotes - Register</PageTitle>
+
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+
+<div id="particles-js"></div>
+
+<script src="js/particles/particles.js"></script>
+
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<div class="full-page-background">
+    <center>
+        <h1 class="logo">Register</h1>
+    </center>
+
+    <div class="login-form">
+        <div class="input-row">
+            <div class="input-container">
+                <input type="text" placeholder="First Name" class="action-input" @bind="firstName" />
+            </div>
+            <div class="input-container">
+                <input type="text" placeholder="Last Name" class="action-input" @bind="lastName" />
+            </div>
+        </div>
+        <div class="input-row">
+            <div class="input-container">
+                <input type="text" placeholder="Username" class="action-input" @bind="username" />
+            </div>
+            <div class="input-container">
+                <input type="text" placeholder="University ID Number" class="action-input" @bind="uniIdNumber" />
+            </div>
+        </div>
+        <div class="input-row">
+            <div class="input-container">
+                <input type="email" placeholder="Email" class="action-input" @bind="email" />
+            </div>
+            <div class="input-container">
+                <input type="password" placeholder="Password" class="action-input" @bind="password" />
+            </div>
+        </div>
+        <div class="button-container">
+            <button class="action-button" @onclick="HandleRegister">Register</button>
+        </div>
+        <br>
+    </div>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-message">@((MarkupString)errorMessage)</div>
+    }
+</div>
+
+@code {
+    private string firstName = string.Empty;
+    private string lastName = string.Empty;
+    private string username = string.Empty;
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string uniIdNumber = string.Empty;
+    private string errorMessage = string.Empty;
+
+    private void HandleRegister()
+    {
+        // Clear previous errors
+        errorMessage = string.Empty;
+
+        if (!string.IsNullOrEmpty(firstName) &&
+            !string.IsNullOrEmpty(lastName) &&
+            !string.IsNullOrEmpty(username) &&
+            !string.IsNullOrEmpty(email) &&
+            !string.IsNullOrEmpty(password) &&
+            !string.IsNullOrEmpty(uniIdNumber) &&
+            Funcs.Misc.IsValidEmail(email) &&
+            password.Length >= 8 &&
+            Funcs.Misc.IsValidUniID(uniIdNumber))
+        {
+            // Implementation for registration logic
+        }
+        else
+        {
+            var errors = new List<string>();
+
+            if (string.IsNullOrEmpty(firstName))
+            {
+                errors.Add("First Name is required");
+            }
+
+            if (string.IsNullOrEmpty(lastName))
+            {
+                errors.Add("Last Name is required");
+            }
+
+            if (string.IsNullOrEmpty(username))
+            {
+                errors.Add("Username is required");
+            }
+
+            if (string.IsNullOrEmpty(email))
+            {
+                errors.Add("Email is required");
+            }
+            else if (!Funcs.Misc.IsValidEmail(email))
+            {
+                errors.Add("Please enter a valid university email address");
+            }
+
+            if (string.IsNullOrEmpty(password))
+            {
+                errors.Add("Password is required");
+            }
+            else if (password.Length < 8)
+            {
+                errors.Add("Password must be at least 8 characters");
+            }
+
+            if (string.IsNullOrEmpty(uniIdNumber))
+            {
+                errors.Add("University ID is required");
+            }
+            else if (!Funcs.Misc.IsValidUniID(uniIdNumber))
+            {
+                errors.Add("Please enter a valid university ID");
+            }
+
+            errorMessage = string.Join("<br>", errors);
+        }
+    }
+}
