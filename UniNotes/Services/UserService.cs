@@ -2,47 +2,21 @@
 using UniNotes.Models;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.AspNetCore.Http;
-using UniNotes.Funcs;
-using System.Net.Http;
 
 namespace UniNotes.Services
 {
     public class UserService
     {
         private readonly IMongoCollection<User> _users;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         // Property to store the currently logged-in user
         public User? CurrentUser { get; private set; }
 
-        public UserService(IConfiguration config, IHttpContextAccessor httpContextAccessor)
+        public UserService(IConfiguration config)
         {
             var mongoClient = new MongoClient(config.GetConnectionString("MongoDb"));
             var database = mongoClient.GetDatabase("UniNotes");
             _users = database.GetCollection<User>("Users");
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        private async Task<string> GetPublicIpAddressAsync()
-        {
-            try
-            {
-                using (var httpClient = new HttpClient())
-                {
-                    // Set a timeout to avoid hanging in case of network issues
-                    httpClient.Timeout = TimeSpan.FromSeconds(5);
-
-                    // Den jerw pws na vriskw public ip opote kanw request sto api edw (eimai mpines)
-                    var response = await httpClient.GetStringAsync("https://api.ipify.org");
-                    return response.Trim();
-                }
-            }
-            catch (Exception)
-            {
-                // Fallback to local IP if the service is unavailable
-                return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
-            }
         }
 
         public async Task<User?> GetCurrentUserAsync()
@@ -97,11 +71,6 @@ namespace UniNotes.Services
 
             if (VerifyPassword(password, user.PasswordHash))
             {
-                string ipAddress = await GetPublicIpAddressAsync();
-
-                // Update login information
-                Misc.UpdateUserLoginInfo(user, ipAddress);
-
                 await _users.ReplaceOneAsync(x => x.Id == user.Id, user);
 
                 CurrentUser = user;

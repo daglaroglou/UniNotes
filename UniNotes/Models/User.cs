@@ -35,8 +35,5 @@ namespace UniNotes.Models
 
         [BsonElement("lastLoginAt")]
         public DateTime? LastLoginAt { get; set; }
-
-        [BsonElement("lastLoginIp")]
-        public string LastLoginIp { get; set; } = string.Empty;
     }
 }

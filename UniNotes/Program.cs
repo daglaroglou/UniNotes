@@ -7,9 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add HttpContextAccessor for IP address capture
-builder.Services.AddHttpContextAccessor();
-
 // Add MongoDB service
 builder.Services.AddSingleton<UserService>();
 

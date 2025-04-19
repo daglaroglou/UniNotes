@@ -1,6 +1,8 @@
 ﻿@page "/dashboard"
 @inject UserService UserService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@implements IDisposable
 
 <PageTitle>UniNotes - Dashboard</PageTitle>
 
@@ -26,9 +28,9 @@
         }
         else
         {
-			<h3 class="welcome">Welcome back <b>@(user?.Username ?? "")</b>,</h3>
-			<br />
-			<h3 class="welcome">You are logged in from: <b>@(user?.LastLoginIp ?? "")</b></h3>
+            <h3 class="welcome">Welcome back <b>@(user?.Username ?? "")</b>,</h3>
+            <br />
+            <h3 class="welcome">You stare this screen for: <b>@elapsedTimeDisplay</b></h3>
             <div class="button-container">
                 <button class="action-button logout-button" @onclick="() => HandleLogout()">Logout</button>
             </div>
@@ -39,24 +41,51 @@
 @code {
     private User? user;
     private bool isLoading = true;
+    private System.Timers.Timer? timer;
+    private DateTime startTime;
+    private string elapsedTimeDisplay = "00:00:00";
 
     protected override async Task OnInitializedAsync()
     {
         user = await UserService.GetCurrentUserAsync();
 
-        if (string.IsNullOrEmpty(user?.Username))
+        if (user == null)
         {
-            NavigationManager.NavigateTo("/");
+            await Task.Delay(500);
+            NavigationManager.NavigateTo("/", true);
         }
         else
         {
             isLoading = false;
+            startTime = DateTime.Now;
+            StartTimer();
         }
+    }
+
+    private void StartTimer()
+    {
+        timer = new System.Timers.Timer(1000);
+        timer.Elapsed += TimerTick;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+    }
+
+    private void TimerTick(object? sender, System.Timers.ElapsedEventArgs e)
+    {
+        var elapsed = DateTime.Now - startTime;
+        elapsedTimeDisplay = $"{elapsed.Hours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
     }
 
     private async Task HandleLogout()
     {
-		NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/");
+		await Task.Delay(500);
         await UserService.LogoutAsync();
     }
 }
