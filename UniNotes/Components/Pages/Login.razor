@@ -3,13 +3,44 @@
 @inject UniNotes.Services.UserService UserService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JSRuntime
 
 <PageTitle>UniNotes - Login</PageTitle>
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 <div id="particles-js"></div>
 <script src="js/particles/particles.js"></script>
+<script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
 <script>
     particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+
+    // Global hCaptcha handler functions
+    window.hCaptchaFunctions = {
+        renderCaptcha: function() {
+            // Check if hcaptcha is loaded and remove any existing widgets first
+            if (typeof hcaptcha !== 'undefined') {
+                // Get all existing widget IDs and reset them
+                try {
+                    hcaptcha.reset();
+                } catch (e) {
+                    console.log("No widgets to reset");
+                }
+                
+                // Render a new widget
+                hcaptcha.render('h-captcha', {
+                    sitekey: '4dce49f0-164e-45e6-ad6e-4740ccdcef90',
+                    callback: function(token) {
+                        DotNet.invokeMethodAsync('UniNotes', 'OnCaptchaVerified', token);
+                    },
+                    'expired-callback': function() {
+                        DotNet.invokeMethodAsync('UniNotes', 'OnCaptchaExpired');
+                    }
+                });
+            } else {
+                // If hCaptcha isn't loaded yet, try again in a moment
+                setTimeout(window.hCaptchaFunctions.renderCaptcha, 500);
+            }
+        }
+    };
 </script>
 
 @if (isCheckingAuth)
@@ -30,6 +61,9 @@ else
             </div>
             <div class="input-container">
                 <input type="password" placeholder="Password" class="action-input" @bind="password" />
+            </div>
+            <div class="captcha-container">
+                <div id="h-captcha"></div>
             </div>
             <div class="button-container">
                 <button class="action-button" @onclick="() => HandleLogin()">Login</button>
@@ -54,6 +88,7 @@ else
     private string successMessage = string.Empty;
     private bool isRedirecting = false;
     private bool isCheckingAuth = true;
+    private string captchaToken = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,7 +103,7 @@ else
                 if (user != null)
                 {
                     Navigation.NavigateTo("/dashboard", forceLoad: false);
-                    return; // Don’t let anything else run
+                    return; // Don't let anything else run
                 }
                 else
                 {
@@ -81,6 +116,40 @@ else
         isCheckingAuth = false; // Done checking, now show login UI
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!isCheckingAuth)
+        {
+            // Initialize or reinitialize the captcha widget
+            await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+        }
+    }
+
+    [JSInvokable]
+    public static Task OnCaptchaVerified(string token)
+    {
+        // This is invoked from JavaScript when the captcha is verified
+        // We need to store this token for validation
+        CurrentCaptchaToken = token;
+        return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public static Task OnCaptchaExpired()
+    {
+        // This is invoked from JavaScript when the captcha is expired
+        CurrentCaptchaToken = string.Empty;
+        return Task.CompletedTask;
+    }
+
+    // Static property to hold the captcha token since JS invokes static methods
+    private static string CurrentCaptchaToken { get; set; } = string.Empty;
+
+    private async Task ResetCaptcha()
+    {
+        await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+    }
+
     private async Task HandleLogin()
     {
         // Prevent duplicate login attempts
@@ -88,8 +157,29 @@ else
 
         // Clear previous errors
         errorMessage = string.Empty;
+
+        // Get the current captcha token
+        captchaToken = CurrentCaptchaToken;
+
+        if (string.IsNullOrEmpty(captchaToken))
+        {
+            errorMessage = "Please complete the captcha verification";
+            return;
+        }
+
         if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password) && Funcs.Misc.IsValidEmail(email) && password.Length >= 8)
         {
+            // Here you would validate the captcha token with hCaptcha servers
+            // This would typically be done on your backend
+            bool captchaValid = await ValidateCaptchaAsync(captchaToken);
+
+            if (!captchaValid)
+            {
+                errorMessage = "Captcha validation failed. Please try again.";
+                await ResetCaptcha();
+                return;
+            }
+
             // Authenticate user
             var user = await UserService.ValidateUserAsync(email, password);
             if (user != null)
@@ -110,6 +200,7 @@ else
             else
             {
                 errorMessage = "Invalid email or password";
+                await ResetCaptcha();
             }
         }
         else
@@ -139,6 +230,17 @@ else
                 }
                 errorMessage = string.Join("<br>", errors);
             }
+            await ResetCaptcha();
         }
+    }
+
+    private async Task<bool> ValidateCaptchaAsync(string token)
+    {
+        // In a real application, you would make an HTTP request to your backend
+        // which would then validate the token with the hCaptcha API
+
+        // For demonstration purposes, assuming token presence is valid
+        // In production, implement proper server-side validation
+        return !string.IsNullOrEmpty(token);
     }
 }

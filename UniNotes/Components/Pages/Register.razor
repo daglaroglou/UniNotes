@@ -12,9 +12,38 @@
 <div id="particles-js"></div>
 
 <script src="js/particles/particles.js"></script>
-
+<script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
 <script>
     particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+
+    // Global hCaptcha handler functions
+    window.hCaptchaFunctions = {
+        renderCaptcha: function() {
+            // Check if hcaptcha is loaded and remove any existing widgets first
+            if (typeof hcaptcha !== 'undefined') {
+                // Get all existing widget IDs and reset them
+                try {
+                    hcaptcha.reset();
+                } catch (e) {
+                    console.log("No widgets to reset");
+                }
+
+                // Render a new widget
+                hcaptcha.render('h-captcha', {
+                    sitekey: '4dce49f0-164e-45e6-ad6e-4740ccdcef90',
+                    callback: function(token) {
+                        DotNet.invokeMethodAsync('UniNotes', 'OnCaptchaVerified', token);
+                    },
+                    'expired-callback': function() {
+                        DotNet.invokeMethodAsync('UniNotes', 'OnCaptchaExpired');
+                    }
+                });
+            } else {
+                // If hCaptcha isn't loaded yet, try again in a moment
+                setTimeout(window.hCaptchaFunctions.renderCaptcha, 500);
+            }
+        }
+    };
 </script>
 
 <div class="full-page-background">
@@ -47,6 +76,9 @@
                 <input type="password" placeholder="Password" class="action-input" @bind="password" />
             </div>
         </div>
+        <div class="captcha-container">
+            <div id="h-captcha"></div>
+        </div>
         <div class="button-container">
             <button class="action-button" @onclick="() => HandleRegister()">Register</button>
         </div>
@@ -71,12 +103,57 @@
     private string uniIdNumber = string.Empty;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
+    private string captchaToken = string.Empty;
+    private bool isRedirecting = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Initialize or reinitialize the captcha widget
+        await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+    }
+
+    [JSInvokable]
+    public static Task OnCaptchaVerified(string token)
+    {
+        // This is invoked from JavaScript when the captcha is verified
+        // We need to store this token for validation
+        CurrentCaptchaToken = token;
+        return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public static Task OnCaptchaExpired()
+    {
+        // This is invoked from JavaScript when the captcha is expired
+        CurrentCaptchaToken = string.Empty;
+        return Task.CompletedTask;
+    }
+
+    // Static property to hold the captcha token since JS invokes static methods
+    private static string CurrentCaptchaToken { get; set; } = string.Empty;
+
+    private async Task ResetCaptcha()
+    {
+        await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+    }
 
     private async Task HandleRegister()
     {
+        // Prevent duplicate registration attempts
+        if (isRedirecting) return;
+
         // Clear previous messages
         errorMessage = string.Empty;
         successMessage = string.Empty;
+
+        // Get the current captcha token
+        captchaToken = CurrentCaptchaToken;
+
+        if (string.IsNullOrEmpty(captchaToken))
+        {
+            errorMessage = "Please complete the captcha verification";
+            return;
+        }
 
         if (!string.IsNullOrEmpty(firstName) &&
             !string.IsNullOrEmpty(lastName) &&
@@ -88,15 +165,26 @@
             Funcs.Misc.IsValidPassword(password) &&
             Funcs.Misc.IsValidUniID(uniIdNumber))
         {
+            // Here you would validate the captcha token with hCaptcha servers
+            // This would typically be done on your backend
+            bool captchaValid = await ValidateCaptchaAsync(captchaToken);
+
+            if (!captchaValid)
+            {
+                errorMessage = "Captcha validation failed. Please try again.";
+                await ResetCaptcha();
+                return;
+            }
+
             // Create new user
             var newUser = new User
-                {
-                    FirstName = firstName,
-                    LastName = lastName,
-                    Username = username,
-                    Email = email,
-                    UniIdNumber = uniIdNumber
-                };
+            {
+                FirstName = firstName,
+                LastName = lastName,
+                Username = username,
+                Email = email,
+                UniIdNumber = uniIdNumber
+            };
 
             // Save to MongoDB
             bool result = await UserService.CreateAsync(newUser, password);
@@ -105,12 +193,17 @@
             {
                 successMessage = "Registration successful! Redirecting to login...";
                 StateHasChanged();
+
+                // Prevent duplicate redirections
+                isRedirecting = true;
+
                 await Task.Delay(2000);
                 Navigation.NavigateTo("/login");
             }
             else
             {
                 errorMessage = "Registration failed. Username or email already be in use.";
+                await ResetCaptcha();
             }
         }
         else
@@ -148,7 +241,6 @@
             else if (!Funcs.Misc.IsValidPassword(password))
             {
                 errors.Add("Password must be at least 8 characters and should include at least 1 uppercase letter, 1 lowercase letter and 1 number");
-
             }
 
             if (string.IsNullOrEmpty(uniIdNumber))
@@ -161,7 +253,17 @@
             }
 
             errorMessage = string.Join("<br>", errors);
+            await ResetCaptcha();
         }
     }
 
+    private async Task<bool> ValidateCaptchaAsync(string token)
+    {
+        // In a real application, you would make an HTTP request to your backend
+        // which would then validate the token with the hCaptcha API
+
+        // For demonstration purposes, assuming token presence is valid
+        // In production, implement proper server-side validation
+        return !string.IsNullOrEmpty(token);
+    }
 }
