@@ -361,5 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/UniNotes/appsettings.json
+
+# appsettigngs.json to hide database url
 /UniNotes/appsettings.json
