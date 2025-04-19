@@ -28,12 +28,7 @@
                 <input type="text" placeholder="First Name" class="action-input" @bind="firstName" />
             </div>
             <div class="input-container">
-                <input type="text" placeholder="
-
-
-
-
-Name" class="action-input" @bind="lastName" />
+                <input type="text" placeholder="Last Name" class="action-input" @bind="lastName" />
             </div>
         </div>
         <div class="input-row">
@@ -143,7 +138,7 @@ Name" class="action-input" @bind="lastName" />
             }
             else if (!Funcs.Misc.IsValidEmail(email))
             {
-                errors.Add("Please enter a valid university email address");
+                errors.Add("Please enter a valid DAI UoM email address");
             }
 
             if (string.IsNullOrEmpty(password))
@@ -161,7 +156,7 @@ Name" class="action-input" @bind="lastName" />
             }
             else if (!Funcs.Misc.IsValidUniID(uniIdNumber))
             {
-                errors.Add("Please enter a valid university ID");
+                errors.Add("Please enter a valid university ID (12 digits)");
             }
 
             errorMessage = string.Join("<br>", errors);

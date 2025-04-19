@@ -1,4 +1,4 @@
-﻿using UniNotes.Models;
+﻿using System.Text.RegularExpressions;
 
 namespace UniNotes.Funcs
 {
@@ -6,7 +6,7 @@ namespace UniNotes.Funcs
     {
         public static bool IsValidEmail(string email)
         {
-            return System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            return new Regex(@"(ics|iis)24[0-9]{3}@uom\.edu\.gr", RegexOptions.IgnoreCase).IsMatch(email);
         }
 
         public static bool IsValidUniID(string uniID)
