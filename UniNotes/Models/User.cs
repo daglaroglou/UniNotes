@@ -32,8 +32,5 @@ namespace UniNotes.Models
 
         [BsonElement("isAdmin")]
         public bool IsAdmin { get; set; } = false;
-
-        [BsonElement("lastLoginAt")]
-        public DateTime? LastLoginAt { get; set; }
     }
 }

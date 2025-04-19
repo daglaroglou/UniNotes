@@ -95,9 +95,9 @@
                 {
                     errors.Add("Password is required");
                 }
-                else if (password.Length < 8)
+                else if (!Funcs.Misc.IsValidPassword(password))
                 {
-                    errors.Add("Password must be at least 8 characters");
+                    errors.Add("Password must be at least 8 characters and should include at least 1 uppercase letter, 1 lowercase letter and 1 number");
                 }
 
                 errorMessage = string.Join("<br>", errors);

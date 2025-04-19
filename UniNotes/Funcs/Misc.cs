@@ -11,7 +11,17 @@ namespace UniNotes.Funcs
 
         public static bool IsValidUniID(string uniID)
         {
-            return System.Text.RegularExpressions.Regex.IsMatch(uniID, @"^[0-9]{12}$");
+            return Regex.IsMatch(uniID, @"^[0-9]{12}$");
+        }
+
+        public static bool isValidUsername(string username)
+        {
+            return Regex.IsMatch(username, @"^[a-zA-Z0-9]{3,}$");
+        }
+
+        public static bool IsValidPassword(string password)
+        {
+            return Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$");
         }
     }
 }
