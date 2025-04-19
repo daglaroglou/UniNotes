@@ -30,9 +30,6 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseRouting();
 
-// Remove the UseAuthentication and UseAuthorization middleware - they're not needed
-// since we're using Blazor's component-based authentication
-
 app.UseHttpsRedirection();
 app.UseAntiforgery();
 app.MapStaticAssets();

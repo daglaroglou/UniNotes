@@ -7,12 +7,12 @@ namespace UniNotes.Services
 {
     public class BlazorAuthStateProvider : AuthenticationStateProvider
     {
-        private readonly ProtectedLocalStorage _localStorage; // Use ProtectedLocalStorage instead of ProtectedSessionStorage
-        private readonly UniNotes.Services.UserService _userService;
+        private readonly ProtectedLocalStorage _localStorage; // Use ProtectedLocalStorage to persist across restarts
+        private readonly UserService _userService;
         private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
 
         public BlazorAuthStateProvider(
-            ProtectedLocalStorage localStorage, // Inject ProtectedLocalStorage
+            ProtectedLocalStorage localStorage,
             UserService userService)
         {
             _localStorage = localStorage;
@@ -53,12 +53,12 @@ namespace UniNotes.Services
             if (user != null)
             {
                 var userSession = new UserSession { UserId = user.Id };
-                await _localStorage.SetAsync("UserSession", userSession); // Use localStorage to persist session
+                await _localStorage.SetAsync("UserSession", userSession);
                 claimsPrincipal = CreateClaimsPrincipal(user);
             }
             else
             {
-                await _localStorage.DeleteAsync("UserSession"); // Clear session
+                await _localStorage.DeleteAsync("UserSession");
                 claimsPrincipal = _anonymous;
             }
 
