@@ -1,16 +1,13 @@
 ﻿using MongoDB.Driver;
-using UniNotes.Models;
 using System.Security.Cryptography;
 using System.Text;
+using UniNotes.Models;
 
 namespace UniNotes.Services
 {
     public class UserService
     {
         private readonly IMongoCollection<User> _users;
-
-        // Property to store the currently logged-in user
-        public User? CurrentUser { get; private set; }
 
         public UserService(IConfiguration config)
         {
@@ -19,23 +16,12 @@ namespace UniNotes.Services
             _users = database.GetCollection<User>("Users");
         }
 
-        public async Task<User?> GetCurrentUserAsync()
+        public async Task<User?> GetUserByIdAsync(string userId)
         {
-            if (CurrentUser == null)
-            {
+            if (string.IsNullOrEmpty(userId))
                 return null;
-            }
 
-            if (!string.IsNullOrEmpty(CurrentUser.Id))
-            {
-                var refreshedUser = await _users.Find(x => x.Id == CurrentUser.Id).FirstOrDefaultAsync();
-                if (refreshedUser != null)
-                {
-                    CurrentUser = refreshedUser;
-                }
-            }
-
-            return CurrentUser;
+            return await _users.Find(x => x.Id == userId).FirstOrDefaultAsync();
         }
 
         public async Task<List<User>> GetAsync() =>
@@ -50,40 +36,27 @@ namespace UniNotes.Services
         public async Task<bool> CreateAsync(User newUser, string password)
         {
             var existingUserByEmail = await GetByEmailAsync(newUser.Email);
-            if (existingUserByEmail != null)
-                return false;
+            if (existingUserByEmail != null) return false;
 
             var existingUserByUsername = await GetByUsernameAsync(newUser.Username);
-            if (existingUserByUsername != null)
-                return false;
+            if (existingUserByUsername != null) return false;
 
             newUser.PasswordHash = HashPassword(password);
-
             await _users.InsertOneAsync(newUser);
             return true;
         }
 
-        public async Task<bool> AuthenticateAsync(string email, string password)
+        public async Task<User?> ValidateUserAsync(string email, string password)
         {
             var user = await GetByEmailAsync(email);
-            if (user == null)
-                return false;
+            if (user == null) return null;
 
             if (VerifyPassword(password, user.PasswordHash))
             {
-                await _users.ReplaceOneAsync(x => x.Id == user.Id, user);
-
-                CurrentUser = user;
-                return true;
+                return user;
             }
 
-            return false;
-        }
-
-        public Task LogoutAsync()
-        {
-            CurrentUser = null;
-            return Task.CompletedTask;
+            return null;
         }
 
         private string HashPassword(string password)

@@ -1,100 +1,136 @@
 ﻿@page "/dashboard"
-@inject UserService UserService
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using UniNotes.Models
+@inject UniNotes.Services.UserService UserService
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>UniNotes - Dashboard</PageTitle>
-
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
 <div id="particles-js"></div>
-
 <script src="js/particles/particles.js"></script>
-
 <script>
     particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
 </script>
 
-<!-- User icon with dropdown menu -->
-<div class="user-icon-container">
-    <div class="user-icon" @onclick="ToggleUserMenu">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="white">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-        </svg>
-    </div>
-    @if (isUserMenuOpen)
-    {
-        <div class="user-dropdown">
-            <div class="dropdown-item" style="pointer-events: none">
-                <i class="fa-solid fa-user"></i>
-                <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <!-- User icon with dropdown menu -->
+            <div class="user-icon-container">
+                <div class="user-icon" @onclick="ToggleUserMenu">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="white">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                    </svg>
+                </div>
+                @if (isUserMenuOpen)
+                {
+                    <div class="user-dropdown">
+                        <div class="dropdown-item" style="pointer-events: none">
+                            <i class="fa-solid fa-user"></i>
+                            <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/panel")'>
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span>My Notes</span>
+                        </div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/settings")'>
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Settings</span>
+                        </div>
+                        <div class="dropdown-item" @onclick="() => HandleLogout()">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Logout</span>
+                        </div>
+                    </div>
+                }
             </div>
-            <div class="dropdown-divider"></div>
-            <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/panel")'>
-                <i class="fa-solid fa-note-sticky"></i>
-                <span>My Notes</span>
+            <div class="full-page-background">
+                <center>
+                    <h1 class="logo">Dashboard</h1>
+                    @if (isLoading)
+                    {
+                        <div class="spinner-container">
+                            <div class="spinner"></div>
+                        </div>
+                    }
+                    else if (user != null)
+                    {
+                        <h3 class="welcome">Welcome back <b>@user.Username</b> :)</h3>
+                        <br />
+                        <div class="button-container">
+                            <button class="action-button logout-button" @onclick="() => HandleLogout()">Logout</button>
+                        </div>
+                    }
+                </center>
             </div>
-            <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/settings")'>
-                <i class="fa-solid fa-gear"></i>
-                <span>Settings</span>
-            </div>
-            <div class="dropdown-item" @onclick="() => HandleLogout()">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Logout</span>
-            </div>
-        </div>
-    }
-</div>
-
-<div class="full-page-background">
-    <center>
-        <h1 class="logo">Dashboard</h1>
-        @if (isLoading)
-        {
-            <div class="spinner-container">
-                <div class="spinner"></div>
-            </div>
-        }
-        else
-        {
-            <h3 class="welcome">Welcome back <b>@(user?.Username ?? "")</b> :)</h3>
-            <br />
-            <div class="button-container">
-                <button class="action-button logout-button" @onclick="() => HandleLogout()">Logout</button>
-            </div>
-        }
-    </center>
-</div>
+        </Authorized>
+        <NotAuthorized>
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
 
 @code {
     private User? user;
     private bool isLoading = true;
     private bool isUserMenuOpen = false;
+    private bool shouldRedirect = true;
+    
+    private bool initialized = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        user = await UserService.GetCurrentUserAsync();
+        if (firstRender && !initialized)
+        {
+            initialized = true;
 
-        if (user == null)
-        {
-            await Task.Delay(500);
-            NavigationManager.NavigateTo("/", true);
-        }
-        else
-        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var userClaims = authState.User;
+
+            if (!userClaims.Identity?.IsAuthenticated ?? true)
+            {
+                NavigationManager.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
+            var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                NavigationManager.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
+            user = await UserService.GetUserByIdAsync(userId);
+
+            if (user is null)
+            {
+                var authProvider = (BlazorAuthStateProvider)AuthStateProvider;
+                await authProvider.UpdateAuthenticationState(null);
+                NavigationManager.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
             isLoading = false;
+            StateHasChanged(); // Force re-render now that data is loaded
         }
     }
-
+    
     private async Task HandleLogout()
     {
+        var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
+        await authStateProvider.UpdateAuthenticationState(null);
         NavigationManager.NavigateTo("/");
-        await Task.Delay(500);
-        await UserService.LogoutAsync();
     }
-
+    
+    private void RedirectToLogin()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+    
     private void ToggleUserMenu()
     {
         isUserMenuOpen = !isUserMenuOpen;

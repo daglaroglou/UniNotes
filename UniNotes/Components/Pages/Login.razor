@@ -1,71 +1,111 @@
 ﻿@page "/login"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject UniNotes.Services.UserService UserService
 @inject NavigationManager Navigation
-@inject IJSRuntime JSRuntime
-@inject UserService UserService
-
-@attribute [StreamRendering]
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>UniNotes - Login</PageTitle>
-
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-
 <div id="particles-js"></div>
-
 <script src="js/particles/particles.js"></script>
-
 <script>
     particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
 </script>
 
-<div class="full-page-background">
-    <center>
-        <h1 class="logo">Login</h1>
-    </center>
-
-    <div class="login-form">
-        <div class="input-container">
-            <input type="email" placeholder="Email" class="action-input" @bind="email" />
-        </div>
-        <div class="input-container">
-            <input type="password" placeholder="Password" class="action-input" @bind="password" />
-        </div>
-        <div class="button-container">
-            <button class="action-button" @onclick="() => HandleLogin()">Login</button>
-        </div>
-        <br>
+@if (isCheckingAuth)
+{
+    <div class="full-page-background">
+        <center><h1 class="logo">Loading...</h1></center>
     </div>
-    @if (!string.IsNullOrEmpty(successMessage))
-    {
-        <div class="success-message">@((MarkupString)successMessage)</div>
-    }
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <div class="error-message">@((MarkupString)errorMessage)</div>
-    }
-</div>
+}
+else
+{
+    <div class="full-page-background">
+        <center>
+            <h1 class="logo">Login</h1>
+        </center>
+        <div class="login-form">
+            <div class="input-container">
+                <input type="email" placeholder="Email" class="action-input" @bind="email" />
+            </div>
+            <div class="input-container">
+                <input type="password" placeholder="Password" class="action-input" @bind="password" />
+            </div>
+            <div class="button-container">
+                <button class="action-button" @onclick="() => HandleLogin()">Login</button>
+            </div>
+            <br>
+        </div>
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="success-message">@((MarkupString)successMessage)</div>
+        }
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-message">@((MarkupString)errorMessage)</div>
+        }
+    </div>
+}
 
 @code {
     private string email = string.Empty;
     private string password = string.Empty;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
+    private bool isRedirecting = false;
+    private bool isCheckingAuth = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = await UserService.GetUserByIdAsync(userId);
+                if (user != null)
+                {
+                    Navigation.NavigateTo("/dashboard", forceLoad: false);
+                    return; // Don’t let anything else run
+                }
+                else
+                {
+                    var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
+                    await authStateProvider.UpdateAuthenticationState(null);
+                }
+            }
+        }
+
+        isCheckingAuth = false; // Done checking, now show login UI
+    }
 
     private async Task HandleLogin()
     {
+        // Prevent duplicate login attempts
+        if (isRedirecting) return;
+
         // Clear previous errors
         errorMessage = string.Empty;
-
         if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password) && Funcs.Misc.IsValidEmail(email) && password.Length >= 8)
         {
-            // Authenticate me to MongoDB database
-            bool isAuthenticated = await UserService.AuthenticateAsync(email, password);
-
-            if (isAuthenticated)
+            // Authenticate user
+            var user = await UserService.ValidateUserAsync(email, password);
+            if (user != null)
             {
-                successMessage = "Login successfull! Redirecting to dashboard...";
+                // Update authentication state
+                var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
+                await authStateProvider.UpdateAuthenticationState(user);
+                successMessage = "Login successful! Redirecting to dashboard...";
                 StateHasChanged();
+
+                // Prevent duplicate redirections
+                isRedirecting = true;
+
+                // Add a slight delay to ensure authentication state is updated
                 await Task.Delay(2000);
-                Navigation.NavigateTo("/dashboard");
+                Navigation.NavigateTo("/dashboard", forceLoad: false);
             }
             else
             {
@@ -81,7 +121,6 @@
             else
             {
                 var errors = new List<string>();
-
                 if (string.IsNullOrEmpty(email))
                 {
                     errors.Add("Email is required");
@@ -90,7 +129,6 @@
                 {
                     errors.Add("Please enter a valid DAI UoM email address");
                 }
-
                 if (string.IsNullOrEmpty(password))
                 {
                     errors.Add("Password is required");
@@ -99,7 +137,6 @@
                 {
                     errors.Add("Password must be at least 8 characters and should include at least 1 uppercase letter, 1 lowercase letter and 1 number");
                 }
-
                 errorMessage = string.Join("<br>", errors);
             }
         }

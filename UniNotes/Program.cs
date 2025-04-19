@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using UniNotes.Components;
 using UniNotes.Services;
 
@@ -7,8 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add MongoDB service
-builder.Services.AddSingleton<UserService>();
+// Add Session storage and auth state provider
+builder.Services.AddScoped<ProtectedLocalStorage>();
+builder.Services.AddScoped<AuthenticationStateProvider, BlazorAuthStateProvider>();
+builder.Services.AddScoped<UserService>();
+
+// Add authorization services
+builder.Services.AddAuthorizationCore();
 
 var app = builder.Build();
 
@@ -20,10 +27,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseStaticFiles();
+app.UseRouting();
+
+// Remove the UseAuthentication and UseAuthorization middleware - they're not needed
+// since we're using Blazor's component-based authentication
+
 app.UseHttpsRedirection();
-
 app.UseAntiforgery();
-
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
