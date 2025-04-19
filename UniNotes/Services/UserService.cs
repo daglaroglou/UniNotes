@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using UniNotes.Funcs;
+using System.Net.Http;
 
 namespace UniNotes.Services
 {
@@ -21,6 +22,27 @@ namespace UniNotes.Services
             var database = mongoClient.GetDatabase("UniNotes");
             _users = database.GetCollection<User>("Users");
             _httpContextAccessor = httpContextAccessor;
+        }
+
+        private async Task<string> GetPublicIpAddressAsync()
+        {
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    // Set a timeout to avoid hanging in case of network issues
+                    httpClient.Timeout = TimeSpan.FromSeconds(5);
+
+                    // Den jerw pws na vriskw public ip opote kanw request sto api edw (eimai mpines)
+                    var response = await httpClient.GetStringAsync("https://api.ipify.org");
+                    return response.Trim();
+                }
+            }
+            catch (Exception)
+            {
+                // Fallback to local IP if the service is unavailable
+                return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
+            }
         }
 
         public async Task<User?> GetCurrentUserAsync()
@@ -75,13 +97,11 @@ namespace UniNotes.Services
 
             if (VerifyPassword(password, user.PasswordHash))
             {
-                // Get the client IP address
-                string ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                string ipAddress = await GetPublicIpAddressAsync();
 
                 // Update login information
                 Misc.UpdateUserLoginInfo(user, ipAddress);
 
-                // Save the updated user back to the database
                 await _users.ReplaceOneAsync(x => x.Id == user.Id, user);
 
                 CurrentUser = user;
