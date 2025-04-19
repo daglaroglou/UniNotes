@@ -34,6 +34,10 @@
         </div>
         <br>
     </div>
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="success-message">@((MarkupString)successMessage)</div>
+    }
     @if (!string.IsNullOrEmpty(errorMessage))
     {
         <div class="error-message">@((MarkupString)errorMessage)</div>
@@ -44,6 +48,7 @@
     private string email = string.Empty;
     private string password = string.Empty;
     private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
 
     private async Task HandleLogin()
     {
@@ -57,6 +62,9 @@
 
             if (isAuthenticated)
             {
+                successMessage = "Login successfull! Redirecting to dashboard...";
+                StateHasChanged();
+                await Task.Delay(2000);
                 Navigation.NavigateTo("/dashboard");
             }
             else

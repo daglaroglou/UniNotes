@@ -52,6 +52,10 @@
         </div>
         <br>
     </div>
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="success-message">@((MarkupString)successMessage)</div>
+    }
     @if (!string.IsNullOrEmpty(errorMessage))
     {
         <div class="error-message">@((MarkupString)errorMessage)</div>
@@ -66,11 +70,13 @@
     private string password = string.Empty;
     private string uniIdNumber = string.Empty;
     private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
 
     private async Task HandleRegister()
     {
-        // Clear previous errors
+        // Clear previous messages
         errorMessage = string.Empty;
+        successMessage = string.Empty;
 
         if (!string.IsNullOrEmpty(firstName) &&
             !string.IsNullOrEmpty(lastName) &&
@@ -97,7 +103,9 @@
 
             if (result)
             {
-                // Redirect to login page
+                successMessage = "Registration successful! Redirecting to login...";
+                StateHasChanged();
+                await Task.Delay(2000);
                 Navigation.NavigateTo("/login");
             }
             else
@@ -154,4 +162,5 @@
             errorMessage = string.Join("<br>", errors);
         }
     }
+
 }
