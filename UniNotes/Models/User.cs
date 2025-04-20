@@ -32,5 +32,8 @@ namespace UniNotes.Models
 
         [BsonElement("isAdmin")]
         public bool IsAdmin { get; set; } = false;
+
+        [BsonElement("notes")]
+        public List<Note> Notes { get; set; } = new List<Note>();
     }
 }
