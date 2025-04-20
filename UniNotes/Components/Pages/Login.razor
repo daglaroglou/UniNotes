@@ -4,6 +4,7 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IJSRuntime JSRuntime
+@implements IDisposable
 
 <PageTitle>UniNotes - Login</PageTitle>
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
@@ -29,16 +30,23 @@
                 hcaptcha.render('h-captcha', {
                     sitekey: '4dce49f0-164e-45e6-ad6e-4740ccdcef90',
                     callback: function(token) {
-                        DotNet.invokeMethodAsync('UniNotes', 'OnCaptchaVerified', token);
+                        // Use the instance method that references the component
+                        DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', token);
+                        console.log('Captcha completed with token: ' + token.substring(0, 10) + '...');
                     },
                     'expired-callback': function() {
-                        DotNet.invokeMethodAsync('UniNotes', 'OnCaptchaExpired');
+                        DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', '');
+                        console.log('Captcha expired');
                     }
                 });
             } else {
                 // If hCaptcha isn't loaded yet, try again in a moment
                 setTimeout(window.hCaptchaFunctions.renderCaptcha, 500);
             }
+        },
+        
+        isCaptchaLoaded: function() {
+            return typeof hcaptcha !== 'undefined';
         }
     };
 </script>
@@ -66,7 +74,7 @@ else
                 <div id="h-captcha"></div>
             </div>
             <div class="button-container">
-                <button class="action-button" @onclick="() => HandleLogin()">Login</button>
+                <button class="action-button" @onclick="HandleLogin">Login</button>
             </div>
             <br>
         </div>
@@ -88,7 +96,9 @@ else
     private string successMessage = string.Empty;
     private bool isRedirecting = false;
     private bool isCheckingAuth = true;
-    private string captchaToken = string.Empty;
+    private static string captchaToken = string.Empty;
+    private DotNetObjectReference<Login>? objRef;
+    private bool captchaInitialized = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,35 +128,40 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!isCheckingAuth)
+        if (firstRender && !isCheckingAuth)
         {
-            // Initialize or reinitialize the captcha widget
+            // Register for JS interop
+            objRef = DotNetObjectReference.Create(this);
             await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+            captchaInitialized = true;
+        }
+        else if (!firstRender && !isCheckingAuth && !captchaInitialized)
+        {
+            // Check if hCaptcha is loaded
+            bool isLoaded = await JSRuntime.InvokeAsync<bool>("hCaptchaFunctions.isCaptchaLoaded");
+            if (isLoaded && !captchaInitialized)
+            {
+                await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+                captchaInitialized = true;
+            }
         }
     }
 
-    [JSInvokable]
-    public static Task OnCaptchaVerified(string token)
+    public void Dispose()
     {
-        // This is invoked from JavaScript when the captcha is verified
-        // We need to store this token for validation
-        CurrentCaptchaToken = token;
-        return Task.CompletedTask;
+        objRef?.Dispose();
     }
 
     [JSInvokable]
-    public static Task OnCaptchaExpired()
+    public static Task SetCaptchaToken(string token)
     {
-        // This is invoked from JavaScript when the captcha is expired
-        CurrentCaptchaToken = string.Empty;
+        captchaToken = token;
         return Task.CompletedTask;
     }
-
-    // Static property to hold the captcha token since JS invokes static methods
-    private static string CurrentCaptchaToken { get; set; } = string.Empty;
 
     private async Task ResetCaptcha()
     {
+        captchaToken = string.Empty;
         await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
     }
 
@@ -158,9 +173,7 @@ else
         // Clear previous errors
         errorMessage = string.Empty;
 
-        // Get the current captcha token
-        captchaToken = CurrentCaptchaToken;
-
+        // Check if captcha token is set
         if (string.IsNullOrEmpty(captchaToken))
         {
             errorMessage = "Please complete the captcha verification";
@@ -169,37 +182,44 @@ else
 
         if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password) && Funcs.Misc.IsValidEmail(email) && password.Length >= 8)
         {
-            // Here you would validate the captcha token with hCaptcha servers
-            // This would typically be done on your backend
-            bool captchaValid = await ValidateCaptchaAsync(captchaToken);
-
-            if (!captchaValid)
+            try
             {
-                errorMessage = "Captcha validation failed. Please try again.";
-                await ResetCaptcha();
-                return;
+                // Validate the captcha token
+                bool captchaValid = await ValidateCaptchaAsync(captchaToken);
+
+                if (!captchaValid)
+                {
+                    errorMessage = "Captcha validation failed. Please try again.";
+                    await ResetCaptcha();
+                    return;
+                }
+
+                // Authenticate user
+                var user = await UserService.ValidateUserAsync(email, password);
+                if (user != null)
+                {
+                    // Update authentication state
+                    var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
+                    await authStateProvider.UpdateAuthenticationState(user);
+                    successMessage = "Login successful! Redirecting to dashboard...";
+                    StateHasChanged();
+
+                    // Prevent duplicate redirections
+                    isRedirecting = true;
+
+                    // Add a slight delay to ensure authentication state is updated
+                    await Task.Delay(2000);
+                    Navigation.NavigateTo("/dashboard", forceLoad: false);
+                }
+                else
+                {
+                    errorMessage = "Invalid email or password";
+                    await ResetCaptcha();
+                }
             }
-
-            // Authenticate user
-            var user = await UserService.ValidateUserAsync(email, password);
-            if (user != null)
+            catch (Exception ex)
             {
-                // Update authentication state
-                var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
-                await authStateProvider.UpdateAuthenticationState(user);
-                successMessage = "Login successful! Redirecting to dashboard...";
-                StateHasChanged();
-
-                // Prevent duplicate redirections
-                isRedirecting = true;
-
-                // Add a slight delay to ensure authentication state is updated
-                await Task.Delay(2000);
-                Navigation.NavigateTo("/dashboard", forceLoad: false);
-            }
-            else
-            {
-                errorMessage = "Invalid email or password";
+                errorMessage = $"An error occurred: {ex.Message}";
                 await ResetCaptcha();
             }
         }

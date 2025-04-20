@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject UserService UserService
+@implements IDisposable
 
 @attribute [StreamRendering]
 
@@ -32,16 +33,23 @@
                 hcaptcha.render('h-captcha', {
                     sitekey: '4dce49f0-164e-45e6-ad6e-4740ccdcef90',
                     callback: function(token) {
-                        DotNet.invokeMethodAsync('UniNotes', 'OnCaptchaVerified', token);
+                        // Use the instance method that references the component
+                        DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', token);
+                        console.log('Captcha completed with token: ' + token.substring(0, 10) + '...');
                     },
                     'expired-callback': function() {
-                        DotNet.invokeMethodAsync('UniNotes', 'OnCaptchaExpired');
+                        DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', '');
+                        console.log('Captcha expired');
                     }
                 });
             } else {
                 // If hCaptcha isn't loaded yet, try again in a moment
                 setTimeout(window.hCaptchaFunctions.renderCaptcha, 500);
             }
+        },
+        
+        isCaptchaLoaded: function() {
+            return typeof hcaptcha !== 'undefined';
         }
     };
 </script>
@@ -80,7 +88,7 @@
             <div id="h-captcha"></div>
         </div>
         <div class="button-container">
-            <button class="action-button" @onclick="() => HandleRegister()">Register</button>
+            <button class="action-button" @onclick="HandleRegister">Register</button>
         </div>
         <br>
     </div>
@@ -103,37 +111,47 @@
     private string uniIdNumber = string.Empty;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
-    private string captchaToken = string.Empty;
+    private static string captchaToken = string.Empty;
     private bool isRedirecting = false;
+    private DotNetObjectReference<Register>? objRef;
+    private bool captchaInitialized = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Initialize or reinitialize the captcha widget
-        await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+        if (firstRender)
+        {
+            // Register for JS interop
+            objRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+            captchaInitialized = true;
+        }
+        else if (!firstRender && !captchaInitialized)
+        {
+            // Check if hCaptcha is loaded
+            bool isLoaded = await JSRuntime.InvokeAsync<bool>("hCaptchaFunctions.isCaptchaLoaded");
+            if (isLoaded && !captchaInitialized)
+            {
+                await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+                captchaInitialized = true;
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        objRef?.Dispose();
     }
 
     [JSInvokable]
-    public static Task OnCaptchaVerified(string token)
+    public static Task SetCaptchaToken(string token)
     {
-        // This is invoked from JavaScript when the captcha is verified
-        // We need to store this token for validation
-        CurrentCaptchaToken = token;
+        captchaToken = token;
         return Task.CompletedTask;
     }
-
-    [JSInvokable]
-    public static Task OnCaptchaExpired()
-    {
-        // This is invoked from JavaScript when the captcha is expired
-        CurrentCaptchaToken = string.Empty;
-        return Task.CompletedTask;
-    }
-
-    // Static property to hold the captcha token since JS invokes static methods
-    private static string CurrentCaptchaToken { get; set; } = string.Empty;
 
     private async Task ResetCaptcha()
     {
+        captchaToken = string.Empty;
         await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
     }
 
@@ -146,9 +164,7 @@
         errorMessage = string.Empty;
         successMessage = string.Empty;
 
-        // Get the current captcha token
-        captchaToken = CurrentCaptchaToken;
-
+        // Check if captcha token is set
         if (string.IsNullOrEmpty(captchaToken))
         {
             errorMessage = "Please complete the captcha verification";
@@ -165,44 +181,51 @@
             Funcs.Misc.IsValidPassword(password) &&
             Funcs.Misc.IsValidUniID(uniIdNumber))
         {
-            // Here you would validate the captcha token with hCaptcha servers
-            // This would typically be done on your backend
-            bool captchaValid = await ValidateCaptchaAsync(captchaToken);
-
-            if (!captchaValid)
+            try
             {
-                errorMessage = "Captcha validation failed. Please try again.";
-                await ResetCaptcha();
-                return;
+                // Validate the captcha token
+                bool captchaValid = await ValidateCaptchaAsync(captchaToken);
+
+                if (!captchaValid)
+                {
+                    errorMessage = "Captcha validation failed. Please try again.";
+                    await ResetCaptcha();
+                    return;
+                }
+
+                // Create new user
+                var newUser = new User
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Username = username,
+                    Email = email,
+                    UniIdNumber = uniIdNumber
+                };
+
+                // Save to MongoDB
+                bool result = await UserService.CreateAsync(newUser, password);
+
+                if (result)
+                {
+                    successMessage = "Registration successful! Redirecting to login...";
+                    StateHasChanged();
+
+                    // Prevent duplicate redirections
+                    isRedirecting = true;
+
+                    await Task.Delay(2000);
+                    Navigation.NavigateTo("/login");
+                }
+                else
+                {
+                    errorMessage = "Registration failed. Username or email already be in use.";
+                    await ResetCaptcha();
+                }
             }
-
-            // Create new user
-            var newUser = new User
+            catch (Exception ex)
             {
-                FirstName = firstName,
-                LastName = lastName,
-                Username = username,
-                Email = email,
-                UniIdNumber = uniIdNumber
-            };
-
-            // Save to MongoDB
-            bool result = await UserService.CreateAsync(newUser, password);
-
-            if (result)
-            {
-                successMessage = "Registration successful! Redirecting to login...";
-                StateHasChanged();
-
-                // Prevent duplicate redirections
-                isRedirecting = true;
-
-                await Task.Delay(2000);
-                Navigation.NavigateTo("/login");
-            }
-            else
-            {
-                errorMessage = "Registration failed. Username or email already be in use.";
+                errorMessage = $"An error occurred: {ex.Message}";
                 await ResetCaptcha();
             }
         }
