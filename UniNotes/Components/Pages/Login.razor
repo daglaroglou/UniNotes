@@ -8,6 +8,15 @@
 
 <PageTitle>UniNotes - Login</PageTitle>
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+
+<script>
+    // Store the Blazor instance when component is initialized
+    window.initializeBlazorInstance = (instance) => {
+        window.blazorInstance = instance;
+        console.log("Blazor instance initialized");
+    };
+</script>
+
 <div id="particles-js"></div>
 <script src="js/particles/particles.js"></script>
 <script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
@@ -26,16 +35,28 @@
                     console.log("No widgets to reset");
                 }
                 
+                // Store reference to dotnet instance
+                const dotnetRef = window.blazorInstance;
+                
                 // Render a new widget
                 hcaptcha.render('h-captcha', {
                     sitekey: '4dce49f0-164e-45e6-ad6e-4740ccdcef90',
                     callback: function(token) {
-                        // Use the instance method that references the component
-                        DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', token);
+                        // Call the instance method directly if available
+                        if (dotnetRef) {
+                            dotnetRef.invokeMethodAsync('OnCaptchaCompleted', token);
+                        } else {
+                            // Fallback to static method
+                            DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', token);
+                        }
                         console.log('Captcha completed with token: ' + token.substring(0, 10) + '...');
                     },
                     'expired-callback': function() {
-                        DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', '');
+                        if (dotnetRef) {
+                            dotnetRef.invokeMethodAsync('OnCaptchaExpired');
+                        } else {
+                            DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', '');
+                        }
                         console.log('Captcha expired');
                     }
                 });
@@ -96,7 +117,7 @@ else
     private string successMessage = string.Empty;
     private bool isRedirecting = false;
     private bool isCheckingAuth = true;
-    private static string captchaToken = string.Empty;
+    private string captchaToken = string.Empty; // Changed from static to instance field
     private DotNetObjectReference<Login>? objRef;
     private bool captchaInitialized = false;
 
@@ -130,8 +151,12 @@ else
     {
         if (firstRender && !isCheckingAuth)
         {
-            // Register for JS interop
+            // Create a reference to this component instance
             objRef = DotNetObjectReference.Create(this);
+            
+            // Pass the instance to JavaScript
+            await JSRuntime.InvokeVoidAsync("initializeBlazorInstance", objRef);
+            
             await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
             captchaInitialized = true;
         }
@@ -153,10 +178,20 @@ else
     }
 
     [JSInvokable]
-    public static Task SetCaptchaToken(string token)
+    public void OnCaptchaCompleted(string token)
     {
+        // Instance method called from JS
         captchaToken = token;
-        return Task.CompletedTask;
+        Console.WriteLine($"Captcha token received: {token.Substring(0, Math.Min(10, token.Length))}...");
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnCaptchaExpired()
+    {
+        captchaToken = string.Empty;
+        Console.WriteLine("Captcha expired");
+        StateHasChanged();
     }
 
     private async Task ResetCaptcha()
