@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace UniNotes.Funcs
 {
@@ -21,7 +22,7 @@ namespace UniNotes.Funcs
 
         public static bool IsValidPassword(string password)
         {
-            return Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$");
+            return password.Length >= 8;
         }
     }
 }

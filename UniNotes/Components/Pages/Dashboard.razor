@@ -38,6 +38,10 @@
                             <i class="fa-solid fa-note-sticky"></i>
                             <span>My Notes</span>
                         </div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/upload")'>
+                            <i class="fa-solid fa-file-arrow-up"></i>
+                            <span>Upload Note</span>
+                        </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/settings")'>
                             <i class="fa-solid fa-gear"></i>
                             <span>Settings</span>

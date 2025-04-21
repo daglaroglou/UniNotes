@@ -11,8 +11,4 @@
     <PackageReference Include="MongoDB.Driver" Version="3.3.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Resources\Images\" />
-  </ItemGroup>
-
 </Project>
