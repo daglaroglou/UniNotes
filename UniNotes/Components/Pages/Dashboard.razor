@@ -34,7 +34,7 @@
                             <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/panel")'>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/beta")'>
                             <i class="fa-solid fa-note-sticky"></i>
                             <span>My Notes</span>
                         </div>
@@ -46,7 +46,8 @@
                             <i class="fa-solid fa-gear"></i>
                             <span>Settings</span>
                         </div>
-                        <div class="dropdown-item" @onclick="() => HandleLogout()">
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" style="color: red" @onclick="() => HandleLogout()">
                             <i class="fa-solid fa-right-from-bracket"></i>
                             <span>Logout</span>
                         </div>
@@ -65,10 +66,6 @@
                     else if (user != null)
                     {
                         <h3 class="welcome">Welcome back <b>@user.Username</b> :)</h3>
-                        <br />
-                        <div class="button-container">
-                            <button class="action-button logout-button" @onclick="() => HandleLogout()">Logout</button>
-                        </div>
                     }
                 </center>
             </div>
@@ -127,7 +124,7 @@
     {
         var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
         await authStateProvider.UpdateAuthenticationState(null);
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/", forceLoad: true);
     }
     
     private void RedirectToLogin()
