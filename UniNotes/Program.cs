@@ -14,6 +14,9 @@ builder.Services.AddScoped<ProtectedLocalStorage>();
 builder.Services.AddScoped<AuthenticationStateProvider, BlazorAuthStateProvider>();
 builder.Services.AddScoped<UserService>();
 
+// Add NoteService registration
+builder.Services.AddScoped<NoteService>();
+
 // Add authorization services
 builder.Services.AddAuthorizationCore();
 

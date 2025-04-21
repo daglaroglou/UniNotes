@@ -1,56 +1,65 @@
 using MongoDB.Driver;
 using UniNotes.Models;
+using Microsoft.AspNetCore.Components.Forms;
+using System.IO;
 
 namespace UniNotes.Services;
 public class NoteService
 {
-    private readonly IMongoCollection<Note> _notesCollection;
+    private readonly IMongoCollection<Note> _notes;
+    private readonly IMongoDatabase _database;
 
-    public NoteService(IMongoDatabase database)
+    public NoteService(IConfiguration config)
     {
-        _notesCollection = database.GetCollection<Note>("Notes");
+        var mongoClient = new MongoClient(config.GetConnectionString("MongoDb"));
+        _database = mongoClient.GetDatabase("UniNotes");
+        _notes = _database.GetCollection<Note>("Notes");
     }
 
     public async Task<List<Note>> GetAllNotesAsync()
     {
-        return await _notesCollection.Find(_ => true).ToListAsync();
+        return await _notes.Find(_ => true).ToListAsync();
     }
 
-    public async Task<Note?> GetNoteByIdAsync(string id)
+    public async Task<List<Note>> GetNotesByUsernameAsync(string username)
     {
-        var filter = Builders<Note>.Filter.Eq(note => note.Id, id);
-        return await _notesCollection.Find(filter).FirstOrDefaultAsync();
+        return await _notes.Find(n => n.Username == username).ToListAsync();
     }
-    public async Task<Note> CreateNoteAsync(Note note)
+
+    public async Task<Note> GetNoteByIdAsync(string id)
     {
-        await _notesCollection.InsertOneAsync(note);
-        return note;
+        return await _notes.Find(n => n.Id == id).FirstOrDefaultAsync();
     }
-    public async Task<bool> UpdateNoteAsync(string id, Note updatedNote)
+
+    public async Task<bool> UploadNoteAsync(Note note, IBrowserFile file)
     {
-        var filter = Builders<Note>.Filter.Eq(note => note.Id, id);
-        var result = await _notesCollection.ReplaceOneAsync(filter, updatedNote);
-        return result.IsAcknowledged && result.ModifiedCount > 0;
+        try
+        {
+            // Limit file size to 10 MB
+            const long maxFileSize = 10 * 1024 * 1024;
+            
+            if (file.Size > maxFileSize)
+                return false;
+
+            using var stream = file.OpenReadStream(maxFileSize);
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            
+            note.Content = memoryStream.ToArray();
+            note.CreatedAt = DateTime.UtcNow;
+            
+            await _notes.InsertOneAsync(note);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
+
     public async Task<bool> DeleteNoteAsync(string id)
     {
-        var filter = Builders<Note>.Filter.Eq(note => note.Id, id);
-        var result = await _notesCollection.DeleteOneAsync(filter);
-        return result.IsAcknowledged && result.DeletedCount > 0;
-    }
-    public async Task<List<Note>> GetNotesByUsernameAsync(string userId)
-    {
-        var filter = Builders<Note>.Filter.Eq(note => note.Username, userId);
-        return await _notesCollection.Find(filter).ToListAsync();
-    }
-    public async Task<List<Note>> GetNotesBySubjectAsync(string subject)
-    {
-        var filter = Builders<Note>.Filter.Eq(note => note.Subject, subject);
-        return await _notesCollection.Find(filter).ToListAsync();
-    }
-    public async Task<List<Note>> GetNotesBySemesterAsync(int semester)
-    {
-        var filter = Builders<Note>.Filter.Eq(note => note.Semester, semester);
-        return await _notesCollection.Find(filter).ToListAsync();
+        var result = await _notes.DeleteOneAsync(n => n.Id == id);
+        return result.DeletedCount > 0;
     }
 }
