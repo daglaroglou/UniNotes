@@ -25,7 +25,7 @@ namespace UniNotes.Models
         public int Semester { get; set; } = 0;
         
         [BsonElement("content")]
-        public Byte[] Content { get; set; } = Array.Empty<Byte>();
+        public Byte[] Content { get; set; } = [];
         
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

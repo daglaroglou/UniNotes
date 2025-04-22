@@ -34,7 +34,7 @@
                             <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/beta")'>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
                             <i class="fa-solid fa-note-sticky"></i>
                             <span>My Notes</span>
                         </div>
@@ -79,8 +79,6 @@
     private User? user;
     private bool isLoading = true;
     private bool isUserMenuOpen = false;
-    private bool shouldRedirect = true;
-    
     private bool initialized = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -1,0 +1,334 @@
+﻿@page "/MyNotes"
+@inject UniNotes.Services.UserService UserService
+@inject UniNotes.Services.NoteService NoteService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JSRuntime
+@using System.IO
+
+<PageTitle>UniNotes - My Notes</PageTitle>
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<div id="particles-js"></div>
+<script src="js/particles/particles.js"></script>
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <!-- User icon with dropdown menu -->
+            <div class="user-icon-container">
+                <div class="user-icon" @onclick="ToggleUserMenu">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="white">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                    </svg>
+                </div>
+                @if (isUserMenuOpen)
+                {
+                    <div class="user-dropdown">
+                        <div class="dropdown-item" style="pointer-events: none">
+                            <i class="fa-solid fa-user"></i>
+                            <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/upload")'>
+                            <i class="fa-solid fa-file-arrow-up"></i>
+                            <span>Upload Note</span>
+                        </div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
+                            <i class="fa-solid fa-gauge-high"></i>
+                            <span>Dashboard</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" style="color: red" @onclick="() => Logout()">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Logout</span>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="full-page-background">
+                <div class="notes-container">
+                    <h1 class="logo">My Notes</h1>
+                    
+                    @if (isLoading)
+                    {
+                        <div class="loading-spinner">
+                            <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+                            <p>Loading your notes...</p>
+                        </div>
+                    }
+                    else if (userNotes == null || !userNotes.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="fa-solid fa-folder-open fa-3x mb-3"></i>
+                            <h3>No notes yet</h3>
+                            <p>You haven't uploaded any notes. Start by uploading one!</p>
+                            <button class="action-button mt-3" @onclick='() => NavigationManager.NavigateTo("/upload")'>
+                                <i class="fa-solid fa-upload"></i> Upload Note
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="action-bar mb-3">
+                            <button class="action-button" @onclick='() => NavigationManager.NavigateTo("/upload")'>
+                                <i class="fa-solid fa-upload"></i> Upload New Note
+                            </button>
+                        </div>
+                        
+                        <div class="notes-grid">
+                            @foreach (var note in userNotes)
+                            {
+                                <div class="note-card">
+                                    <div class="note-header">
+                                        <h3 class="note-title">@note.Title</h3>
+                                        <span class="note-date">@note.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                    </div>
+                                    
+                                    <div class="note-preview">
+                                        @if (IsPdfFile(note))
+                                        {
+                                            <div class="file-preview pdf-preview">
+                                                <i class="fa-solid fa-file-pdf fa-2x"></i>
+                                                <span>PDF Document</span>
+                                            </div>
+                                        }
+                                        else if (IsImageFile(note))
+                                        {
+                                            <div class="file-preview image-preview">
+                                                <img src="@GetImageDataUrl(note)" alt="@note.Title" />
+                                            </div>
+                                        }
+                                        else if (IsWordFile(note))
+                                        {
+                                            <div class="file-preview word-preview">
+                                                <i class="fa-solid fa-file-word fa-2x"></i>
+                                                <span>Word Document</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    
+                                    <div class="note-body">
+                                        <p class="note-description">@(GetDescriptionPreview(note.Description))</p>
+                                        <div class="note-metadata">
+                                            <span><i class="fa-solid fa-book"></i> @note.Subject</span>
+                                            <span><i class="fa-solid fa-graduation-cap"></i> Semester @note.Semester</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="note-actions">
+                                        <button class="action-button view-button" @onclick="() => ViewNote(note)">
+                                            <i class="fa-solid fa-eye"></i> View
+                                        </button>
+                                        <button class="action-button delete-button" @onclick="() => DeleteNotePrompt(note.Id)">
+                                            <i class="fa-solid fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            @{
+                NavigationManager.NavigateTo("/");
+            }
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
+
+@code {
+    private bool isUserMenuOpen = false;
+    private User? user;
+    private string? userId;
+    private List<Note>? userNotes;
+    private bool isLoading = true;
+    private Dictionary<string, string> imageCache = new Dictionary<string, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userClaims = authState.User;
+
+        if (userClaims.Identity?.IsAuthenticated == true)
+        {
+            userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                user = await UserService.GetUserByIdAsync(userId);
+                if (user != null)
+                {
+                    await LoadUserNotes();
+                }
+            }
+        }
+        
+        isLoading = false;
+    }
+
+    private async Task LoadUserNotes()
+    {
+        if (user != null)
+        {
+            userNotes = await NoteService.GetNotesByUsernameAsync(user.Username);
+            
+            // Clear the image cache when loading new notes
+            imageCache.Clear();
+        }
+    }
+
+    private void ToggleUserMenu()
+    {
+        isUserMenuOpen = !isUserMenuOpen;
+    }
+    
+    private async Task Logout()
+    {
+        if (AuthStateProvider is BlazorAuthStateProvider blazorAuthStateProvider)
+        {
+            await blazorAuthStateProvider.UpdateAuthenticationState(null);
+            NavigationManager.NavigateTo("/");
+        }
+    }
+    
+    private string GetDescriptionPreview(string description)
+    {
+        if (string.IsNullOrEmpty(description))
+            return "No description";
+            
+        return description.Length > 100 ? description[..100] + "..." : description;
+    }
+    
+    private bool IsPdfFile(Note note)
+    {
+        // Simple check for PDF files - a more robust solution would check MIME types
+        if (note.Content == null || note.Content.Length < 5)
+            return false;
+            
+        byte[] pdfSignature = new byte[] { 0x25, 0x50, 0x44, 0x46 }; // %PDF
+        return note.Content.Take(4).SequenceEqual(pdfSignature);
+    }
+    
+    private bool IsImageFile(Note note)
+    {
+        // Very basic image detection - this would ideally be based on MIME types
+        if (note.Content == null || note.Content.Length < 10)
+            return false;
+            
+        byte[] jpegSignature = new byte[] { 0xFF, 0xD8, 0xFF };
+        byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
+        
+        return note.Content.Take(3).SequenceEqual(jpegSignature) || note.Content.Take(4).SequenceEqual(pngSignature);
+    }
+    
+    private bool IsWordFile(Note note)
+    {
+        // Simplified check - would ideally use proper MIME type detection
+        if (note.Content == null || note.Content.Length < 10)
+            return false;
+            
+        // Check for Office file signatures
+        // This is a simplified approach - real world would need more robust checking
+        byte[] docSignature = new byte[] { 0xD0, 0xCF, 0x11, 0xE0 };
+        return note.Content.Take(4).SequenceEqual(docSignature);
+    }
+    
+    private string GetImageDataUrl(Note note)
+    {
+        // Check if we've already cached this image
+        if (note.Id != null && imageCache.ContainsKey(note.Id))
+        {
+            return imageCache[note.Id];
+        }
+
+        // If the note has no content or ID, return an empty string
+        if (note.Id == null || note.Content == null || note.Content.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        string mimeType = "image/jpeg"; // Default to JPEG
+        
+        // Try to determine the image type from the first few bytes
+        if (note.Content.Length > 4)
+        {
+            byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
+            if (note.Content.Take(4).SequenceEqual(pngSignature))
+            {
+                mimeType = "image/png";
+            }
+        }
+
+        // Convert the byte array to a Base64 string
+        string base64Data = Convert.ToBase64String(note.Content);
+        string dataUrl = $"data:{mimeType};base64,{base64Data}";
+        
+        // Cache the result to avoid recomputing it
+        imageCache[note.Id] = dataUrl;
+        
+        return dataUrl;
+    }
+    
+    private async Task ViewNote(Note note)
+    {
+        if (note?.Id == null) return;
+        
+        if (IsImageFile(note))
+        {
+            // For images, we can display them directly in the browser
+            string dataUrl = GetImageDataUrl(note);
+            await JSRuntime.InvokeVoidAsync("window.open", dataUrl, "_blank");
+        }
+        else if (IsPdfFile(note))
+        {
+            // For PDFs, we'll create a temporary object URL and open it
+            string base64Data = Convert.ToBase64String(note.Content ?? Array.Empty<byte>());
+            string dataUrl = $"data:application/pdf;base64,{base64Data}";
+            await JSRuntime.InvokeVoidAsync("window.open", dataUrl, "_blank");
+        }
+        else
+        {
+            // For other files, navigate to a dedicated page
+            NavigationManager.NavigateTo($"/note/{note.Id}");
+        }
+    }
+    
+    private async Task DeleteNotePrompt(string? noteId)
+    {
+        if (!string.IsNullOrEmpty(noteId))
+        {
+            bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this note?");
+            if (confirmed)
+            {
+                await DeleteNote(noteId);
+            }
+        }
+    }
+    
+    private async Task DeleteNote(string noteId)
+    {
+        bool result = await NoteService.DeleteNoteAsync(noteId);
+        if (result)
+        {
+            // Clear the image from cache if it exists
+            if (imageCache.ContainsKey(noteId))
+            {
+                imageCache.Remove(noteId);
+            }
+            
+            await LoadUserNotes();
+            StateHasChanged();
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Failed to delete the note. Please try again.");
+        }
+    }
+}
