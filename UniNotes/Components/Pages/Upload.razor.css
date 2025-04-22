@@ -347,3 +347,71 @@ select.form-control:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
 }
+
+/* Add responsive styles for Upload component */
+@media (max-width: 768px) {
+    .upload-container {
+        max-width: 90%;
+        margin: 1rem auto;
+        padding: 1.5rem;
+    }
+    
+    .logo {
+        font-size: min(60px, 10vw) !important;
+        margin-bottom: 15px;
+    }
+    
+    .form-control {
+        padding: 0.6rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .action-button {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .upload-container {
+        max-width: 95%;
+        margin: 0.5rem auto;
+        padding: 1rem;
+    }
+    
+    .logo {
+        font-size: min(40px, 8vw) !important;
+        margin-bottom: 10px;
+    }
+    
+    .form-control {
+        padding: 0.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 0.8rem;
+    }
+    
+    .action-button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .user-icon-container {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .user-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .user-icon svg {
+        width: 32px;
+        height: 32px;
+    }
+}
