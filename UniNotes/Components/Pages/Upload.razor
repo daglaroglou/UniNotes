@@ -53,20 +53,27 @@
             <div class="full-page-background">
                 <div class="upload-container">
                     <h1 class="logo">Upload Note</h1>
-                    
-                    @if (!string.IsNullOrEmpty(message))
+
+                    @if (!string.IsNullOrEmpty(successMessage))
                     {
-                        <div class="alert @(isSuccess ? "alert-success" : "alert-danger")">
-                            @message
+                        <div class="message-container">
+                            <div class="success-message">@((MarkupString)successMessage)</div>
                         </div>
                     }
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="message-container">
+                            <div class="error-message">@((MarkupString)errorMessage)</div>
+                        </div>
+                    }
+
 
                     <div class="upload-form">
                         <div class="form-group">
                             <label for="title">Title</label>
                             <input id="title" type="text" class="form-control" @bind="note.Title" />
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="description">Description</label>
                             <textarea id="description" class="form-control" @bind="note.Description"></textarea>
@@ -213,12 +220,9 @@
                                     <option value="ΜΕΘΟΔΟΛΟΓΙΕΣ ΚΑΙ ΤΕΧΝΟΛΟΓΙΕΣ ΔΙΟΙΚΗΣΗΣ ΠΑΡΑΓΩΓΗΣ">ΜΕΘΟΔΟΛΟΓΙΕΣ ΚΑΙ ΤΕΧΝΟΛΟΓΙΕΣ ΔΙΟΙΚΗΣΗΣ ΠΑΡΑΓΩΓΗΣ</option>
                                     <option value="ΠΡΟΗΓΜΕΝΑ ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ">ΠΡΟΗΓΜΕΝΑ ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ</option>
                                 }
-
-
                             </select>
-
                         </div>
-                        
+
                         <div class="form-group">
                             <label>Upload File</label>
                             <InputFile OnChange="OnFileChange" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png" />
@@ -229,9 +233,8 @@
                                 </div>
                             }
                         </div>
-                        
                         <div class="form-group mt-4">
-                            <button class="action-button w-100" @onclick="UploadNote" disabled="@(!isFileSelected)">
+                            <button class="action-button w-100" @onclick="() => ValidateAndUpload()">
                                 <i class="fa-solid fa-upload"></i> Upload Note
                             </button>
                         </div>
@@ -255,8 +258,9 @@
     private IBrowserFile? selectedFile;
     private string fileName = "";
     private bool isFileSelected = false;
-    private string message = "";
-    private bool isSuccess = false;
+    private string errorMessage = "";
+    private string successMessage = "";
+    private bool isRedirecting = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -277,11 +281,63 @@
         }
     }
 
+    private async Task ValidateAndUpload()
+    {
+        // Prevent duplicate upload attempts
+        if (isRedirecting) return;
+
+        // Clear previous messages
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        // Collect validation errors
+        var errors = new List<string>();
+
+        if (selectedFile == null)
+        {
+            errors.Add("Please select a file to upload.");
+        }
+        else
+        {
+            // Limit file size check before sending
+            const long maxFileSize = 10 * 1024 * 1024; // 10 MB
+            if (selectedFile.Size > maxFileSize)
+            {
+                errors.Add("File size exceeds the maximum allowed (10 MB).");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(note.Title))
+        {
+            errors.Add("Title is required.");
+        }
+
+        if (note.Semester <= 0)
+        {
+            errors.Add("Please select a semester.");
+        }
+
+        if (string.IsNullOrWhiteSpace(note.Subject))
+        {
+            errors.Add("Please select a subject.");
+        }
+
+        // If we have validation errors, display them and return
+        if (errors.Count > 0)
+        {
+            errorMessage = string.Join("<br>", errors);
+            return;
+        }
+
+        // If validation passes, proceed with upload
+        await UploadNote();
+    }
+
     private void ToggleUserMenu()
     {
         isUserMenuOpen = !isUserMenuOpen;
     }
-    
+
     private async Task Logout()
     {
         if (AuthStateProvider is BlazorAuthStateProvider blazorAuthStateProvider)
@@ -295,56 +351,54 @@
     {
         try
         {
+            // Clear previous messages
+            errorMessage = string.Empty;
+            successMessage = string.Empty;
+
             // Check if file is null
             if (e.File == null)
             {
-                message = "Invalid file selection.";
-                isSuccess = false;
+                errorMessage = "Invalid file selection.";
                 return;
             }
-            
+
             // Add size validation here to prevent large files from crashing the app
             const long maxFileSize = 10 * 1024 * 1024; // 10 MB
             if (e.File.Size > maxFileSize)
             {
-                message = "File size exceeds the maximum allowed (10 MB).";
-                isSuccess = false;
+                errorMessage = "File size exceeds the maximum allowed (10 MB).";
                 return;
             }
 
             // Check file type to ensure it's supported
             string extension = "";
-            try {
+            try
+            {
                 extension = Path.GetExtension(e.File.Name).ToLowerInvariant();
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine($"Error getting file extension: {ex.Message}");
-                message = "Invalid filename.";
-                isSuccess = false;
+                errorMessage = "Invalid filename.";
                 return;
             }
-            
+
             if (!new[] { ".pdf", ".doc", ".docx", ".jpg", ".png" }.Contains(extension))
             {
-                message = "File type not supported. Please upload PDF, Word, JPG or PNG files.";
-                isSuccess = false;
+                errorMessage = "File type not supported. Please upload PDF, Word, JPG or PNG files.";
                 return;
             }
-            
+
             // Now set the file
             selectedFile = e.File;
             fileName = e.File.Name;
             isFileSelected = true;
-            
-            // Clear any previous error messages
-            message = string.Empty;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"File selection error: {ex}");
-            message = $"Error selecting file: {ex.Message}";
-            isSuccess = false;
-            
+            errorMessage = $"Error selecting file: {ex.Message}";
+
             // Reset file selection state
             selectedFile = null;
             fileName = string.Empty;
@@ -354,60 +408,36 @@
 
     private async Task UploadNote()
     {
-        if (selectedFile == null)
-        {
-            message = "Please select a file to upload.";
-            isSuccess = false;
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(note.Title) || 
-            string.IsNullOrWhiteSpace(note.Subject) || 
-            note.Semester <= 0)
-        {
-            message = "Please fill all required fields.";
-            isSuccess = false;
-            return;
-        }
-
         try
         {
-            // Limit file size check before sending
-            const long maxFileSize = 10 * 1024 * 1024; // 10 MB
-            if (selectedFile.Size > maxFileSize)
-            {
-                message = "File size exceeds the maximum allowed (10 MB).";
-                isSuccess = false;
-                return;
-            }
-
             bool result = await NoteService.UploadNoteAsync(note, selectedFile);
-            
+
             if (result)
             {
-                message = "Note uploaded successfully!";
-                isSuccess = true;
-                
+                successMessage = "Note uploaded successfully! Redirecting to dashboard...";
+
                 // Reset the form
                 note = new Note { Username = user?.Username ?? "" };
                 selectedFile = null;
                 fileName = "";
                 isFileSelected = false;
-                
+
+                // Prevent duplicate redirections
+                isRedirecting = true;
+
                 // Redirect to panel after 2 seconds
+                StateHasChanged();
                 await Task.Delay(2000);
                 NavigationManager.NavigateTo("/dashboard");
             }
             else
             {
-                message = "Failed to upload the note. Please try again.";
-                isSuccess = false;
+                errorMessage = "Failed to upload the note. Please try again.";
             }
         }
         catch (Exception ex)
         {
-            message = $"An error occurred: {ex.Message}";
-            isSuccess = false;
+            errorMessage = $"An error occurred: {ex.Message}";
         }
     }
 }
