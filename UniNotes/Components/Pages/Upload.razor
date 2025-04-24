@@ -1,4 +1,4 @@
-@page "/upload"
+﻿@page "/upload"
 @inject UniNotes.Services.UserService UserService
 @inject UniNotes.Services.NoteService NoteService
 @inject NavigationManager NavigationManager
@@ -84,8 +84,30 @@
 
                         <div class="form-group">
                             <label for="subject">Subject</label>
-                            <input id="subject" type="text" class="form-control" @bind="note.Subject" />
-                        </div> 
+                            <select id="subject" class="form-control" @bind="note.Subject">
+                                @if (note.Semester == 1)
+                                {
+                                    <option value="ΑΛΓΟΡΙΘΜΟΙ">ΑΛΓΟΡΙΘΜΟΙ</option>
+                                    <option value="ΓΡΑΜΜΙΚΗ ΑΛΓΕΒΡΑ">ΓΡΑΜΜΙΚΗ ΑΛΓΕΒΡΑ</option>
+                                    <option value="ΔΙΑΔΙΚΑΣΤΙΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ">ΔΙΑΔΙΚΑΣΤΙΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ</option>
+                                    <option value="ΜΑΘΗΜΑΤΙΚΗ ΑΝΑΛΥΣΗ">ΜΑΘΗΜΑΤΙΚΗ ΑΝΑΛΥΣΗ</option>
+                                    <option value="ΣΥΣΤΗΜΑΤΑ ΥΠΟΛΟΓΙΣΤΩΝ">ΣΥΣΤΗΜΑΤΑ ΥΠΟΛΟΓΙΣΤΩΝ</option>
+                                    <option value="ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΣΤΗΜΗ ΥΠΟΛΟΓΙΣΤΩΝ">ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΣΤΗΜΗ ΥΠΟΛΟΓΙΣΤΩΝ</option>
+                                    <option value="ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΧΕΙΡΗΜΑΤΙΚΗ ΠΛΗΡΟΦΟΡΙΚΗ">ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΧΕΙΡΗΜΑΤΙΚΗ ΠΛΗΡΟΦΟΡΙΚΗ</option>
+                                }
+                                else if (note.Semester == 2)
+                                {
+                                    <option value="ΑΡΧΙΤΕΚΤΟΝΙΚΗ ΥΠΟΛΟΓΙΣΤΩΝ">ΑΡΧΙΤΕΚΤΟΝΙΚΗ ΥΠΟΛΟΓΙΣΤΩΝ</option>
+                                    <option value="ΒΑΣΕΙΣ ΔΕΔΟΜΕΝΩΝ">ΒΑΣΕΙΣ ΔΕΔΟΜΕΝΩΝ</option>
+                                    <option value="ΔΙΑΚΡΙΤΑ ΜΑΘΗΜΑΤΙΚΑ">ΔΙΑΚΡΙΤΑ ΜΑΘΗΜΑΤΙΚΑ</option>
+                                    <option value="ΔΟΙΗΚΗΣΗ ΚΑΙ ΤΕΧΝΟΛΟΓΙΑ">ΔΟΙΗΚΗΣΗ ΚΑΙ ΤΕΧΝΟΛΟΓΙΑ</option>
+                                    <option value="ΔΟΜΕΣ ΔΕΔΟΜΕΝΩΝ">ΔΟΜΕΣ ΔΕΔΟΜΕΝΩΝ</option>
+                                    <option value="ΠΙΘΑΝΟΤΗΤΕΣ">ΠΙΘΑΝΟΤΗΤΕΣ</option>
+                                    <option value="ΠΙΘΑΝΟΤΗΤΕΣ ΚΑΙ ΣΤΑΤΙΣΤΙΚΗ">ΠΙΘΑΝΟΤΗΤΕΣ ΚΑΙ ΣΤΑΤΙΣΤΙΚΗ</option>
+                                }
+                            </select>
+
+                        </div>
                         
                         <div class="form-group">
                             <label>Upload File</label>
