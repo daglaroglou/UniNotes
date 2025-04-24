@@ -74,7 +74,7 @@
                     }
                     else
                     {
-                        <div class="action-bar mb-3">
+                        <div class="action-bar mb-3" style="justify-content: center;">
                             <button class="action-button" @onclick='() => NavigationManager.NavigateTo("/upload")'>
                                 <i class="fa-solid fa-upload"></i> Upload New Note
                             </button>
@@ -229,14 +229,20 @@
     
     private bool IsWordFile(Note note)
     {
-        // Simplified check - would ideally use proper MIME type detection
+        // Check if content exists and has minimum length
         if (note.Content == null || note.Content.Length < 10)
             return false;
             
-        // Check for Office file signatures
-        // This is a simplified approach - real world would need more robust checking
-        byte[] docSignature = new byte[] { 0xD0, 0xCF, 0x11, 0xE0 };
-        return note.Content.Take(4).SequenceEqual(docSignature);
+        // Check for binary Office file signature (doc, xls, ppt)
+        // D0 CF 11 E0 A1 B1 1A E1 (OLE2 Compound Document)
+        byte[] oleSignature = new byte[] { 0xD0, 0xCF, 0x11, 0xE0 };
+        
+        // Check for Office Open XML formats (docx, xlsx, pptx)
+        // They are ZIP files with signature: 50 4B 03 04
+        byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 };
+        
+        return note.Content.Take(4).SequenceEqual(oleSignature) || 
+               note.Content.Take(4).SequenceEqual(zipSignature);
     }
     
     private string GetImageDataUrl(Note note)
