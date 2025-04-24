@@ -7,6 +7,7 @@ namespace UniNotes.Services;
 public class NoteService
 {
     private readonly IMongoCollection<Note> _notes;
+    private readonly IMongoCollection<User> _users;
     private readonly IMongoDatabase _database;
 
     public NoteService(IConfiguration config)
@@ -14,6 +15,7 @@ public class NoteService
         var mongoClient = new MongoClient(config.GetConnectionString("MongoDb"));
         _database = mongoClient.GetDatabase("UniNotes");
         _notes = _database.GetCollection<Note>("Notes");
+        _users = _database.GetCollection<User>("Users");
     }
 
     public async Task<List<Note>> GetAllNotesAsync()
@@ -49,6 +51,14 @@ public class NoteService
             note.CreatedAt = DateTime.UtcNow;
             
             await _notes.InsertOneAsync(note);
+            
+            // Now associate the note's ID with the user
+            if (!string.IsNullOrEmpty(note.Username) && !string.IsNullOrEmpty(note.Id))
+            {
+                var updateDefinition = Builders<User>.Update.Push(u => u.NoteIds, note.Id);
+                await _users.UpdateOneAsync(u => u.Username == note.Username, updateDefinition);
+            }
+            
             return true;
         }
         catch
@@ -59,7 +69,24 @@ public class NoteService
 
     public async Task<bool> DeleteNoteAsync(string id)
     {
-        var result = await _notes.DeleteOneAsync(n => n.Id == id);
-        return result.DeletedCount > 0;
+        try
+        {
+            // First, find the note to get its username
+            var note = await _notes.Find(n => n.Id == id).FirstOrDefaultAsync();
+            if (note != null && !string.IsNullOrEmpty(note.Username))
+            {
+                // Remove the note ID from the associated user's noteIds array
+                var updateDefinition = Builders<User>.Update.Pull(u => u.NoteIds, id);
+                await _users.UpdateOneAsync(u => u.Username == note.Username, updateDefinition);
+            }
+            
+            // Now delete the note
+            var result = await _notes.DeleteOneAsync(n => n.Id == id);
+            return result.DeletedCount > 0;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

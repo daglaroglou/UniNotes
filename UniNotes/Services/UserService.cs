@@ -8,12 +8,13 @@ namespace UniNotes.Services
     public class UserService
     {
         private readonly IMongoCollection<User> _users;
+        private readonly IMongoDatabase _database;
 
         public UserService(IConfiguration config)
         {
             var mongoClient = new MongoClient(config.GetConnectionString("MongoDb"));
-            var database = mongoClient.GetDatabase("UniNotes");
-            _users = database.GetCollection<User>("Users");
+            _database = mongoClient.GetDatabase("UniNotes");
+            _users = _database.GetCollection<User>("Users");
         }
 
         public async Task<User?> GetUserByIdAsync(string userId)
@@ -57,6 +58,22 @@ namespace UniNotes.Services
             }
 
             return null;
+        }
+
+        public async Task<List<Note>> GetUserNotesAsync(string userId)
+        {
+            var user = await _users.Find(u => u.Id == userId).FirstOrDefaultAsync();
+            if (user == null || user.NoteIds == null || !user.NoteIds.Any())
+                return new List<Note>();
+
+            // Get the notes collection
+            var notesCollection = _database.GetCollection<Note>("Notes");
+            
+            // Build a filter to find notes with IDs in the user's noteIds list
+            var filter = Builders<Note>.Filter.In(n => n.Id, user.NoteIds);
+            
+            // Return the notes
+            return await notesCollection.Find(filter).ToListAsync();
         }
 
         private string HashPassword(string password)
