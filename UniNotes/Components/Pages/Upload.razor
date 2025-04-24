@@ -75,6 +75,7 @@
                         <div class="form-group">
                             <label for="semester">Semester</label>
                             <select id="semester" class="form-control" @bind="note.Semester">
+                                <option value="0" disabled selected>Επιλογή εξαμήνου</option>
                                 @for (int i = 1; i <= 8; i++)
                                 {
                                     <option value="@i">Semester @i</option>
@@ -85,6 +86,10 @@
                         <div class="form-group">
                             <label for="subject">Subject</label>
                             <select id="subject" class="form-control" @bind="note.Subject">
+                                @if (note.Semester == 0)
+                                {
+                                    <option value="" disabled selected>Επιλογή μαθήματος</option>
+                                }
                                 @if (note.Semester == 1)
                                 {
                                     <option value="" disabled selected>Επιλογή μαθήματος</option>
