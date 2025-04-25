@@ -83,9 +83,9 @@
                             <label for="semester">Semester</label>
                             <select id="semester" class="form-control" @bind="note.Semester">
                                 <option value="0" disabled selected>Επιλογή εξαμήνου</option>
-                                @for (int i = 1; i <= 8; i++)
-                                {
-                                    <option value="@i">Semester @i</option>
+                                @for (int i = 1; i <= 8; i++)  
+                                {  
+                                    <option value="@i">@i.ToString()ο Εξάμηνο</option>  
                                 }
                             </select>
                         </div>

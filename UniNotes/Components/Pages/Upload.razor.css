@@ -72,17 +72,16 @@
     border: 1px solid #f44336;
 }
 
-/* More compact user icon */
 .user-icon-container {
     position: fixed;
-    top: 15px;
-    right: 15px;
+    top: 20px;
+    right: 20px;
     z-index: 1000;
 }
 
 .user-icon {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.6);
     display: flex;
@@ -96,24 +95,22 @@
         background-color: rgba(0, 0, 0, 0.8);
     }
 
-/* Reduced dropdown size */
 .user-dropdown {
     position: absolute;
-    top: 45px;
+    top: 50px;
     right: 0;
     background-color: rgba(0, 0, 0, 0.8);
     border-radius: 8px;
-    min-width: 140px;
+    min-width: 150px;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     overflow: hidden;
 }
 
 .dropdown-item {
-    padding: 10px 14px;
+    padding: 12px 16px;
     color: white;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    font-size: 0.9rem;
 }
 
     .dropdown-item:hover {
