@@ -12,11 +12,12 @@
 <script src="js/particles/particles.js"></script>
 
 <script>
-    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+	particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
 </script>
 
 <div class="full-page-background">
 	<center>
+		<img src="logo.png" alt="UniNotes Logo" class="app-logo" />
 		<h1 class="logo">UniNotes</h1>
 		<h2>2025</h2>
 	</center>
@@ -30,12 +31,12 @@
 </div>
 <script src="js/typewriter.js"></script>
 
-@code{
+@code {
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
 			await JSRuntime.InvokeVoidAsync("startTypewriter");
 		}
-	}	
+	}
 }

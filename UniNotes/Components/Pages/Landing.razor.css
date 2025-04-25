@@ -7,6 +7,11 @@
     z-index: -1;
 }
 
+.app-logo {
+    max-width: 150px;
+    margin-bottom: 10px;
+}
+
 .logo {
     font-family: "Lobster", sans-serif;
     font-weight: 400;
