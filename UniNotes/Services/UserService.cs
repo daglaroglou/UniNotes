@@ -76,6 +76,50 @@ namespace UniNotes.Services
             return await notesCollection.Find(filter).ToListAsync();
         }
 
+        public async Task<bool> UpdateUserAsync(User updatedUser)
+        {
+            if (updatedUser == null || string.IsNullOrEmpty(updatedUser.Id))
+                return false;
+
+            // Check if the username is already taken by another user
+            if (!string.IsNullOrEmpty(updatedUser.Username))
+            {
+                var existingUser = await GetByUsernameAsync(updatedUser.Username);
+                if (existingUser != null && existingUser.Id != updatedUser.Id)
+                    return false; // Username is taken by another user
+            }
+
+            // Update fields that should be changeable
+            var update = Builders<User>.Update
+                .Set(u => u.Username, updatedUser.Username)
+                .Set(u => u.FirstName, updatedUser.FirstName)
+                .Set(u => u.LastName, updatedUser.LastName)
+                .Set(u => u.UniIdNumber, updatedUser.UniIdNumber);
+
+            var result = await _users.UpdateOneAsync(u => u.Id == updatedUser.Id, update);
+            return result.ModifiedCount > 0;
+        }
+
+        public async Task<bool> ChangePasswordAsync(string userId, string newPassword)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(newPassword))
+                return false;
+
+            var user = await GetUserByIdAsync(userId);
+            if (user == null)
+                return false;
+
+            // Hash the new password
+            string newPasswordHash = HashPassword(newPassword);
+
+            // Update the password hash
+            var update = Builders<User>.Update
+                .Set(u => u.PasswordHash, newPasswordHash);
+
+            var result = await _users.UpdateOneAsync(u => u.Id == userId, update);
+            return result.ModifiedCount > 0;
+        }
+
         private string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())

@@ -1,0 +1,51 @@
+/* Add these styles at the top of your site.css file */
+
+/* Particles background and layout styles */
+#particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-color: #000;
+}
+
+.full-page-background {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1;
+}
+
+.logo {
+    font-family: 'Lobster', cursive;
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Settings container */
+.settings-container {
+    max-width: 800px;
+    margin: 20px auto;
+    margin-top: 80px;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    color: #333;
+    z-index: 2;
+    position: relative;
+}
+
+.settings-container .logo {
+    color: #333;
+    text-shadow: none;
+}
+
+/* Keep your existing settings page styles below this point */

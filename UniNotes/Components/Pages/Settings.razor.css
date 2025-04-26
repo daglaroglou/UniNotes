@@ -1,0 +1,229 @@
+﻿/* Fix for particles background - ensure it's visible */
+::deep #particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background-color: #000;
+}
+
+/* Use ::deep to ensure these styles penetrate through component isolation */
+::deep .full-page-background {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1;
+}
+
+/* User icon and dropdown styles */
+.user-icon-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+}
+
+.user-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(0, 123, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+    .user-icon:hover {
+        background-color: rgba(0, 123, 255, 1);
+    }
+
+.user-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 200px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    z-index: 100;
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .dropdown-item:hover {
+        background-color: #f5f5f5;
+    }
+
+    .dropdown-item i {
+        margin-right: 10px;
+        width: 16px;
+        text-align: center;
+    }
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #e9ecef;
+    margin: 0;
+}
+
+/* Logo and heading styles */
+.logo {
+    font-family: 'Lobster', cursive;
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: white;
+    margin-bottom: 1rem;
+}
+
+/* Settings container overrides to ensure visibility against particles background */
+.settings-container {
+    max-width: 800px;
+    margin: 20px auto;
+    margin-top: 80px;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    color: #333;
+    z-index: 2;
+    position: relative;
+}
+
+    .settings-container h1.logo {
+        color: #333;
+        text-shadow: none;
+    }
+
+/* Tab buttons styling */
+.settings-tab-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 25px;
+    background-color: #f0f0f0;
+    color: #333;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.5px;
+}
+
+    .tab-button i {
+        margin-right: 8px;
+    }
+
+    .tab-button.active {
+        background-color: #007bff;
+        color: white;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    }
+
+    .tab-button:hover:not(.active) {
+        background-color: #e0e0e0;
+        transform: translateY(-2px);
+    }
+
+/* Form styling enhancements */
+.text-danger {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 5px;
+    display: block;
+}
+
+.text-success {
+    color: #28a745;
+    font-size: 0.875rem;
+    margin-top: 5px;
+    display: block;
+}
+
+.text-muted {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Add animation for success/error messages */
+.success-message, .error-message {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Make sure the settings container has enough padding on smaller screens */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 20px;
+        margin-top: 60px;
+    }
+
+    .settings-tab-buttons {
+        flex-direction: column;
+    }
+}
+
+/* Update the action-button styles to match other pages */
+.action-button {
+    background-color: transparent;
+    color: #333;
+    border: 2px solid #007bff;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.action-button:hover {
+    background-color: #007bff;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+.action-button i {
+    margin-right: 8px;
+}
+    
