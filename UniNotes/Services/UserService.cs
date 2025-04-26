@@ -120,6 +120,38 @@ namespace UniNotes.Services
             return result.ModifiedCount > 0;
         }
 
+        public async Task<bool> DeleteUserAsync(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+                return false;
+
+            var user = await GetUserByIdAsync(userId);
+            if (user == null)
+                return false;
+
+            try
+            {
+                // Get the notes collection to clean up user's notes
+                var notesCollection = _database.GetCollection<Note>("Notes");
+
+                // Delete user's notes if they have any
+                if (user.NoteIds != null && user.NoteIds.Any())
+                {
+                    var filter = Builders<Note>.Filter.In(n => n.Id, user.NoteIds);
+                    await notesCollection.DeleteManyAsync(filter);
+                }
+
+                // Delete the user account
+                var result = await _users.DeleteOneAsync(u => u.Id == userId);
+                return result.DeletedCount > 0;
+            }
+            catch
+            {
+                // Log the error in a production app
+                return false;
+            }
+        }
+
         private string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())

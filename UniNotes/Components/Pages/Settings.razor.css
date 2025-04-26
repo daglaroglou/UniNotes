@@ -193,6 +193,26 @@
         box-shadow: 0 4px 12px rgba(224, 224, 224, 0.4);
     }
 
+.action-button.danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.action-button.danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-button.danger.active {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-button.danger:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Message styling */
 .message-container {
     display: flex;
@@ -352,6 +372,75 @@ select.form-control {
         outline: none;
         box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
     }
+
+/* Delete account section */
+.delete-account-section {
+    padding: 15px 0;
+}
+
+.warning-box {
+    background-color: rgba(255, 82, 82, 0.1);
+    border: 1px solid rgba(255, 82, 82, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.warning-box h3 {
+    color: #ff5252;
+    margin-bottom: 15px;
+}
+
+.warning-box p {
+    color: white;
+    font-size: 0.9rem;
+}
+
+.warning-icon {
+    font-size: 32px;
+    color: #ff5252;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.danger-button {
+    background-color: transparent;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+}
+
+.danger-button:hover:not(:disabled) {
+    background-color: #dc3545;
+    color: white;
+}
+
+.danger-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.form-check-input {
+    margin-right: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.form-check-label {
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
 
 /* Media queries for responsiveness */
 /* Tablet sizes */

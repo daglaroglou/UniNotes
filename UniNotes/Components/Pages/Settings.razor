@@ -1,4 +1,4 @@
-@page "/settings"
+﻿@page "/settings"
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @using UniNotes.Models
@@ -95,6 +95,9 @@
                             <button class="action-button @(activeTab == "password" ? "active" : "")" @onclick='() => SetActiveTab("password")'>
                                 <i class="fa-solid fa-lock"></i> Change Password
                             </button>
+                            <button class="action-button danger @(activeTab == "delete" ? "active" : "")" @onclick='() => SetActiveTab("delete")'>
+                                <i class="fa-solid fa-trash"></i> Delete Account
+                            </button>
                         </div>
 
                         <div class="tab-content">
@@ -155,6 +158,34 @@
                                     </div>
                                 </div>
                             }
+                            else if (activeTab == "delete")
+                            {
+                                <div class="delete-account-section">
+                                    <div class="warning-box">
+                                        <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
+                                        <h3>Warning: This action cannot be undone</h3>
+                                        <p>Deleting your account will permanently remove all your data, including all your notes and files. This action is irreversible.</p>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="deletePassword">Enter your password to confirm</label>
+                                        <input type="password" id="deletePassword" class="form-control" @bind="deletePassword" />
+                                    </div>
+                                    
+                                    <div class="form-check mt-3">
+                                        <input type="checkbox" id="confirmDelete" class="form-check-input" @bind="confirmDelete" />
+                                        <label class="form-check-label" for="confirmDelete">
+                                            I confirm that I want to delete my account and all associated data
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-group mt-4">
+                                        <button class="action-button danger w-100" @onclick="DeleteAccount" disabled="@(!confirmDelete)">
+                                            <i class="fa-solid fa-trash"></i> Delete Account
+                                        </button>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     }
                 </div>
@@ -180,6 +211,11 @@
     private string currentPassword = "";
     private string newPassword = "";
     private string confirmPassword = "";
+    
+    // Delete account fields
+    private string deletePassword = "";
+    private bool confirmDelete = false;
+    private bool deleteInProgress = false;
 
     // Messages
     private string errorMessage = "";
@@ -248,10 +284,18 @@
     private void SetActiveTab(string tab)
     {
         activeTab = tab;
+        
         // Clear messages when switching tabs
         errorMessage = "";
         successMessage = "";
         usernameMessage = "";
+        
+        // Clear fields when switching to delete tab
+        if (tab == "delete")
+        {
+            deletePassword = "";
+            confirmDelete = false;
+        }
     }
 
     private void ToggleUserMenu()
@@ -325,14 +369,14 @@
             var existingUser = await UserService.GetByUsernameAsync(updatedUser.Username);
             if (existingUser != null && existingUser.Id != user?.Id)
             {
-                errorMessage = "Username is already taken. Please choose another.";
+                errorMessage = "Το όνομα χρήστη υπάρχει ήδη . Επιλέξτε άλλο.";
                 return;
             }
         }
 
         if (string.IsNullOrWhiteSpace(updatedUser.FirstName) || string.IsNullOrWhiteSpace(updatedUser.LastName))
         {
-            errorMessage = "First name and last name cannot be empty.";
+            errorMessage = "Το όνομα και το επώνυμο δεν μπορεί να είναι κενό.";
             return;
         }
 
@@ -344,11 +388,11 @@
             if (updated)
             {
                 user = updatedUser; // Update the local user object
-                successMessage = "Profile updated successfully!";
+                successMessage = "Το προφίλ ενημερώθηκε με επιτυχία!";
             }
             else
             {
-                errorMessage = "Failed to update profile. Please try again.";
+                errorMessage = "Η ενημέρωση του προφίλ απέτυχε. Δοκιμάστε ξανά.";
             }
         }
         catch (Exception ex)
@@ -365,19 +409,19 @@
         // Validation
         if (string.IsNullOrWhiteSpace(currentPassword))
         {
-            errorMessage = "Current password is required.";
+            errorMessage = "Απαιτείται ο τρέχων κωδικός πρόσβασης.";
             return;
         }
 
         if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
         {
-            errorMessage = "New password must be at least 6 characters.";
+            errorMessage = "Ο νέος κωδικός πρόσβασης πρέπει να αποτελείται από τουλάχιστον 6 χαρακτήρες.";
             return;
         }
 
         if (newPassword != confirmPassword)
         {
-            errorMessage = "New passwords do not match.";
+            errorMessage = "Οι νέοι κωδικοί πρόσβασης δεν ταιριάζουν.";
             return;
         }
 
@@ -387,7 +431,7 @@
             var validUser = await UserService.ValidateUserAsync(user!.Email, currentPassword);
             if (validUser == null)
             {
-                errorMessage = "Current password is incorrect.";
+                errorMessage = "Ο τρέχων κωδικός πρόσβασης είναι λανθασμένος.";
                 return;
             }
 
@@ -401,11 +445,11 @@
                 newPassword = "";
                 confirmPassword = "";
                 
-                successMessage = "Password changed successfully!";
+                successMessage = "Ο κωδικός άλλαξε με επιτυχία!";
             }
             else
             {
-                errorMessage = "Failed to change password. Please try again.";
+                errorMessage = "Αποτυχία αλλαγής κωδικού πρόσβασης. Δοκιμάστε ξανά.";
             }
         }
         catch (Exception ex)
@@ -413,5 +457,77 @@
             errorMessage = $"An error occurred: {ex.Message}";
         }
     }
+    
+    private async Task DeleteAccount()
+    {
+        errorMessage = "";
+        successMessage = "";
+        
+        if (!confirmDelete)
+        {
+            errorMessage = "Πρέπει να επιβεβαιώσετε τη διαγραφή λογαριασμού επιλέγοντας το πλαίσιο επιβεβαίωσης.";
+            return;
+        }
+        
+        if (string.IsNullOrWhiteSpace(deletePassword))
+        {
+            errorMessage = "Πρέπει να εισαγάγετε τον κωδικό πρόσβασής σας για να διαγράψετε τον λογαριασμό σας.";
+            return;
+        }
+        
+        try
+        {
+            // Make sure we're not already processing a delete
+            if (deleteInProgress)
+                return;
+                
+            deleteInProgress = true;
+            
+            // Double-confirm with a JavaScript dialog
+            bool confirmResult = await JSRuntime.InvokeAsync<bool>(
+                "confirm", "ΠΡΟΣΟΧΗ: Αυτή η ενέργεια θα διαγράψει οριστικά τον λογαριασμό σας και όλα τα δεδομένα σας. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί. Είστε απολύτως σίγουρος;"
+            );
+            
+            if (!confirmResult)
+            {
+                deleteInProgress = false;
+                return;
+            }
+            
+            // Verify the password
+            var validUser = await UserService.ValidateUserAsync(user!.Email, deletePassword);
+            if (validUser == null)
+            {
+                errorMessage = "Ο κωδικός πρόσβασης είναι λανθασμένος. Η διαγραφή λογαριασμού ακυρώθηκε.";
+                deleteInProgress = false;
+                return;
+            }
+            
+            // Delete the user account
+            bool deleted = await UserService.DeleteUserAsync(userId!);
+            
+            if (deleted)
+            {
+                // Successfully deleted, log the user out
+                if (AuthStateProvider is BlazorAuthStateProvider authProvider)
+                {
+                    await authProvider.UpdateAuthenticationState(null);
+                    
+                    // Use JS alert to show a final message and then redirect
+                    await JSRuntime.InvokeVoidAsync("alert", "Ο λογαριασμός σας διαγράφηκε επιτυχώς.");
+                    NavigationManager.NavigateTo("/", forceLoad: true);
+                }
+            }
+            else
+            {
+                errorMessage = "Αποτυχία διαγραφής λογαριασμού. Δοκιμάστε ξανά.";
+                deleteInProgress = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+            deleteInProgress = false;
+        }
+    }
 }
-
