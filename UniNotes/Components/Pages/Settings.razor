@@ -15,14 +15,7 @@
 <div id="particles-js"></div>
 <script src="js/particles/particles.js"></script>
 <script>
-    // Ensure particles.js loads after page is fully loaded
-    document.addEventListener("DOMContentLoaded", function() {
-        setTimeout(function() {
-            particlesJS.load('particles-js', 'js/particles/particles.json', function() {
-                console.log('Particles.js loaded');
-            });
-        }, 100);
-    });
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
 </script>
 
 <CascadingAuthenticationState>
@@ -66,7 +59,7 @@
 
             <div class="full-page-background">
                 <div class="settings-container">
-                    <h1 class="logo" style="color: #333; text-shadow: none;">Account Settings</h1>
+                    <h1 class="logo">Account Settings</h1>
 
                     @if (!string.IsNullOrEmpty(successMessage))
                     {
@@ -96,10 +89,10 @@
                     {
                         <!-- Replace tabs with buttons -->
                         <div class="settings-tab-buttons">
-                            <button class="tab-button @(activeTab == "profile" ? "active" : "")" @onclick='() => SetActiveTab("profile")'>
+                            <button class="action-button @(activeTab == "profile" ? "active" : "")" @onclick='() => SetActiveTab("profile")'>
                                 <i class="fa-solid fa-user"></i> Profile
                             </button>
-                            <button class="tab-button @(activeTab == "password" ? "active" : "")" @onclick='() => SetActiveTab("password")'>
+                            <button class="action-button @(activeTab == "password" ? "active" : "")" @onclick='() => SetActiveTab("password")'>
                                 <i class="fa-solid fa-lock"></i> Change Password
                             </button>
                         </div>

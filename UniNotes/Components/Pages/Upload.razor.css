@@ -9,6 +9,42 @@
     color: white;
 }
 
+.description-container,
+.title-container {
+    position: relative;
+    width: 100%;
+}
+
+.hover-text {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #6c757d;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1; /* Changed from 2 to 1 */
+}
+
+#description,
+#title {
+    /* Ensure inputs are transparent to show the text behind them */
+    background-color: transparent !important;
+    position: relative;
+    z-index: 2; /* Changed from 1 to 2 - inputs now on top */
+}
+
+    /* Hide the text when the inputs have content */
+    #description:not(:placeholder-shown) ~ .hover-text,
+    #title:not(:placeholder-shown) ~ .hover-text,
+    /* Hide the text when the inputs are focused */
+    #description:focus ~ .hover-text,
+    #title:focus ~ .hover-text,
+    /* Hide the text when hovering over the containers */
+    .description-container:hover .hover-text,
+    .title-container:hover .hover-text {
+        opacity: 0;
+    }
+
 .dropdown-divider {
     height: 1px;
     background-color: #e0e0e0;
