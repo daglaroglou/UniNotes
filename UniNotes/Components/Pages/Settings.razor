@@ -1,7 +1,4 @@
 ﻿@page "/settings"
-@using Microsoft.AspNetCore.Components.Authorization
-@using System.Security.Claims
-@using UniNotes.Models
 @inject UniNotes.Services.UserService UserService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
@@ -163,8 +160,8 @@
                                 <div class="delete-account-section">
                                     <div class="warning-box">
                                         <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
-                                        <h3>Warning: This action cannot be undone</h3>
-                                        <p>Deleting your account will permanently remove all your data, including all your notes and files. This action is irreversible.</p>
+                                        <h3>Προσοχή: Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</h3>
+                                        <p>Η διαγραφή του λογαριασμού σας θα διαγράψει οριστικά όλα τα δεδομένα σας, συμπεριλαμβανομένων όλων των σημειώσεων και των αρχείων σας. Αυτή η ενέργεια είναι μη αναστρέψιμη.</p>
                                     </div>
                                     
                                     <div class="form-group">
@@ -369,7 +366,7 @@
             var existingUser = await UserService.GetByUsernameAsync(updatedUser.Username);
             if (existingUser != null && existingUser.Id != user?.Id)
             {
-                errorMessage = "Το όνομα χρήστη υπάρχει ήδη . Επιλέξτε άλλο.";
+                errorMessage = "Το όνομα χρήστη υπάρχει ήδη. Επιλέξτε άλλο.";
                 return;
             }
         }

@@ -442,6 +442,23 @@ select.form-control {
     font-size: 0.9rem;
 }
 
+/* Settings tab buttons */
+.settings-tab-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.settings-tab-buttons .action-button {
+    flex: 1;
+    white-space: nowrap;
+    padding: 10px 10px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
 /* Media queries for responsiveness */
 /* Tablet sizes */
 @media (max-width: 768px) {
@@ -477,6 +494,11 @@ select.form-control {
     .error-message, .success-message {
         font-size: 0.8rem;
         padding: 6px;
+    }
+
+    .settings-tab-buttons .action-button {
+        font-size: 0.8rem;
+        padding: 8px 5px;
     }
 }
 
@@ -547,6 +569,14 @@ select.form-control {
 
     input:checked + .slider:before {
         transform: translateX(22px);
+    }
+
+    .settings-tab-buttons {
+        flex-direction: column;
+    }
+    
+    .settings-tab-buttons .action-button {
+        margin-bottom: 5px;
     }
 }
 
