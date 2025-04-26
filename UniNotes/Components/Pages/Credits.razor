@@ -1,0 +1,108 @@
+@page "/credits"
+@using System.Net.Http.Json
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<PageTitle>UniNotes - Credits</PageTitle>
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div id="particles-js"></div>
+<script src="js/particles/particles.js"></script>
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<!-- Back button -->
+<div class="back-button-container">
+    <button class="action-button" @onclick="GoBack">
+        <i class="fa-solid fa-arrow-left"></i> Back
+    </button>
+</div>
+
+<div class="full-page-background">
+    <div class="credits-container">
+        <h1 class="logo">Credits</h1>
+        
+        @if (isLoading)
+        {
+            <div class="spinner-container">
+                <div class="spinner"></div>
+                <p style="color: white;">Loading contributors...</p>
+            </div>
+        }
+        else if (errorMessage != null)
+        {
+            <div class="message-container">
+                <div class="error-message">@errorMessage</div>
+            </div>
+        }
+        else
+        {
+            <div class="contributors-grid">
+                @foreach (var contributor in contributors)
+                {
+                    <div class="contributor-card">
+                        <img src="@contributor.avatar_url" alt="@contributor.login" class="contributor-avatar" />
+                        <div class="contributor-info">
+                            <h3>@contributor.login</h3>
+                            <p>@contributor.contributions contributions</p>
+                            <a href="https://github.com/@contributor.login" target="_blank" class="profile-link">
+                                <i class="fa-brands fa-github"></i> View Profile
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <div class="github-repo-link">
+                <a href="https://github.com/daglaroglou/UniNotes" target="_blank" class="action-button">
+                    <i class="fa-brands fa-github"></i> View Repository
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<Contributor> contributors = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Create a new HttpClient instance instead of using dependency injection
+            using var httpClient = new HttpClient();
+
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "UniNotes");
+
+            // Fetch contributors from GitHub API
+            var response = await httpClient.GetFromJsonAsync<List<Contributor>>("https://api.github.com/repos/daglaroglou/UniNotes/contributors");
+
+            if (response != null)
+            {
+                contributors = response.Take(12).ToList(); // Limit to 12 contributors
+            }
+            else
+            {
+                errorMessage = "No contributors found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading contributors: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

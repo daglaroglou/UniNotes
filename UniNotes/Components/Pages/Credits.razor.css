@@ -1,0 +1,323 @@
+/* Inherit all the base styles from Settings.razor.css */
+#particles-js {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+}
+
+.full-page-background {
+    position: relative;
+    background-color: rgba(0,0,0,0);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 15px;
+    box-sizing: border-box;
+    z-index: 1;
+    pointer-events: none;
+}
+
+    .full-page-background * {
+        pointer-events: auto;
+    }
+
+    .full-page-background a {
+        color: white;
+        text-decoration: none;
+        pointer-events: auto;
+    }
+
+.logo {
+    font-family: "Lobster", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: min(80px, 10vw) !important;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.action-button {
+    background-color: transparent;
+    color: white;
+    border: 2px solid #e0e0e0;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+    .action-button:hover {
+        background-color: #e0e0e0;
+        color: black;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(224, 224, 224, 0.4);
+    }
+
+/* Spinner */
+.spinner-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 15px 0;
+}
+
+.spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid white;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error message */
+.message-container {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0;
+    width: 100%;
+}
+
+.error-message {
+    color: #ff5252;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    text-align: center;
+    max-width: 100%;
+    background-color: rgba(255, 82, 82, 0.15);
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 82, 82, 0.3);
+}
+
+/* Credits specific styles */
+.credits-container {
+    max-width: 90%;
+    margin: 1.5rem auto;
+    padding: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+}
+
+/* Improved contributors grid - using flexbox for better control */
+.contributors-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.contributor-card {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: calc(33.333% - 20px); /* Display 3 cards per row by default */
+    min-width: 200px; /* Minimum width for each card */
+    margin-bottom: 10px;
+}
+
+    .contributor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+    }
+
+.contributor-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    margin-bottom: 15px;
+}
+
+.contributor-info {
+    text-align: center;
+    width: 100%;
+}
+
+    .contributor-info h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: white;
+    }
+
+    .contributor-info p {
+        margin: 5px 0 10px;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+.profile-link {
+    color: white !important;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-top: 10px;
+    transition: color 0.2s ease;
+}
+
+    .profile-link:hover {
+        color: grey !important;
+    }
+
+.github-repo-link {
+    margin-top: 30px;
+}
+
+.back-button-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+/* Media queries for responsiveness */
+/* Large screens */
+@media (min-width: 1200px) {
+    .credits-container {
+        max-width: 1100px;
+    }
+
+    .contributor-card {
+        width: calc(25% - 20px); /* 4 cards per row on very large screens */
+    }
+}
+
+/* Medium/Tablet sizes */
+@media (max-width: 992px) {
+    .credits-container {
+        max-width: 95%;
+        margin: 0.8rem auto;
+        padding: 1.2rem;
+    }
+
+    .contributor-card {
+        width: calc(50% - 15px); /* 2 cards per row on medium screens */
+    }
+
+    .contributor-avatar {
+        width: 85px;
+        height: 85px;
+    }
+
+    .contributor-info h3 {
+        font-size: 1.1rem;
+    }
+
+    .logo {
+        font-size: min(50px, 9vw) !important;
+        margin-bottom: 12px;
+    }
+
+    .action-button {
+        padding: 9px 18px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Small screens/Mobile sizes */
+@media (max-width: 576px) {
+    .credits-container {
+        max-width: 98%;
+        padding: 0.8rem;
+    }
+
+    .contributors-grid {
+        gap: 15px;
+    }
+
+    .contributor-card {
+        width: 100%; /* Full width - stack vertically on small screens */
+        padding: 15px;
+        flex-direction: row; /* Change to horizontal layout on mobile */
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    .contributor-avatar {
+        width: 70px;
+        height: 70px;
+        border-width: 2px;
+        margin-bottom: 0;
+        margin-right: 15px;
+    }
+
+    .contributor-info {
+        text-align: left;
+    }
+
+        .contributor-info h3 {
+            font-size: 1rem;
+        }
+
+        .contributor-info p {
+            font-size: 0.8rem;
+        }
+
+    .profile-link {
+        font-size: 0.8rem;
+    }
+
+    .back-button-container {
+        top: 10px;
+        left: 10px;
+    }
+
+    .logo {
+        font-size: min(36px, 7vw) !important;
+        margin-bottom: 8px;
+    }
+
+    .action-button {
+        padding: 7px 14px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+    .contributor-avatar {
+        width: 60px;
+        height: 60px;
+    }
+
+    .logo {
+        font-size: min(30px, 6vw) !important;
+        margin-bottom: 6px;
+    }
+
+    .action-button {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}

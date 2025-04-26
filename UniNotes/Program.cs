@@ -17,6 +17,9 @@ builder.Services.AddScoped<UserService>();
 // Add NoteService registration
 builder.Services.AddScoped<NoteService>();
 
+// Add HttpClient
+builder.Services.AddHttpClient();
+
 // Add authorization services
 builder.Services.AddAuthorizationCore();
 
