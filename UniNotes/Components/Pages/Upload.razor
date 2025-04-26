@@ -9,6 +9,46 @@
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+    .description-container,
+    .title-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .hover-text {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: #6c757d;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 1; /* Changed from 2 to 1 */
+    }
+
+    #description,
+    #title {
+        /* Ensure inputs are transparent to show the text behind them */
+        background-color: transparent !important;
+        position: relative;
+        z-index: 2; /* Changed from 1 to 2 - inputs now on top */
+    }
+
+        /* Hide the text when the inputs have content */
+        #description:not(:placeholder-shown) ~ .hover-text,
+        #title:not(:placeholder-shown) ~ .hover-text,
+        /* Hide the text when the inputs are focused */
+        #description:focus ~ .hover-text,
+        #title:focus ~ .hover-text,
+        /* Hide the text when hovering over the containers */
+        .description-container:hover .hover-text,
+        .title-container:hover .hover-text {
+            opacity: 0;
+        }
+</style>
+
+
 <div id="particles-js"></div>
 <script src="js/particles/particles.js"></script>
 <script>
@@ -68,16 +108,30 @@
                     }
 
 
-                    <div class="upload-form">
-                        <div class="form-group">
-                            <label for="title">Title</label>
-                            <input id="title" type="text" class="form-control" @bind="note.Title" />
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <div class="title-container">
+                            <input id="title" type="text" class="form-control"
+                                   @bind="note.Title"
+                                   placeholder=""
+                                   @onclick="FocusElement" />
+                            <div class="hover-text">Δώσε έναν τίτλο στις σημειώσεις σου...</div>
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="description">Description</label>
-                            <textarea id="description" class="form-control" @bind="note.Description"></textarea>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <div class="description-container">
+                            <textarea id="description" class="form-control"
+                                      @bind="note.Description"
+                                      placeholder=""
+                                      @onclick="FocusElement"></textarea>
+                            <div class="hover-text">Δώσε μια περιγραφή για τις σημειώσεις σου...</div>
                         </div>
+                    </div>
+
+
+
 
                         <div class="form-group">
                             <label for="semester">Semester</label>
@@ -240,7 +294,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            
         </Authorized>
         <NotAuthorized>
             @{
@@ -440,4 +494,18 @@
             errorMessage = $"An error occurred: {ex.Message}";
         }
     }
+     
+    private async Task FocusElement(MouseEventArgs args)
+    {
+        // Use JavaScript to get the currently focused element
+        var elementId = await JSRuntime.InvokeAsync<string>("eval", "document.activeElement.id");
+
+        if (!string.IsNullOrEmpty(elementId))
+        {
+            // Force focus on the element
+            await JSRuntime.InvokeVoidAsync("document.getElementById", elementId, "focus");
+        }
+    }
+
+
 }
