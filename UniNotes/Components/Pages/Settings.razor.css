@@ -147,6 +147,7 @@
     font-style: normal;
 }
 
+/* Update the existing logo class */
 .logo {
     font-family: "Lobster", sans-serif;
     font-weight: 400;
@@ -154,6 +155,30 @@
     font-size: min(80px, 10vw) !important;
     text-align: center;
     margin-bottom: 15px;
+}
+
+/* Add a new class specifically for settings page logo */
+.settings-logo {
+    font-family: "Lobster", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: min(40px, 8vw) !important;
+    text-align: center;
+    margin-bottom: 15px;
+    white-space: nowrap;
+}
+
+/* Mobile adjustments for the settings logo */
+@media (max-width: 480px) {
+    .settings-logo {
+        font-size: min(32px, 7vw) !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .settings-logo {
+        font-size: min(28px, 6vw) !important;
+    }
 }
 
 /* Form layout */
@@ -578,6 +603,10 @@ select.form-control {
     .settings-tab-buttons .action-button {
         margin-bottom: 5px;
     }
+
+    .settings-logo {
+        font-size: min(32px, 7vw) !important;
+    }
 }
 
 /* Extra small screens */
@@ -612,5 +641,9 @@ select.form-control {
     .settings-title {
         font-size: 1rem;
         margin-bottom: 0.8rem;
+    }
+
+    .settings-logo {
+        font-size: min(28px, 6vw) !important;
     }
 }

@@ -1,0 +1,353 @@
+@page "/notes"
+@inject UniNotes.Services.UserService UserService
+@inject UniNotes.Services.NoteService NoteService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JSRuntime
+
+<PageTitle>UniNotes - All Notes</PageTitle>
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div id="particles-js"></div>
+<script src="js/particles/particles.js"></script>
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <!-- User icon with dropdown menu -->
+            <div class="user-icon-container">
+                <div class="user-icon" @onclick="ToggleUserMenu">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="white">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                    </svg>
+                </div>
+                @if (isUserMenuOpen)
+                {
+                    <div class="user-dropdown">
+                        <div class="dropdown-item" style="pointer-events: none">
+                            <i class="fa-solid fa-user"></i>
+                            <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span>My Notes</span>
+                        </div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/upload")'>
+                            <i class="fa-solid fa-file-arrow-up"></i>
+                            <span>Upload Note</span>
+                        </div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
+                            <i class="fa-solid fa-gauge-high"></i>
+                            <span>Dashboard</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" style="color: red" @onclick="Logout">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Logout</span>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Back button -->
+            <div class="back-button-container">
+                <button class="action-button" @onclick="GoBack">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </button>
+            </div>
+
+            <div class="full-page-background">
+                <div class="notes-container">
+                    <h1 class="logo">Notes Forum</h1>
+
+                    @if (isLoading)
+                    {
+                        <div class="spinner-container">
+                            <div class="spinner"></div>
+                            <p style="color: white;">Loading notes...</p>
+                        </div>
+                    }
+                    else if (errorMessage != null)
+                    {
+                        <div class="message-container">
+                            <div class="error-message">@errorMessage</div>
+                        </div>
+                    }
+                    else if (allNotes == null || !allNotes.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="fa-solid fa-folder-open fa-3x mb-3"></i>
+                            <h3>No notes available</h3>
+                            <p>There are no notes in the system yet.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="filter-container">
+                            <div class="filter-group">
+                                <label for="subjectFilter">Filter by Subject:</label>
+                                <select id="subjectFilter" class="form-control" @bind="selectedSubject">
+                                    <option value="">All Subjects</option>
+                                    @foreach (var subject in subjectList)
+                                    {
+                                        <option value="@subject">@subject</option>
+                                    }
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="semesterFilter">Filter by Semester:</label>
+                                <select id="semesterFilter" class="form-control" @bind="selectedSemester">
+                                    <option value="0">All Semesters</option>
+                                    @for (int i = 1; i <= 8; i++)
+                                    {
+                                        <option value="@i">Semester @i</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="notes-grid">
+                            @foreach (var note in filteredNotes)
+                            {
+                                <div class="note-card">
+                                    <div class="note-header">
+                                        <h3 class="note-title">@note.Title</h3>
+                                        <span class="note-date">@note.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                    </div>
+                                    
+                                    <div class="note-preview">
+                                        @if (IsPdfFile(note))
+                                        {
+                                            <div class="file-preview pdf-preview">
+                                                <i class="fa-solid fa-file-pdf fa-2x"></i>
+                                                <span>PDF Document</span>
+                                            </div>
+                                        }
+                                        else if (IsImageFile(note))
+                                        {
+                                            <div class="file-preview image-preview">
+                                                <img src="@GetImageDataUrl(note)" alt="@note.Title" />
+                                            </div>
+                                        }
+                                        else if (IsWordFile(note))
+                                        {
+                                            <div class="file-preview word-preview">
+                                                <i class="fa-solid fa-file-word fa-2x"></i>
+                                                <span>Word Document</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    
+                                    <div class="note-body">
+                                        <p class="note-description">@(GetDescriptionPreview(note.Description))</p>
+                                        <div class="note-metadata">
+                                            <span><i class="fa-solid fa-book"></i> @note.Subject</span>
+                                            <span><i class="fa-solid fa-graduation-cap"></i> Semester @note.Semester</span>
+                                            <span><i class="fa-solid fa-user"></i> @note.Username</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="note-actions">
+                                        <button class="action-button view-button" @onclick="() => ViewNote(note)">
+                                            <i class="fa-solid fa-eye"></i> View
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            @{
+                NavigationManager.NavigateTo("/");
+            }
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
+
+@code {
+    private List<Note>? allNotes;
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string selectedSubject = "";
+    private int selectedSemester = 0;
+    private List<string> subjectList = new List<string>();
+    private Dictionary<string, string> imageCache = new Dictionary<string, string>();
+    
+    // User-related properties for the dropdown menu
+    private bool isUserMenuOpen = false;
+    private User? user;
+    private string? userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Get user data for the dropdown menu
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var userClaims = authState.User;
+
+            if (userClaims.Identity?.IsAuthenticated == true)
+            {
+                userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    user = await UserService.GetUserByIdAsync(userId);
+                }
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/");
+                return;
+            }
+            
+            // Load all notes
+            allNotes = await NoteService.GetAllNotesAsync();
+            
+            // Extract unique subjects for the filter
+            if (allNotes != null && allNotes.Any())
+            {
+                subjectList = allNotes
+                    .Select(n => n.Subject)
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .Distinct()
+                    .OrderBy(s => s)
+                    .ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading notes: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private List<Note> filteredNotes => allNotes?
+        .Where(n => string.IsNullOrEmpty(selectedSubject) || n.Subject == selectedSubject)
+        .Where(n => selectedSemester == 0 || n.Semester == selectedSemester)
+        .OrderByDescending(n => n.CreatedAt)
+        .ToList() ?? new List<Note>();
+    
+    private void ToggleUserMenu()
+    {
+        isUserMenuOpen = !isUserMenuOpen;
+    }
+    
+    private async Task Logout()
+    {
+        if (AuthStateProvider is BlazorAuthStateProvider blazorAuthStateProvider)
+        {
+            await blazorAuthStateProvider.UpdateAuthenticationState(null);
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private string GetDescriptionPreview(string description)
+    {
+        if (string.IsNullOrEmpty(description))
+            return "No description";
+            
+        return description.Length > 100 ? description[..100] + "..." : description;
+    }
+    
+    private bool IsPdfFile(Note note)
+    {
+        if (note.Content == null || note.Content.Length < 5)
+            return false;
+            
+        byte[] pdfSignature = new byte[] { 0x25, 0x50, 0x44, 0x46 }; // %PDF
+        return note.Content.Take(4).SequenceEqual(pdfSignature);
+    }
+    
+    private bool IsImageFile(Note note)
+    {
+        if (note.Content == null || note.Content.Length < 10)
+            return false;
+            
+        byte[] jpegSignature = new byte[] { 0xFF, 0xD8, 0xFF };
+        byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
+        
+        return note.Content.Take(3).SequenceEqual(jpegSignature) || note.Content.Take(4).SequenceEqual(pngSignature);
+    }
+    
+    private bool IsWordFile(Note note)
+    {
+        if (note.Content == null || note.Content.Length < 10)
+            return false;
+            
+        byte[] oleSignature = new byte[] { 0xD0, 0xCF, 0x11, 0xE0 };
+        byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 };
+        
+        return note.Content.Take(4).SequenceEqual(oleSignature) || 
+               note.Content.Take(4).SequenceEqual(zipSignature);
+    }
+    
+    private string GetImageDataUrl(Note note)
+    {
+        if (note.Id != null && imageCache.ContainsKey(note.Id))
+        {
+            return imageCache[note.Id];
+        }
+
+        if (note.Id == null || note.Content == null || note.Content.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        string mimeType = "image/jpeg";
+        
+        if (note.Content.Length > 4)
+        {
+            byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
+            if (note.Content.Take(4).SequenceEqual(pngSignature))
+            {
+                mimeType = "image/png";
+            }
+        }
+
+        string base64Data = Convert.ToBase64String(note.Content);
+        string dataUrl = $"data:{mimeType};base64,{base64Data}";
+        
+        imageCache[note.Id] = dataUrl;
+        
+        return dataUrl;
+    }
+    
+    private async Task ViewNote(Note note)
+    {
+        if (note?.Id == null) return;
+        
+        if (IsImageFile(note))
+        {
+            string dataUrl = GetImageDataUrl(note);
+            await JSRuntime.InvokeVoidAsync("window.open", dataUrl, "_blank");
+        }
+        else if (IsPdfFile(note))
+        {
+            string base64Data = Convert.ToBase64String(note.Content ?? Array.Empty<byte>());
+            string dataUrl = $"data:application/pdf;base64,{base64Data}";
+            await JSRuntime.InvokeVoidAsync("window.open", dataUrl, "_blank");
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"/note/{note.Id}");
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

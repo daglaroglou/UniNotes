@@ -27,10 +27,10 @@
 }
 
 .note-card {
-    background: rgba(40, 44, 52, 0.9);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     overflow: hidden;
-    transition: transform 0.2s;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
 }
@@ -41,7 +41,7 @@
 
 .note-header {
     padding: 1rem;
-    background: rgba(50, 55, 65, 0.8);
+    background: rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: space-between;
     align-items: center;

@@ -1,7 +1,4 @@
 ﻿@page "/dashboard"
-@using Microsoft.AspNetCore.Components.Authorization
-@using System.Security.Claims
-@using UniNotes.Models
 @inject UniNotes.Services.UserService UserService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
@@ -34,6 +31,10 @@
                             <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
                         </div>
                         <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/notes")'>
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span>All Notes</span>
+                        </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
                             <i class="fa-solid fa-note-sticky"></i>
                             <span>My Notes</span>
