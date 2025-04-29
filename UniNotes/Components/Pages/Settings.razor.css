@@ -410,6 +410,7 @@ select.form-control {
     padding: 20px;
     margin-bottom: 20px;
     text-align: center;
+    display: inline-block;
 }
 
 .warning-box h3 {
