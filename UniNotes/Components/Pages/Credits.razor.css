@@ -46,9 +46,9 @@
     background-color: transparent;
     color: white;
     border: 2px solid #e0e0e0;
-    padding: 10px 25px;
+    padding: 12px 30px;
     border-radius: 25px;
-    font-size: 1rem;
+    font-size: 1.1rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     transition: all 0.3s ease;
@@ -59,8 +59,8 @@
     .action-button:hover {
         background-color: #e0e0e0;
         color: black;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(224, 224, 224, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
     }
 
 /* Spinner */
@@ -201,6 +201,21 @@
     z-index: 1000;
 }
 
+/* Footer styles */
+.footer {
+    width: 100%;
+    color: white;
+    text-align: center;
+    font-size: 0.9rem;
+    position: fixed;
+    bottom: 15px;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0);
+    padding: 5px 0;
+    z-index: 10;
+    pointer-events: auto;
+}
+
 /* Media queries for responsiveness */
 /* Large screens */
 @media (min-width: 1200px) {
@@ -301,6 +316,11 @@
     .action-button {
         padding: 7px 14px;
         font-size: 0.85rem;
+    }
+
+    .footer {
+        font-size: 0.8rem;
+        bottom: 10px;
     }
 }
 

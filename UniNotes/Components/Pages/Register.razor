@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject UserService UserService
+@inject NavigationManager NavigationManager
 @implements IDisposable
 
 @attribute [StreamRendering]
@@ -9,6 +10,7 @@
 <PageTitle>UniNotes - Register</PageTitle>
 
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <script>
     // Store the Blazor instance when component is initialized
@@ -22,6 +24,15 @@
 
 <script src="js/particles/particles.js"></script>
 <script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
+
+<!-- Back button -->
+<div class="back-button-container">
+    <button class="action-button" @onclick="GoBack">
+        <i class="fa-solid fa-arrow-left"></i> ΠΙΣΩ
+    </button>
+</div>
+
+
 <script>
     particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
 
@@ -173,16 +184,16 @@
         {
             // Create a reference to this component instance
             objRef = DotNetObjectReference.Create(this);
-            
+
             // Pass the instance to JavaScript
             await JSRuntime.InvokeVoidAsync("initializeBlazorInstance", objRef);
-            
+
             // Add a small delay to ensure DOM is fully loaded
             await Task.Delay(500);
-            
+
             // Clear any existing captcha first
             await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.clearCaptcha");
-            
+
             // Then render the captcha
             await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
             captchaInitialized = true;
@@ -195,7 +206,7 @@
             {
                 // Clear any existing captcha first
                 await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.clearCaptcha");
-                
+
                 // Then render fresh
                 await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
                 captchaInitialized = true;
@@ -238,13 +249,13 @@
     private async Task ResetCaptcha()
     {
         captchaToken = string.Empty;
-        
+
         // First, clear the captcha container
         await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.clearCaptcha");
-        
+
         // Short delay to ensure DOM is updated
         await Task.Delay(100);
-        
+
         // Then re-render the captcha
         await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
     }
@@ -383,4 +394,10 @@
         // In production, implement proper server-side validation
         return !string.IsNullOrEmpty(token);
     }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/", forceLoad: false);
+    }
+   
 }
