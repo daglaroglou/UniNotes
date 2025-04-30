@@ -33,18 +33,26 @@
                             <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
                         </div>
                         <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/notes")'>
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span>Φόρουμ Σημειώσεων</span>
+                        </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/upload")'>
                             <i class="fa-solid fa-file-arrow-up"></i>
-                            <span>Upload Note</span>
+                            <span>Ανέβασε Σημειώσεις</span>
                         </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                             <i class="fa-solid fa-gauge-high"></i>
                             <span>Dashboard</span>
                         </div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/settings")'>
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Ρυθμίσεις Χρήστη</span>
+                        </div>
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" style="color: red" @onclick="() => Logout()">
                             <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Logout</span>
+                            <span>Αποσύνδεση</span>
                         </div>
                     </div>
                 }
@@ -58,15 +66,15 @@
                     {
                         <div class="loading-spinner">
                             <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
-                            <p>Loading your notes...</p>
+                            <p>Φορτώνοντας τις σημειώσεις σου...</p>
                         </div>
                     }
                     else if (userNotes == null || !userNotes.Any())
                     {
                         <div class="empty-state">
                             <i class="fa-solid fa-folder-open fa-3x mb-3"></i>
-                            <h3>No notes yet</h3>
-                            <p>You haven't uploaded any notes. Start by uploading one!</p>
+                            <h3>Χωρίς σημειώσεις</h3>
+                            <p>Δεν έχεις ανεβάσει καθόλου σημειώσεις ακόμα. Ξεκίνα ανεβάζοντας μερικές!</p>
                             <button class="action-button mt-3" @onclick='() => NavigationManager.NavigateTo("/upload")'>
                                 <i class="fa-solid fa-upload"></i> Upload Note
                             </button>
@@ -94,7 +102,7 @@
                                         {
                                             <div class="file-preview pdf-preview">
                                                 <i class="fa-solid fa-file-pdf fa-2x"></i>
-                                                <span>PDF Document</span>
+                                                <span>PDF Αρχείο</span>
                                             </div>
                                         }
                                         else if (IsImageFile(note))
@@ -107,7 +115,7 @@
                                         {
                                             <div class="file-preview word-preview">
                                                 <i class="fa-solid fa-file-word fa-2x"></i>
-                                                <span>Word Document</span>
+                                                <span>Word Αρχείο</span>
                                             </div>
                                         }
                                     </div>

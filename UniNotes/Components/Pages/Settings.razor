@@ -35,11 +35,11 @@
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
                             <i class="fa-solid fa-note-sticky"></i>
-                            <span>My Notes</span>
+                            <span>Οι Σημειώσεις μου</span>
                         </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/upload")'>
                             <i class="fa-solid fa-file-arrow-up"></i>
-                            <span>Upload Note</span>
+                            <span>Ανέβασε Σημειώσεις</span>
                         </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                             <i class="fa-solid fa-gauge-high"></i>
@@ -48,7 +48,7 @@
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" style="color: red" @onclick="HandleLogout">
                             <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Logout</span>
+                            <span>Αποσύνδεση</span>
                         </div>
                     </div>
                 }
@@ -56,7 +56,7 @@
 
             <div class="full-page-background">
                 <div class="settings-container">
-                    <h1 class="settings-logo">Account Settings</h1>
+                    <h1 class="settings-logo">Ρυθμίσεις Λογαριασμού</h1>
 
                     @if (!string.IsNullOrEmpty(successMessage))
                     {
@@ -110,11 +110,11 @@
                                         }
                                     </div>
                                     <div class="form-group">
-                                        <label for="firstName">First Name</label>
+                                        <label for="firstName">Όνομα</label>
                                         <input type="text" id="firstName" class="form-control" @bind="updatedUser.FirstName" />
                                     </div>
                                     <div class="form-group">
-                                        <label for="lastName">Last Name</label>
+                                        <label for="lastName">Επώνυμο</label>
                                         <input type="text" id="lastName" class="form-control" @bind="updatedUser.LastName" />
                                     </div>
                                     <div class="form-group">
@@ -123,7 +123,7 @@
                                         <small class="text-muted">Email cannot be changed</small>
                                     </div>
                                     <div class="form-group">
-                                        <label for="uniIdNumber">University ID</label>
+                                        <label for="uniIdNumber">Αριθμός Ακαδημαϊκού Πάσου</label>
                                         <input type="text" id="uniIdNumber" class="form-control" @bind="updatedUser.UniIdNumber" />
                                     </div>
                                     <div class="form-group mt-4">
@@ -137,15 +137,15 @@
                             {
                                 <div class="password-section">
                                     <div class="form-group">
-                                        <label for="currentPassword">Current Password</label>
+                                        <label for="currentPassword">Τρέχον κωδικός πρόσβασης</label>
                                         <input type="password" id="currentPassword" class="form-control" @bind="currentPassword" />
                                     </div>
                                     <div class="form-group">
-                                        <label for="newPassword">New Password</label>
+                                        <label for="newPassword">Νέος κωδικός πρόσβασης</label>
                                         <input type="password" id="newPassword" class="form-control" @bind="newPassword" />
                                     </div>
                                     <div class="form-group">
-                                        <label for="confirmPassword">Confirm New Password</label>
+                                        <label for="confirmPassword">Επιβεβαίωση νέου κωδικού πρόσβασης</label>
                                         <input type="password" id="confirmPassword" class="form-control" @bind="confirmPassword" />
                                     </div>
                                     <div class="form-group mt-4">
@@ -171,7 +171,7 @@
                                     <div class="form-check mt-3">
                                         <input type="checkbox" id="confirmDelete" class="form-check-input" @bind="confirmDelete" />
                                         <label class="form-check-label" for="confirmDelete">
-                                            I confirm that I want to delete my account and all associated data
+                                            Επιβεβαιώνω ότι θέλω να διαγράψω τον λογαριασμό μου και όλα τα συσχετισμένα δεδομένα
                                         </label>
                                     </div>
                                     

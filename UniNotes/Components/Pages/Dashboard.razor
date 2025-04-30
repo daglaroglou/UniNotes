@@ -33,24 +33,24 @@
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/notes")'>
                             <i class="fa-solid fa-note-sticky"></i>
-                            <span>All Notes</span>
+                            <span>Φόρουμ Σημειώσεων</span>
                         </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
                             <i class="fa-solid fa-note-sticky"></i>
-                            <span>My Notes</span>
+                            <span>Οι Σημειώσεις μου</span>
                         </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/upload")'>
                             <i class="fa-solid fa-file-arrow-up"></i>
-                            <span>Upload Note</span>
+                            <span>Ανέβασε Σημειώσεις</span>
                         </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/settings")'>
                             <i class="fa-solid fa-gear"></i>
-                            <span>Settings</span>
+                            <span>Ρυθμίσεις Χρήστη</span>
                         </div>
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" style="color: red" @onclick="() => HandleLogout()">
                             <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Logout</span>
+                            <span>Αποσύνδεση</span>
                         </div>
                     </div>
                 }
@@ -66,7 +66,7 @@
                     }
                     else if (user != null)
                     {
-                        <h3 class="welcome">Welcome back <b>@user.Username</b> :)</h3>
+                        <h3 class="welcome">Να 'μαστε πάλι, <b>@user.Username</b> :3</h3>
                     }
                 </center>
             </div>

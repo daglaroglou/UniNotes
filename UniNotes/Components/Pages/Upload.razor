@@ -34,18 +34,26 @@
                             <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
                         </div>
                         <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/notes")'>
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span>Φόρουμ Σημειώσεων</span>
+                        </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
                             <i class="fa-solid fa-note-sticky"></i>
-                            <span>My Notes</span>
+                            <span>Οι Σημειώσεις μου</span>
                         </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                             <i class="fa-solid fa-gauge-high"></i>
                             <span>Dashboard</span>
                         </div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/settings")'>
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Ρυθμίσεις Χρήστη</span>
+                        </div>
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" style="color: red" @onclick="() => Logout()">
                             <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Logout</span>
+                            <span>Αποσύνδεση</span>
                         </div>
                     </div>
                 }
@@ -70,7 +78,7 @@
 
 
                     <div class="form-group">
-                        <label for="title">Title</label>
+                        <label for="title">Τίτλος</label>
                         <div class="title-container">
                             <input id="title" type="text" class="form-control"
                                    @bind="note.Title"
@@ -81,7 +89,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="description">Description</label>
+                        <label for="description">Περιγραφή</label>
                         <div class="description-container">
                             <textarea id="description" class="form-control"
                                       @bind="note.Description"
@@ -95,7 +103,7 @@
 
 
                         <div class="form-group">
-                            <label for="semester">Semester</label>
+                            <label for="semester">Εξάμηνο</label>
                             <select id="semester" class="form-control" @bind="note.Semester">
                                 <option value="0" disabled selected>Επιλογή εξαμήνου</option>
                                 @for (int i = 1; i <= 8; i++)  
@@ -106,7 +114,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="subject">Subject</label>
+                            <label for="subject">Μάθημα</label>
                             <select id="subject" class="form-control" @bind="note.Subject">
                                 @if (note.Semester == 0)
                                 {

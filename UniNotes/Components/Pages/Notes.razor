@@ -1,4 +1,4 @@
-@page "/notes"
+﻿@page "/notes"
 @inject UniNotes.Services.UserService UserService
 @inject UniNotes.Services.NoteService NoteService
 @inject NavigationManager NavigationManager
@@ -36,20 +36,24 @@
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
                             <i class="fa-solid fa-note-sticky"></i>
-                            <span>My Notes</span>
+                            <span>Οι Σημειώσεις μου</span>
                         </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/upload")'>
                             <i class="fa-solid fa-file-arrow-up"></i>
-                            <span>Upload Note</span>
+                            <span>Ανέβασε Σημειώσεις</span>
                         </div>
                         <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                             <i class="fa-solid fa-gauge-high"></i>
                             <span>Dashboard</span>
                         </div>
+                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/settings")'>
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Ρυθμίσεις Χρήστη</span>
+                        </div>
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" style="color: red" @onclick="Logout">
                             <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Logout</span>
+                            <span>Αποσύνδεση</span>
                         </div>
                     </div>
                 }
@@ -58,19 +62,19 @@
             <!-- Back button -->
             <div class="back-button-container">
                 <button class="action-button" @onclick="GoBack">
-                    <i class="fa-solid fa-arrow-left"></i> Back
+                    <i class="fa-solid fa-arrow-left"></i> Πίσω
                 </button>
             </div>
 
             <div class="full-page-background">
                 <div class="notes-container">
-                    <h1 class="logo">Notes Forum</h1>
+                    <h1 class="logo">Φόρουμ Σημειώσεων</h1>
 
                     @if (isLoading)
                     {
                         <div class="spinner-container">
                             <div class="spinner"></div>
-                            <p style="color: white;">Loading notes...</p>
+                            <p style="color: white;">Φορτώνοντας όλες τις σημειώσεις...</p>
                         </div>
                     }
                     else if (errorMessage != null)
@@ -83,17 +87,17 @@
                     {
                         <div class="empty-state">
                             <i class="fa-solid fa-folder-open fa-3x mb-3"></i>
-                            <h3>No notes available</h3>
-                            <p>There are no notes in the system yet.</p>
+                            <h3>Δεν υπάρχουν διαθέσιμες σημειώσεις.</h3>
+                            <p>Δεν υπάρχουν ανεβασμένες σημειώσεις ακόμα.</p>
                         </div>
                     }
                     else
                     {
                         <div class="filter-container">
                             <div class="filter-group">
-                                <label for="subjectFilter">Filter by Subject:</label>
+                                <label for="subjectFilter">Φιλτράρισμα ανα Μάθημα:</label>
                                 <select id="subjectFilter" class="form-control" @bind="selectedSubject">
-                                    <option value="">All Subjects</option>
+                                    <option value="">Όλα τα μαθήματα</option>
                                     @foreach (var subject in subjectList)
                                     {
                                         <option value="@subject">@subject</option>
@@ -102,12 +106,12 @@
                             </div>
                             
                             <div class="filter-group">
-                                <label for="semesterFilter">Filter by Semester:</label>
+                                <label for="semesterFilter">Φιλτραρισμα ανα Εξάμηνο:</label>
                                 <select id="semesterFilter" class="form-control" @bind="selectedSemester">
-                                    <option value="0">All Semesters</option>
+                                    <option value="0">Όλα τα Εξάμηνα</option>
                                     @for (int i = 1; i <= 8; i++)
                                     {
-                                        <option value="@i">Semester @i</option>
+                                        <option value="@i">Εξάμηνο @i</option>
                                     }
                                 </select>
                             </div>
@@ -127,7 +131,7 @@
                                         {
                                             <div class="file-preview pdf-preview">
                                                 <i class="fa-solid fa-file-pdf fa-2x"></i>
-                                                <span>PDF Document</span>
+                                                <span>PDF Αρχείο</span>
                                             </div>
                                         }
                                         else if (IsImageFile(note))
@@ -140,7 +144,7 @@
                                         {
                                             <div class="file-preview word-preview">
                                                 <i class="fa-solid fa-file-word fa-2x"></i>
-                                                <span>Word Document</span>
+                                                <span>Word Αρχείο</span>
                                             </div>
                                         }
                                     </div>
@@ -149,14 +153,14 @@
                                         <p class="note-description">@(GetDescriptionPreview(note.Description))</p>
                                         <div class="note-metadata">
                                             <span><i class="fa-solid fa-book"></i> @note.Subject</span>
-                                            <span><i class="fa-solid fa-graduation-cap"></i> Semester @note.Semester</span>
+                                            <span><i class="fa-solid fa-graduation-cap"></i> Εξάμηνο @note.Semester</span>
                                             <span><i class="fa-solid fa-user"></i> @note.Username</span>
                                         </div>
                                     </div>
                                     
                                     <div class="note-actions">
                                         <button class="action-button view-button" @onclick="() => ViewNote(note)">
-                                            <i class="fa-solid fa-eye"></i> View
+                                            <i class="fa-solid fa-eye"></i> Προβολή
                                         </button>
                                     </div>
                                 </div>
