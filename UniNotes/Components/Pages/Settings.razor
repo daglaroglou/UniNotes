@@ -87,13 +87,13 @@
                         <!-- Replace tabs with buttons -->
                         <div class="settings-tab-buttons">
                             <button class="action-button @(activeTab == "profile" ? "active" : "")" @onclick='() => SetActiveTab("profile")'>
-                                <i class="fa-solid fa-user"></i> Profile
+                                <i class="fa-solid fa-user"></i> Προφιλ
                             </button>
                             <button class="action-button @(activeTab == "password" ? "active" : "")" @onclick='() => SetActiveTab("password")'>
-                                <i class="fa-solid fa-lock"></i> Change Password
+                                <i class="fa-solid fa-lock"></i>  Αλλαγη Κωδικου Προσβασης
                             </button>
                             <button class="action-button danger @(activeTab == "delete" ? "active" : "")" @onclick='() => SetActiveTab("delete")'>
-                                <i class="fa-solid fa-trash"></i> Delete Account
+                                <i class="fa-solid fa-trash"></i> Διαγραφη Λογαριασμου
                             </button>
                         </div>
 
@@ -128,7 +128,7 @@
                                     </div>
                                     <div class="form-group mt-4">
                                         <button class="action-button w-100" @onclick="UpdateProfile">
-                                            <i class="fa-solid fa-save"></i> Save Changes
+                                            <i class="fa-solid fa-save"></i> Αποθηκευση Αλλαγων
                                         </button>
                                     </div>
                                 </div>
@@ -150,7 +150,7 @@
                                     </div>
                                     <div class="form-group mt-4">
                                         <button class="action-button w-100" @onclick="ChangePassword">
-                                            <i class="fa-solid fa-key"></i> Change Password
+                                            <i class="fa-solid fa-key"></i> Επιβεβαιωση
                                         </button>
                                     </div>
                                 </div>
@@ -163,8 +163,8 @@
                                         <p>Η διαγραφή του λογαριασμού σας θα διαγράψει οριστικά όλα τα δεδομένα σας, συμπεριλαμβανομένων όλων των σημειώσεων και των αρχείων σας. Αυτή η ενέργεια είναι μη αναστρέψιμη.</p>
                                     </div>
                                     
-                                    <div class="form-group">
-                                        <label for="deletePassword">Enter your password to confirm</label>
+                                    <div class="form-group">    
+                                        <label for="deletePassword">Βάλτε τον κωδικό πρόσβασης για επιβεβαίωση</label>
                                         <input type="password" id="deletePassword" class="form-control" @bind="deletePassword" />
                                     </div>
                                     
@@ -177,7 +177,7 @@
                                     
                                     <div class="form-group mt-4">
                                         <button class="action-button danger w-100" @onclick="DeleteAccount" disabled="@(!confirmDelete)">
-                                            <i class="fa-solid fa-trash"></i> Delete Account
+                                            <i class="fa-solid fa-trash"></i> Διαγραφη Λογαριασμου
                                         </button>
                                     </div>
                                 </div>

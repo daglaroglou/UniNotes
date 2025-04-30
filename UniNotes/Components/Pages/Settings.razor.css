@@ -483,6 +483,8 @@ select.form-control {
     padding: 10px 10px;
     font-size: 0.9rem;
     text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Media queries for responsiveness */
@@ -522,7 +524,13 @@ select.form-control {
         padding: 6px;
     }
 
+    .settings-tab-buttons {
+        flex-wrap: wrap;
+    }
+    
     .settings-tab-buttons .action-button {
+        flex: 1 1 30%;
+        min-width: 120px;
         font-size: 0.8rem;
         padding: 8px 5px;
     }
@@ -603,6 +611,9 @@ select.form-control {
     
     .settings-tab-buttons .action-button {
         margin-bottom: 5px;
+        width: 100%;
+        font-size: 0.85rem;
+        padding: 10px;
     }
 
     .settings-logo {
