@@ -1,0 +1,203 @@
+﻿@page "/note/{noteId}"
+@inject UniNotes.Services.NoteService NoteService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<PageTitle>UniNotes - View Note</PageTitle>
+
+<div id="particles-js"></div>
+<script src="js/particles/particles.js"></script>
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<div class="fullscreen-viewer @GetViewerClass()">
+    @if (isLoading)
+    {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Loading note content...</p>
+        </div>
+    }
+    else if (note == null)
+    {
+        <div class="error-container">
+            <div class="error-message">Note not found or could not be loaded.</div>
+            <button class="return-button" @onclick="GoBack">Return to Notes</button>
+        </div>
+    }
+    else
+    {
+        <div class="viewer-content">
+            @if (IsPdfFile())
+            {
+                <object class="pdf-viewer" data="@pdfDataUrl" type="application/pdf">
+                    <p>Your browser doesn't support PDF viewing. <a href="@pdfDataUrl" target="_blank">Download PDF</a></p>
+                </object>
+            }
+            else if (IsImageFile())
+            {
+                <div class="image-viewer">
+                    <img src="@imageDataUrl" alt="@note.Title" />
+                </div>
+            }
+            else if (IsWordFile())
+            {
+                <div class="word-viewer">
+
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string noteId { get; set; } = string.Empty;
+    
+    private Note? note;
+    private bool isLoading = true;
+    private string pdfDataUrl = string.Empty;
+    private string imageDataUrl = string.Empty;
+    private string wordDocumentUrl = string.Empty;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNote();
+    }
+    
+    private async Task LoadNote()
+    {
+        try
+        {
+            note = await NoteService.GetNoteByIdAsync(noteId);
+            
+            if (note != null && note.Content != null)
+            {
+                if (IsPdfFile())
+                {
+                    string base64Data = Convert.ToBase64String(note.Content);
+                    pdfDataUrl = $"data:application/pdf;base64,{base64Data}";
+                }
+                else if (IsImageFile())
+                {
+                    string mimeType = GetImageMimeType();
+                    string base64Data = Convert.ToBase64String(note.Content);
+                    imageDataUrl = $"data:{mimeType};base64,{base64Data}";
+                }
+                else if (IsWordFile())
+                {
+                    string base64Data = Convert.ToBase64String(note.Content);
+                    string mimeType = GetWordMimeType();
+                    wordDocumentUrl = $"data:{mimeType};base64,{base64Data}";
+                }
+            }
+        }
+        catch (Exception)
+        {
+            note = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    
+    private bool IsPdfFile()
+    {
+        if (note?.Content == null || note.Content.Length < 5)
+            return false;
+            
+        byte[] pdfSignature = new byte[] { 0x25, 0x50, 0x44, 0x46 }; // %PDF
+        return note.Content.Take(4).SequenceEqual(pdfSignature);
+    }
+    
+    private bool IsImageFile()
+    {
+        if (note?.Content == null || note.Content.Length < 10)
+            return false;
+            
+        byte[] jpegSignature = new byte[] { 0xFF, 0xD8, 0xFF };
+        byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
+        
+        return note.Content.Take(3).SequenceEqual(jpegSignature) || 
+               note.Content.Take(4).SequenceEqual(pngSignature);
+    }
+    
+    private bool IsWordFile()
+    {
+        if (note?.Content == null || note.Content.Length < 10)
+            return false;
+            
+        byte[] oleSignature = new byte[] { 0xD0, 0xCF, 0x11, 0xE0 }; // Old Word format
+        byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 }; // DOCX (Office Open XML)
+        
+        return note.Content.Take(4).SequenceEqual(oleSignature) || 
+               note.Content.Take(4).SequenceEqual(zipSignature);
+    }
+    
+    private string GetImageMimeType()
+    {
+        if (note?.Content == null || note.Content.Length < 4)
+            return "image/jpeg"; // Default
+            
+        byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
+        
+        if (note.Content.Take(4).SequenceEqual(pngSignature))
+            return "image/png";
+            
+        return "image/jpeg"; // Default to JPEG
+    }
+    
+    private string GetWordMimeType()
+    {
+        if (note?.Content == null || note.Content.Length < 4)
+            return "application/octet-stream"; // Generic binary
+            
+        byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 }; // DOCX
+        
+        if (note.Content.Take(4).SequenceEqual(zipSignature))
+            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            
+        return "application/msword"; // Default to older DOC format
+    }
+    
+    private string GetViewerClass()
+    {
+        if (note == null)
+            return "empty-viewer";
+            
+        if (IsPdfFile())
+            return "pdf-viewer-container";
+        else if (IsImageFile())
+            return "image-viewer-container";
+        else if (IsWordFile())
+            return "word-viewer-container";
+            
+        return "default-viewer";
+    }
+    
+    private async Task DownloadFile()
+    {
+        if (note == null || note.Content == null)
+            return;
+            
+        string fileName = string.IsNullOrWhiteSpace(note.Title) 
+            ? $"document-{note.Id}.docx" 
+            : $"{note.Title}.docx";
+            
+        string mimeType = GetWordMimeType();
+        
+        await JSRuntime.InvokeVoidAsync(
+            "downloadFileFromBase64",
+            Convert.ToBase64String(note.Content),
+            fileName,
+            mimeType
+        );
+    }
+    
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/notes");
+    }
+}

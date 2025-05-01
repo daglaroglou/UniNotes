@@ -186,7 +186,7 @@
     private int selectedSemester = 0;
     private List<string> subjectList = new List<string>();
     private Dictionary<string, string> imageCache = new Dictionary<string, string>();
-    
+
     // User-related properties for the dropdown menu
     private bool isUserMenuOpen = false;
     private User? user;
@@ -213,10 +213,10 @@
                 NavigationManager.NavigateTo("/");
                 return;
             }
-            
+
             // Load all notes
             allNotes = await NoteService.GetAllNotesAsync();
-            
+
             // Extract unique subjects for the filter
             if (allNotes != null && allNotes.Any())
             {
@@ -243,12 +243,12 @@
         .Where(n => selectedSemester == 0 || n.Semester == selectedSemester)
         .OrderByDescending(n => n.CreatedAt)
         .ToList() ?? new List<Note>();
-    
+
     private void ToggleUserMenu()
     {
         isUserMenuOpen = !isUserMenuOpen;
     }
-    
+
     private async Task Logout()
     {
         if (AuthStateProvider is BlazorAuthStateProvider blazorAuthStateProvider)
@@ -262,42 +262,42 @@
     {
         if (string.IsNullOrEmpty(description))
             return "No description";
-            
+
         return description.Length > 100 ? description[..100] + "..." : description;
     }
-    
+
     private bool IsPdfFile(Note note)
     {
         if (note.Content == null || note.Content.Length < 5)
             return false;
-            
+
         byte[] pdfSignature = new byte[] { 0x25, 0x50, 0x44, 0x46 }; // %PDF
         return note.Content.Take(4).SequenceEqual(pdfSignature);
     }
-    
+
     private bool IsImageFile(Note note)
     {
         if (note.Content == null || note.Content.Length < 10)
             return false;
-            
+
         byte[] jpegSignature = new byte[] { 0xFF, 0xD8, 0xFF };
         byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
-        
+
         return note.Content.Take(3).SequenceEqual(jpegSignature) || note.Content.Take(4).SequenceEqual(pngSignature);
     }
-    
+
     private bool IsWordFile(Note note)
     {
         if (note.Content == null || note.Content.Length < 10)
             return false;
-            
+
         byte[] oleSignature = new byte[] { 0xD0, 0xCF, 0x11, 0xE0 };
         byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 };
-        
+
         return note.Content.Take(4).SequenceEqual(oleSignature) || 
                note.Content.Take(4).SequenceEqual(zipSignature);
     }
-    
+
     private string GetImageDataUrl(Note note)
     {
         if (note.Id != null && imageCache.ContainsKey(note.Id))
@@ -311,7 +311,7 @@
         }
 
         string mimeType = "image/jpeg";
-        
+
         if (note.Content.Length > 4)
         {
             byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
@@ -323,16 +323,16 @@
 
         string base64Data = Convert.ToBase64String(note.Content);
         string dataUrl = $"data:{mimeType};base64,{base64Data}";
-        
+
         imageCache[note.Id] = dataUrl;
-        
+
         return dataUrl;
     }
-    
+
     private async Task ViewNote(Note note)
     {
         if (note?.Id == null) return;
-        
+
         if (IsImageFile(note))
         {
             string dataUrl = GetImageDataUrl(note);
@@ -340,9 +340,11 @@
         }
         else if (IsPdfFile(note))
         {
-            string base64Data = Convert.ToBase64String(note.Content ?? Array.Empty<byte>());
-            string dataUrl = $"data:application/pdf;base64,{base64Data}";
-            await JSRuntime.InvokeVoidAsync("window.open", dataUrl, "_blank");
+            // string base64Data = Convert.ToBase64String(note.Content ?? Array.Empty<byte>());
+            // string dataUrl = $"data:application/pdf;base64,{base64Data}";
+            // await JSRuntime.InvokeVoidAsync("window.open", dataUrl, "_blank");
+
+            NavigationManager.NavigateTo($"/note/{note.Id}");
         }
         else
         {
