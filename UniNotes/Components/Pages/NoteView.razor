@@ -177,25 +177,6 @@
         return "default-viewer";
     }
     
-    private async Task DownloadFile()
-    {
-        if (note == null || note.Content == null)
-            return;
-            
-        string fileName = string.IsNullOrWhiteSpace(note.Title) 
-            ? $"document-{note.Id}.docx" 
-            : $"{note.Title}.docx";
-            
-        string mimeType = GetWordMimeType();
-        
-        await JSRuntime.InvokeVoidAsync(
-            "downloadFileFromBase64",
-            Convert.ToBase64String(note.Content),
-            fileName,
-            mimeType
-        );
-    }
-    
     private void GoBack()
     {
         NavigationManager.NavigateTo("/notes");
