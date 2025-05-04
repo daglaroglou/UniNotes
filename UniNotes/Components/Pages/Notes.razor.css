@@ -29,12 +29,6 @@ html, body {
     margin: 0;
 }
 
-.user-icon-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-}
 
 .user-icon {
     width: 40px;
@@ -245,6 +239,7 @@ html, body {
     box-sizing: border-box;
     z-index: 1;
     pointer-events: none;
+    padding-top: 70px;
 }
 
     .full-page-background * {
@@ -301,12 +296,6 @@ html, body {
     width: 100%;
 }
 
-.back-button-container {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 1000;
-}
 
 /* Filter section */
 .filter-container {
@@ -517,3 +506,64 @@ html, body {
         left: 10px;
     }
 }
+/* Add these navigation tab styles from Dashboard */
+.navigation-tabs {
+    display: flex;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.nav-tab {
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 8px 15px;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .nav-tab:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-tab.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        font-weight: bold;
+    }
+
+    .nav-tab i {
+        margin-right: 8px;
+    }
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    color: white;
+    margin-left: auto;
+    padding: 0 15px;
+}
+
+    .user-profile .user-icon {
+        margin-left: 15px;
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+        .user-profile .user-icon:hover {
+            background-color: rgba(255, 0, 0, 0.3);
+        }
+
