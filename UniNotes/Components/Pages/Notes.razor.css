@@ -102,7 +102,7 @@ html, body {
 }
 
 .logo {
-    font-family: "Mynerve", sans-serif;
+    font-family: "Mynerve", cursive;
     font-weight: 400;
     font-style: normal;
     font-size: min(100px, 12vw) !important;
@@ -447,6 +447,42 @@ html, body {
 .view-button {
     padding: 8px 15px;
     font-size: 0.9rem;
+}
+
+/* Note tags */
+.note-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.note-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 3px 10px;
+    font-size: 0.8rem;
+    color: #e0e0e0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.2s ease;
+}
+
+.note-tag i {
+    font-size: 0.7rem;
+}
+
+@media (max-width: 480px) {
+    .note-tags {
+        gap: 6px;
+    }
+    
+    .note-tag {
+        padding: 2px 8px;
+        font-size: 0.75rem;
+    }
 }
 
 /* Empty state */

@@ -234,6 +234,33 @@
                     </div>
 
                     <div class="form-group">
+                        <div class="tags-container">
+                            <div class="tags-list">
+                                @foreach (var tag in tags)
+                                {
+                                    <div class="tag-item">
+                                        <span>@tag</span>
+                                        <button type="button" class="tag-remove-btn" @onclick="() => RemoveTag(tag)">
+                                            <i class="fa-solid fa-times"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                            <div class="tag-selection">
+                                <p class="tag-instruction">Επιλέξτε tags για τις σημειώσεις σας:</p>
+                                <div class="tag-options">
+                                    @foreach (var suggestion in tagSuggestions)
+                                    {
+                                        <button type="button"
+                                                class="tag-suggestion-btn @(tags.Contains(suggestion) ? "selected" : "")"
+                                                @onclick="() => ToggleTag(suggestion)">
+                                            @suggestion
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
                         <label>Ανάρτηση Αρχείου</label>
                         <InputFile OnChange="OnFileChange" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png" />
                         @if (!string.IsNullOrEmpty(fileName))
@@ -249,7 +276,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+        </div>
         </Authorized>
         <NotAuthorized>
             @{
@@ -270,6 +297,10 @@
     private string errorMessage = "";
     private string successMessage = "";
     private bool isRedirecting = false;
+    private List<string> tags = new List<string>();
+    private readonly List<string> tagSuggestions = new List<string> {
+        "Εξετάσεις", "Ασκήσεις", "Διάλεξη"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -288,6 +319,25 @@
                 }
             }
         }
+    }
+
+    private void ToggleTag(string tag)
+    {
+        if (tags.Contains(tag))
+        {
+            tags.Remove(tag);
+        }
+        else
+        {
+            tags.Add(tag);
+        }
+        StateHasChanged();
+    }
+
+    private void RemoveTag(string tag)
+    {
+        tags.Remove(tag);
+        StateHasChanged();
     }
 
     private async Task ValidateAndUpload()
@@ -331,12 +381,21 @@
             errors.Add("Please select a subject.");
         }
 
+        // Add validation for tags
+        if (tags == null || tags.Count == 0)
+        {
+            errors.Add("Επιλέξτε τουλάχιστον ένα tag για τις σημειώσεις σας.");
+        }
+
         // If we have validation errors, display them and return
         if (errors.Count > 0)
         {
             errorMessage = string.Join("<br>", errors);
             return;
         }
+
+        // Add tags to the note before uploading
+        note.Tags = tags;
 
         // If validation passes, proceed with upload
         await UploadNote();

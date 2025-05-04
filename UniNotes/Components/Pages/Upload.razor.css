@@ -9,6 +9,8 @@
     color: white;
 }
 
+
+
 /* Tag input styles */
 .tags-container {
     display: flex;
@@ -66,6 +68,45 @@
     .tag-remove-btn:hover {
         opacity: 1;
     }
+
+/* Media queries for consistent tag appearance across devices */
+@media (max-width: 768px) {
+    .tag-item {
+        padding: 3px 10px;
+        font-size: 13px;
+        height: 26px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tag-item {
+        padding: 2px 8px;
+        font-size: 12px;
+        height: 24px;
+        margin: 3px;
+    }
+    
+    .tag-remove-btn {
+        margin-left: 4px;
+    }
+    
+    .tags-list {
+        gap: 6px;
+    }
+}
+
+@media (max-width: 360px) {
+    .tag-item {
+        padding: 2px 6px;
+        font-size: 11px;
+        height: 22px;
+        margin: 2px;
+    }
+    
+    .tags-list {
+        gap: 4px;
+    }
+}
 
 .tag-instruction {
     text-align: center;
