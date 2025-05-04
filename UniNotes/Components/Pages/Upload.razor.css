@@ -9,6 +9,110 @@
     color: white;
 }
 
+/* Tag input styles */
+.tags-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 15px auto;
+    width: 100%;
+    text-align: center;
+}
+
+.tag-input-wrapper {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+/* Updated tags list to ensure horizontal layout */
+.tags-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 10px auto;
+    width: 100%;
+}
+
+/* Refined tag item styles for horizontal alignment */
+.tag-item {
+    display: inline-flex;
+    align-items: center;
+    background-color: #4a4a4a;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    margin: 4px;
+    height: 28px; /* Fixed height for consistent appearance */
+    flex: 0 0 auto; /* Prevent stretching or shrinking */
+}
+
+.tag-remove-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    margin-left: 6px;
+    cursor: pointer;
+    padding: 0 4px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .tag-remove-btn:hover {
+        opacity: 1;
+    }
+
+.tag-instruction {
+    text-align: center;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #e0e0e0;
+}
+
+.tag-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.tag-suggestions {
+    margin-top: 10px;
+}
+
+.tag-suggestion-btn {
+    background: #2c2c2c;
+    border: 1px solid #3d3d3d;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 4px;
+}
+
+    .tag-suggestion-btn:hover {
+        background: #3a3a3a;
+        transform: translateY(-2px);
+    }
+
+    .tag-suggestion-btn.selected {
+        background: #3d3d3d;
+        border-color: #3d3d3d;
+    }
+
+.form-group:has(.tags-container) {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 .description-container,
 .title-container {
     position: relative;
@@ -422,6 +526,12 @@ select.form-control {
         font-size: 0.8rem;
         padding: 6px;
     }
+
+    .tag-item {
+        padding: 3px 10px;
+        font-size: 13px;
+        height: 26px;
+    }
 }
 
 /* Enhanced responsiveness for mobile sizes */
@@ -493,6 +603,21 @@ select.form-control {
     .upload-form {
         margin-top: 1rem;
     }
+
+    .tag-item {
+        padding: 2px 8px;
+        font-size: 12px;
+        height: 24px;
+        margin: 3px;
+    }
+    
+    .tag-remove-btn {
+        margin-left: 4px;
+    }
+    
+    .tags-list {
+        gap: 6px;
+    }
 }
 
 /* Extra small screens */
@@ -522,5 +647,16 @@ select.form-control {
     .action-button {
         padding: 6px 12px;
         font-size: 0.8rem;
+    }
+
+    .tag-item {
+        padding: 2px 6px;
+        font-size: 11px;
+        height: 22px;
+        margin: 2px;
+    }
+    
+    .tags-list {
+        gap: 4px;
     }
 }

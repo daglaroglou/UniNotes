@@ -101,14 +101,14 @@ html, body {
 }
 
 .welcome {
-    font-family: "Roboto", sans-serif;
+    font-family: "Roboto", cursive;
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
 }
 
 .logo {
-    font-family: "Lobster", sans-serif;
+    font-family: "Mynerve", sans-serif;
     font-weight: 400;
     font-style: normal;
     font-size: min(100px, 12vw) !important;

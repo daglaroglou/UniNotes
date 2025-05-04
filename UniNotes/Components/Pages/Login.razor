@@ -301,11 +301,6 @@ else
 
     private async Task<bool> ValidateCaptchaAsync(string token)
     {
-        // In a real application, you would make an HTTP request to your backend
-        // which would then validate the token with the hCaptcha API
-
-        // For demonstration purposes, assuming token presence is valid
-        // In production, implement proper server-side validation
         return !string.IsNullOrEmpty(token);
     }
 

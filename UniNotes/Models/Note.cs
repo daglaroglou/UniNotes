@@ -31,5 +31,8 @@ namespace UniNotes.Models
         
         [BsonElement("username")]
         public string Username { get; set; } = string.Empty;
+        
+        [BsonElement("tags")]
+        public List<string> Tags { get; set; } = new List<string>();
     }
 }
