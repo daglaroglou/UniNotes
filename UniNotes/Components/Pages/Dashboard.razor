@@ -38,6 +38,13 @@
                     <i class="fa-solid fa-gear"></i>
                     <span>Ρυθμίσεις</span>
                 </div>
+                @if (user?.IsAdmin == true)
+                {
+                    <div class="nav-tab @(IsCurrentPage("/admin") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/admin")'>
+                        <i style="color: cornflowerblue;" class="fa-solid fa-user-tie"></i>
+                        <span style="color: cornflowerblue;">Admin Panel</span>
+                    </div>
+                }
                 <div class="user-profile">
                     <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
                     <div class="user-icon" @onclick="HandleLogout">
