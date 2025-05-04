@@ -19,44 +19,34 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <!-- User icon with dropdown menu -->
-            <div class="user-icon-container">
-                <div class="user-icon" @onclick="() => ToggleUserMenu()">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="white">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-                    </svg>
+            <!-- Navigation tabs -->
+            <div class="navigation-tabs">
+                <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
                 </div>
-                @if (isUserMenuOpen)
-                {
-                    <div class="user-dropdown">
-                        <div class="dropdown-item" style="pointer-events: none">
-                            <i class="fa-solid fa-user"></i>
-                            <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/notes")'>
-                            <i class="fa-solid fa-note-sticky"></i>
-                            <span>Φόρουμ Σημειώσεων</span>
-                        </div>
-                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
-                            <i class="fa-solid fa-note-sticky"></i>
-                            <span>Οι Σημειώσεις μου</span>
-                        </div>
-                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
-                            <i class="fa-solid fa-gauge-high"></i>
-                            <span>Dashboard</span>
-                        </div>
-                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/settings")'>
-                            <i class="fa-solid fa-gear"></i>
-                            <span>Ρυθμίσεις Χρήστη</span>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-item" style="color: red" @onclick="() => Logout()">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Αποσύνδεση</span>
-                        </div>
+                <div class="nav-tab @(IsCurrentPage("/notes") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/notes")'>
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Φόρουμ Σημειώσεων</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/MyNotes") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Οι Σημειώσεις μου</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/upload") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/upload")'>
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <span>Ανέβασε Σημειώσεις</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/settings") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/settings")'>
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Ρυθμίσεις</span>
+                </div>
+                <div class="user-profile">
+                    <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
+                    <div class="user-icon" @onclick="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
                     </div>
-                }
+                </div>
             </div>
 
             <div class="full-page-background">
@@ -110,185 +100,157 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="subject">Μάθημα</label>
-                        <select id="subject" class="form-control" @bind="note.Subject">
-                            @if (note.Semester == 0)
-                            {
-                                <option value="" disabled selected>Επιλογή μαθήματος</option>
-                            }
-                            @if (note.Semester == 1)
-                            {
-                                <option value="" disabled selected>Επιλογή μαθήματος</option>
-                                <option value="ΑΛΓΟΡΙΘΜΟΙ">ΑΛΓΟΡΙΘΜΟΙ</option>
-                                <option value="ΓΡΑΜΜΙΚΗ ΑΛΓΕΒΡΑ">ΓΡΑΜΜΙΚΗ ΑΛΓΕΒΡΑ</option>
-                                <option value="ΔΙΑΔΙΚΑΣΤΙΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ">ΔΙΑΔΙΚΑΣΤΙΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ</option>
-                                <option value="ΜΑΘΗΜΑΤΙΚΗ ΑΝΑΛΥΣΗ">ΜΑΘΗΜΑΤΙΚΗ ΑΝΑΛΥΣΗ</option>
-                                <option value="ΣΥΣΤΗΜΑΤΑ ΥΠΟΛΟΓΙΣΤΩΝ">ΣΥΣΤΗΜΑΤΑ ΥΠΟΛΟΓΙΣΤΩΝ</option>
-                                <option value="ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΣΤΗΜΗ ΥΠΟΛΟΓΙΣΤΩΝ">ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΣΤΗΜΗ ΥΠΟΛΟΓΙΣΤΩΝ</option>
-                                <option value="ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΧΕΙΡΗΜΑΤΙΚΗ ΠΛΗΡΟΦΟΡΙΚΗ">ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΧΕΙΡΗΜΑΤΙΚΗ ΠΛΗΡΟΦΟΡΙΚΗ</option>
-                            }
-                            else if (note.Semester == 2)
-                            {
-                                <option value="" disabled selected>Επιλογή μαθήματος</option>
-                                <option value="ΑΡΧΙΤΕΚΤΟΝΙΚΗ ΥΠΟΛΟΓΙΣΤΩΝ">ΑΡΧΙΤΕΚΤΟΝΙΚΗ ΥΠΟΛΟΓΙΣΤΩΝ</option>
-                                <option value="ΒΑΣΕΙΣ ΔΕΔΟΜΕΝΩΝ">ΒΑΣΕΙΣ ΔΕΔΟΜΕΝΩΝ</option>
-                                <option value="ΔΙΑΚΡΙΤΑ ΜΑΘΗΜΑΤΙΚΑ">ΔΙΑΚΡΙΤΑ ΜΑΘΗΜΑΤΙΚΑ</option>
-                                <option value="ΔΟΙΗΚΗΣΗ ΚΑΙ ΤΕΧΝΟΛΟΓΙΑ">ΔΟΙΗΚΗΣΗ ΚΑΙ ΤΕΧΝΟΛΟΓΙΑ</option>
-                                <option value="ΔΟΜΕΣ ΔΕΔΟΜΕΝΩΝ">ΔΟΜΕΣ ΔΕΔΟΜΕΝΩΝ</option>
-                                <option value="ΠΙΘΑΝΟΤΗΤΕΣ">ΠΙΘΑΝΟΤΗΤΕΣ</option>
-                                <option value="ΠΙΘΑΝΟΤΗΤΕΣ ΚΑΙ ΣΤΑΤΙΣΤΙΚΗ">ΠΙΘΑΝΟΤΗΤΕΣ ΚΑΙ ΣΤΑΤΙΣΤΙΚΗ</option>
-                            }
-                            else if (note.Semester == 3)
-                            {
-                                <option value="" disabled selected>Επιλογή μαθήματος</option>
-                                <option value="ΑΝΤΙΚΕΙΜΕΝΟΣΤΡΕΦΗΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ">ΑΝΤΙΚΕΙΜΕΝΟΣΤΡΕΦΗΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ</option>
-                                <option value="ΔΙΚΤΥΑ ΥΠΟΛΟΓΙΣΤΩΝ">ΔΙΚΤΥΑ ΥΠΟΛΟΓΙΣΤΩΝ</option>
-                                <option value="ΛΕΙΤΟΥΡΓΙΚΑ ΣΥΣΤΗΜΑΤΑ">ΛΕΙΤΟΥΡΓΙΚΑ ΣΥΣΤΗΜΑΤΑ</option>
-                                <option value="ΣΤΑΤΙΣΤΙΚΗ">ΣΤΑΤΙΣΤΙΚΗ</option>
-                                <option value="ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ">ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ</option>
-                                <option value="ΗΛΕΚΤΡΟΝΙΚΟ ΕΠΙΧΕΙΡΕΙΝ">ΗΛΕΚΤΡΟΝΙΚΟ ΕΠΙΧΕΙΡΕΙΝ</option>
-                                <option value="ΔΙΑΧΕΙΡΙΣΗ ΈΡΓΩΝ ΠΛΗΡΟΦΟΡΙΚΗΣ">ΔΙΑΧΕΙΡΙΣΗ ΈΡΓΩΝ ΠΛΗΡΟΦΟΡΙΚΗΣ</option>
-                            }
-                            else if (note.Semester == 4)
-                            {
-                                <option value="" disabled selected>Επιλογή μαθήματος</option>
-                                <option value="ΑΝΑΛΥΣΗ ΑΛΓΟΡΙΘΜΩΝ">ΑΝΑΛΥΣΗ ΑΛΓΟΡΙΘΜΩΝ</option>
-                                <option value="ΑΛΛΗΛΕΠΙΔΡΑΣΗ ΑΝΘΡΩΠΟΥ ΥΠΟΛΟΓΙΣΤΗ">ΑΛΛΗΛΕΠΙΔΡΑΣΗ ΑΝΘΡΩΠΟΥ ΥΠΟΛΟΓΙΣΤΗ</option>
-                                <option value="ΑΣΦΑΛΕΙΑ ΠΛΗΡΟΦΟΡΙΩΝ ΚΑΙ ΣΥΣΤΗΜΑΤΩΝ">ΑΣΦΑΛΕΙΑ ΠΛΗΡΟΦΟΡΙΩΝ ΚΑΙ ΣΥΣΤΗΜΑΤΩΝ</option>
-                                <option value="ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ ΔΙΑΔΙΚΤΥΟΥ">ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ ΔΙΑΔΙΚΤΥΟΥ</option>
-                                <option value="ΨΗΦΙΑΚΗ ΟΙΚΟΝΟΜΙΚΗ">ΨΗΦΙΑΚΗ ΟΙΚΟΝΟΜΙΚΗ</option>
-                                <option value="ΤΕΧΝΟΛΟΓΙΑ ΛΟΓΙΣΜΙΚΟΥ">ΤΕΧΝΟΛΟΓΙΑ ΛΟΓΙΣΜΙΚΟΥ</option>
-                                <option value="ΧΡΗΜΑΤΟΟΙΚΟΝΟΜΙΚΗ ΔΙΟΙΚΗΣΗ">ΧΡΗΜΑΤΟΟΙΚΟΝΟΜΙΚΗ ΔΙΟΙΚΗΣΗ</option>
-                                <option value="ΑΝΑΛΥΣΗ ΚΑΙ ΣΧΕΔΙΑΣΗ ΣΥΣΤΗΜΑΤΩΝ">ΑΝΑΛΥΣΗ ΚΑΙ ΣΧΕΔΙΑΣΗ ΣΥΣΤΗΜΑΤΩΝ</option>
-                            }
-                            else if (note.Semester == 5)
-                            {
-                                <option value="" disabled selected>Επιλογή μαθήματος</option>
-                                <option value="ΔΙΚΑΙΟ ΠΛΗΡΟΦΟΡΙΚΗΣ ΚΑΙ ∆ΕΟΝΤΟΛΟΓΙΑ">ΔΙΚΑΙΟ ΠΛΗΡΟΦΟΡΙΚΗΣ ΚΑΙ ∆ΕΟΝΤΟΛΟΓΙΑ</option>
-                                <option value="ΤΕΧΝΗΤΗ ΝΟΗΜΟΣΥΝΗ">ΤΕΧΝΗΤΗ ΝΟΗΜΟΣΥΝΗ</option>
-                                <option value="ΥΠΗΡΕΣΙΕΣ ΚΑΙ ΣΥΝΑΛΛΑΓΕΣ ΙΣΤΟΥ">ΥΠΗΡΕΣΙΕΣ ΚΑΙ ΣΥΝΑΛΛΑΓΕΣ ΙΣΤΟΥ</option>
-                                <option value="ΣΥΣΤΗΜΑΤΑ ΒΑΣΕΩΝ ΔΕΔΟΜΕΝΩΝ">ΣΥΣΤΗΜΑΤΑ ΒΑΣΕΩΝ ΔΕΔΟΜΕΝΩΝ</option>
-                                <option value="ΠΟΙΟΤΗΤΑ ΛΟΓΙΣΜΙΚΟΥ">ΠΟΙΟΤΗΤΑ ΛΟΓΙΣΜΙΚΟΥ</option>
-                                <option value="ΣΥΣΤΗΜΑΤΑ ΕΠΙΚΟΙΝΩΝΙΩΝ">ΣΥΣΤΗΜΑΤΑ ΕΠΙΚΟΙΝΩΝΙΩΝ</option>
-                                <option value="ΨΗΦΙΑΚΟ ΜΑΡΚΕΤΙΝΓΚ">ΨΗΦΙΑΚΟ ΜΑΡΚΕΤΙΝΓΚ</option>
-                                <option value="ΕΠΙΧΕΙΡΗΜΑΤΙΚΕΣ ΕΠΙΚΟΙΝΩΝΙΕΣ ΔΕΔΟΜΕΝΩΝ">ΕΠΙΧΕΙΡΗΜΑΤΙΚΕΣ ΕΠΙΚΟΙΝΩΝΙΕΣ ΔΕΔΟΜΕΝΩΝ</option>
-                                <option value="ΔΙΑΧΕΙΡΙΣΗ ΕΠΙΧΕΙΡΗΣΙΑΚΩΝ ΔΙΑΔΙΚΑΣΙΩΝ">ΔΙΑΧΕΙΡΙΣΗ ΕΠΙΧΕΙΡΗΣΙΑΚΩΝ ΔΙΑΔΙΚΑΣΙΩΝ</option>
-                            }
-                            else if (note.Semester == 6)
-                            {
-                                <option value="" disabled selected>Επιλογή μαθήματος</option>
-                                <option value="ΕΠΙΧΕΙΡΗΣΙΑΚΗ ΕΡΕΥΝΑ">ΕΠΙΧΕΙΡΗΣΙΑΚΗ ΕΡΕΥΝΑ</option>
-                                <option value="ΥΠΟΛΟΓΙΣΤΙΚΗ ΝΕΦΟΥΣ">ΥΠΟΛΟΓΙΣΤΙΚΗ ΝΕΦΟΥΣ</option>
-                                <option value="ΑΝΑΠΤΥΞΗ ΕΦΑΡΜΟΓΩΝ ΓΙΑ ΚΙΝΗΤΕΣ ΣΥΣΚΕΥΕΣ">ΑΝΑΠΤΥΞΗ ΕΦΑΡΜΟΓΩΝ ΓΙΑ ΚΙΝΗΤΕΣ ΣΥΣΚΕΥΕΣ</option>
-                                <option value="ΓΛΩΣΣΕΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΥ ΚΑΙ ΜΕΤΑΓΛΩΤΤΙΣΤΕΣ">ΓΛΩΣΣΕΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΥ ΚΑΙ ΜΕΤΑΓΛΩΤΤΙΣΤΕΣ</option>
-                                <option value="ΘΕΩΡΙΑ ΥΠΟΛΟΓΙΣΜΟΥ">ΘΕΩΡΙΑ ΥΠΟΛΟΓΙΣΜΟΥ</option>
-                                <option value="ΠΑΡΑΛΛΗΛΟΣ ΚΑΙ ΚΑΤΑΝΕΜΗΜΕΝΟΣ ΥΠΟΛΟΓΙΣΜΟΣ">ΠΑΡΑΛΛΗΛΟΣ ΚΑΙ ΚΑΤΑΝΕΜΗΜΕΝΟΣ ΥΠΟΛΟΓΙΣΜΟΣ</option>
-                                <option value="ΔΙΑΧΕΙΡΙΣΗ ΧΡΗΜΑΤΟΟΙΚΟΝΟΜΙΚΩΝ ΚΙΝΔΥΝΩΝ">ΔΙΑΧΕΙΡΙΣΗ ΧΡΗΜΑΤΟΟΙΚΟΝΟΜΙΚΩΝ ΚΙΝΔΥΝΩΝ</option>
-                                <option value="ΕΠΙΧΕΙΡΗΜΑΤΙΚΟΤΗΤΑ ΚΑΙ ΝΕΟΦΥΕΙΣ ΕΠΙΧΕΙΡΗΣΕΙΣ ΤΠΕ">ΕΠΙΧΕΙΡΗΜΑΤΙΚΟΤΗΤΑ ΚΑΙ ΝΕΟΦΥΕΙΣ ΕΠΙΧΕΙΡΗΣΕΙΣ ΤΠΕ</option>
-                                <option value="ΣΤΡΑΤΗΓΙΚΗ ΕΠΙΧΕΙΡΗΣΕΩΝ ΚΑΙ ΠΛΗΡΟΦΟΡΙΑΚΩΝ ΣΥΣΤΗΜΑΤΩΝ">ΣΤΡΑΤΗΓΙΚΗ ΕΠΙΧΕΙΡΗΣΕΩΝ ΚΑΙ ΠΛΗΡΟΦΟΡΙΑΚΩΝ ΣΥΣΤΗΜΑΤΩΝ</option>
-                            }
-                            else if (note.Semester == 7)
-                            {
-                                <option value="" disabled selected>Επιλογή μαθήματος</option>
-                                <option value="ΑΚΑΔΗΜΑΪΚΕΣ ΔΕΞΙΟΤΗΤΕΣ ΣΤΗΝ ΑΓΓΛΙΚΗ">ΑΚΑΔΗΜΑΪΚΕΣ ΔΕΞΙΟΤΗΤΕΣ ΣΤΗΝ ΑΓΓΛΙΚΗ</option>
-                                <option value="ΑΝΑΚΑΛΥΨΗ ΓΝΩΣΗΣ ΣΕ ΒΑΣΕΙΣ ΔΕΔΟΜΕΝΩΝ">ΑΝΑΚΑΛΥΨΗ ΓΝΩΣΗΣ ΣΕ ΒΑΣΕΙΣ ΔΕΔΟΜΕΝΩΝ</option>
-                                <option value="ΜΗΧΑΝΕΣ ΑΝΑΖΗΤΗΣΗΣ ΚΑΙ ΑΝΑΛΥΣΗ ΚΕΙΜΕΝΟΥ">ΜΗΧΑΝΕΣ ΑΝΑΖΗΤΗΣΗΣ ΚΑΙ ΑΝΑΛΥΣΗ ΚΕΙΜΕΝΟΥ</option>
-                                <option value="ΗΛΕΚΤΡΟΝΙΚΗ ΔΙΑΚΥΒΕΡΝΗΣΗ">ΗΛΕΚΤΡΟΝΙΚΗ ΔΙΑΚΥΒΕΡΝΗΣΗ</option>
-                                <option value="ΠΛΗΡΟΦΟΡΙΚΗ ΚΑΙ ΒΙΩΣΙΜΗ ΑΝΑΠΤΥΞΗ">ΠΛΗΡΟΦΟΡΙΚΗ ΚΑΙ ΒΙΩΣΙΜΗ ΑΝΑΠΤΥΞΗ</option>
-                                <option value="ΣΧΕΔΙΑΣΗ ΚΑΙ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ ΨΗΦΙΑΚΩΝ ΣΥΣΤΗΜΑΤΩΝ">ΣΧΕΔΙΑΣΗ ΚΑΙ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ ΨΗΦΙΑΚΩΝ ΣΥΣΤΗΜΑΤΩΝ</option>
-                                <option value="ΤΕΧΝΟΛΟΓΙΕΣ BLOCKCHAIN ΚΑΙ ΑΠΟΚΕΝΤΡΩΜΕΝΕΣ ΕΦΑΡΜΟΓΕΣ">ΤΕΧΝΟΛΟΓΙΕΣ BLOCKCHAIN ΚΑΙ ΑΠΟΚΕΝΤΡΩΜΕΝΕΣ ΕΦΑΡΜΟΓΕΣ</option>
-                                <option value="BIG DATA – ΑΝΑΛΥΣΗ ΔΕΔΟΜΕΝΩΝ ΜΕΓΑΛΟΥ ΟΓΚΟΥ">BIG DATA – ΑΝΑΛΥΣΗ ΔΕΔΟΜΕΝΩΝ ΜΕΓΑΛΟΥ ΟΓΚΟΥ</option>
-                                <option value="ΕΦΑΡΜΟΣΜΕΝΗ ΑΡΙΘΜΗΤΙΚΗ ΑΝΑΛΥΣΗ">ΕΦΑΡΜΟΣΜΕΝΗ ΑΡΙΘΜΗΤΙΚΗ ΑΝΑΛΥΣΗ</option>
-                                <option value="ΚΑΤΑΝΕΜΗΜΕΝΑ ΣΥΣΤΗΜΑΤΑ">ΚΑΤΑΝΕΜΗΜΕΝΑ ΣΥΣΤΗΜΑΤΑ</option>
-                                <option value="ΚΡΥΠΤΟΓΡΑΦΙΑ">ΚΡΥΠΤΟΓΡΑΦΙΑ</option>
-                                <option value="ΤΕΧΝΟΛΟΓΙΕΣ ΠΟΛΥΜΕΣΩΝ ΚΑΙ ΓΡΑΦΙΚΑ">ΤΕΧΝΟΛΟΓΙΕΣ ΠΟΛΥΜΕΣΩΝ ΚΑΙ ΓΡΑΦΙΚΑ</option>
-                                <option value="ΜΗΧΑΝΙΚΗ ΜΑΘΗΣΗ">ΜΗΧΑΝΙΚΗ ΜΑΘΗΣΗ</option>
-                                <option value="ΔΙΟΙΚΗΣΗ ΠΟΙΟΤΗΤΑΣ ΚΑΙ ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ">ΔΙΟΙΚΗΣΗ ΠΟΙΟΤΗΤΑΣ ΚΑΙ ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ</option>
-                                <option value="ΔΙΟΙΚΗΣΗ ΤΕΧΝΟΛΟΓΙΚΗΣ ΑΛΛΑΓΗΣ">ΔΙΟΙΚΗΣΗ ΤΕΧΝΟΛΟΓΙΚΗΣ ΑΛΛΑΓΗΣ</option>
-                                <option value="ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ ΕΦΟΔΙΑΣΤΙΚΗΣ ΑΛΥΣΙΔΑΣ">ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ ΕΦΟΔΙΑΣΤΙΚΗΣ ΑΛΥΣΙΔΑΣ</option>
-                                <option value="ΚΑΙΝΟΤΟΜΙΑ ΤΕΧΝΟΛΟΓΙΚΩΝ ΠΡΟΪΟΝΤΩΝ ΚΑΙ ΥΠΗΡΕΣΙΩΝ">ΚΑΙΝΟΤΟΜΙΑ ΤΕΧΝΟΛΟΓΙΚΩΝ ΠΡΟΪΟΝΤΩΝ ΚΑΙ ΥΠΗΡΕΣΙΩΝ</option>
-                                <option value="ΨΗΦΙΑΚΑ ΝΟΜΙΣΜΑΤΑ">ΨΗΦΙΑΚΑ ΝΟΜΙΣΜΑΤΑ</option>
-                                <option value="ΨΗΦΙΑΚΗ ΚΑΙΝΟΤΟΜΙΑ ΚΑΙ ΣΥΣΤΗΜΑΤΑ ΜΕΤΑΦΟΡΑΣ ΤΕΧΝΟΛΟΓΙΑΣ">ΨΗΦΙΑΚΗ ΚΑΙΝΟΤΟΜΙΑ ΚΑΙ ΣΥΣΤΗΜΑΤΑ ΜΕΤΑΦΟΡΑΣ ΤΕΧΝΟΛΟΓΙΑΣ</option>
-                                <option value="ΔΙΑΧΕΙΡΙΣΗ ΧΑΡΤΟΦΥΛΑΚΙΟΥ ΚΑΙ ΕΠΕΝΔΥΣΕΙΣ">ΔΙΑΧΕΙΡΙΣΗ ΧΑΡΤΟΦΥΛΑΚΙΟΥ ΚΑΙ ΕΠΕΝΔΥΣΕΙΣ</option>
-                                <option value="ΣΥΣΤΗΜΑΤΑ ΤΕΧΝΙΚΗΣ ΑΝΑΛΥΣΗΣ">ΣΥΣΤΗΜΑΤΑ ΤΕΧΝΙΚΗΣ ΑΝΑΛΥΣΗΣ</option>
-                            }
-                            else if (note.Semester == 8)
-                            {
-                                <option value="" disabled selected>Επιλογή μαθήματος</option>
-                                <option value="ΑΣΦΑΛΕΙΑ ΔΙΚΤΥΩΝ ΚΑΙ ΔΙΑΔΙΚΤΥΑΚΩΝ ΕΦΑΡΜΟΓΩΝ">ΑΣΦΑΛΕΙΑ ΔΙΚΤΥΩΝ ΚΑΙ ΔΙΑΔΙΚΤΥΑΚΩΝ ΕΦΑΡΜΟΓΩΝ</option>
-                                <option value="ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ ΚΑΙ ΛΗΨΗ ΑΠΟΦΑΣΕΩΝ">ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ ΚΑΙ ΛΗΨΗ ΑΠΟΦΑΣΕΩΝ</option>
-                                <option value="ΔΙΚΑΙΟ ΔΙΑΔΙΚΤΥΟΥ">ΔΙΚΑΙΟ ΔΙΑΔΙΚΤΥΟΥ</option>
-                                <option value="ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΥ ΔΙΑΔΙΚΤΥΟΥ">ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΥ ΔΙΑΔΙΚΤΥΟΥ</option>
-                                <option value="ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΣΤΑ ΔΙΚΤΥΑ ΥΠΟΛΟΓΙΣΤΩΝ ΚΑΙ ΕΠΙΚΟΙΝΩΝΙΩΝ">ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΣΤΑ ΔΙΚΤΥΑ ΥΠΟΛΟΓΙΣΤΩΝ ΚΑΙ ΕΠΙΚΟΙΝΩΝΙΩΝ</option>
-                                <option value="ΕΝΟΠΟΙΗΜΕΝΕΣ ΕΠΙΚΟΙΝΩΝΙΕΣ ΚΑΙ ΕΦΑΡΜΟΓΕΣ">ΕΝΟΠΟΙΗΜΕΝΕΣ ΕΠΙΚΟΙΝΩΝΙΕΣ ΚΑΙ ΕΦΑΡΜΟΓΕΣ</option>
-                                <option value="ΗΘΙΚΗ ΚΑΙ ΔΙΑΚΥΒΕΡΝΗΣΗ ΤΕΧΝΗΤΗΣ ΝΟΗΜΟΣΥΝΗΣ">ΗΘΙΚΗ ΚΑΙ ΔΙΑΚΥΒΕΡΝΗΣΗ ΤΕΧΝΗΤΗΣ ΝΟΗΜΟΣΥΝΗΣ</option>
-                                <option value="ΘΕΩΡΙΑ ΠΑΙΓΝΙΩΝ">ΘΕΩΡΙΑ ΠΑΙΓΝΙΩΝ</option>
-                                <option value="ΚΙΝΗΤΗ ΚΑΙ ΔΙΑΧΥΤΗ ΥΠΟΛΟΓΙΣΤΙΚΗ">ΚΙΝΗΤΗ ΚΑΙ ΔΙΑΧΥΤΗ ΥΠΟΛΟΓΙΣΤΙΚΗ</option>
-                                <option value="ΚΟΙΝΩΝΙΚΑ ΜΕΣΑ – ΚΟΙΝΩΝΙΚΗ ΔΙΚΤΥΩΣΗ">ΚΟΙΝΩΝΙΚΑ ΜΕΣΑ – ΚΟΙΝΩΝΙΚΗ ΔΙΚΤΥΩΣΗ</option>
-                                <option value="ΣΥΝΔΥΑΣΤΙΚΗ ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ">ΣΥΝΔΥΑΣΤΙΚΗ ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ</option>
-                                <option value="ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΠΡΟΣΩΠΙΚΩΝ ΔΕΔΟΜΕΝΩΝ">ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΠΡΟΣΩΠΙΚΩΝ ΔΕΔΟΜΕΝΩΝ</option>
-                                <option value="ΔΙΔΑΚΤΙΚΗ ΤΗΣ ΠΛΗΡΟΦΟΡΙΚΗΣ">ΔΙΔΑΚΤΙΚΗ ΤΗΣ ΠΛΗΡΟΦΟΡΙΚΗΣ</option>
-                                <option value="ΕΠΑΓΓΕΛΜΑΤΙΚΕΣ ΔΕΞΙΟΤΗΤΕΣ ΣΤΗΝ ΑΓΓΛΙΚΗ">ΕΠΑΓΓΕΛΜΑΤΙΚΕΣ ΔΕΞΙΟΤΗΤΕΣ ΣΤΗΝ ΑΓΓΛΙΚΗ</option>
-                                <option value="ΑΝΑΠΤΥΞΗ ΚΑΙ ΔΙΑΧΕΙΡΙΣΗ ΔΙΚΤΥΩΝ ΥΠΟΛΟΓΙΣΤΩΝ">ΑΝΑΠΤΥΞΗ ΚΑΙ ΔΙΑΧΕΙΡΙΣΗ ΔΙΚΤΥΩΝ ΥΠΟΛΟΓΙΣΤΩΝ</option>
-                                <option value="ΛΟΓΙΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ">ΛΟΓΙΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ</option>
-                                <option value="ΥΠΟΛΟΓΙΣΜΟΣ ΥΨΗΛΩΝ ΕΠΙΔΟΣΕΩΝ">ΥΠΟΛΟΓΙΣΜΟΣ ΥΨΗΛΩΝ ΕΠΙΔΟΣΕΩΝ</option>
-                                <option value="ΨΗΦΙΑΚΗ ΣΧΕΔΙΑΣΗ ΚΑΙ ΜΟΝΤΕΛΟΠΟΙΗΣΗ ΨΗΦΙΑΚΩΝ ΚΥΚΛΩΜΑΤΩΝ">ΨΗΦΙΑΚΗ ΣΧΕΔΙΑΣΗ ΚΑΙ ΜΟΝΤΕΛΟΠΟΙΗΣΗ ΨΗΦΙΑΚΩΝ ΚΥΚΛΩΜΑΤΩΝ</option>
-                                <option value="ΝΕΥΡΩΝΙΚΑ ΔΙΚΤΥΑ">ΝΕΥΡΩΝΙΚΑ ΔΙΚΤΥΑ</option>
-                                <option value="ΕΠΙΧΕΙΡΗΜΑΤΙΚΗ ΑΝΑΛΥΤΙΚΗ">ΕΠΙΧΕΙΡΗΜΑΤΙΚΗ ΑΝΑΛΥΤΙΚΗ</option>
-                                <option value="ΜΕΘΟΔΟΛΟΓΙΕΣ ΚΑΙ ΤΕΧΝΟΛΟΓΙΕΣ ΔΙΟΙΚΗΣΗΣ ΠΑΡΑΓΩΓΗΣ">ΜΕΘΟΔΟΛΟΓΙΕΣ ΚΑΙ ΤΕΧΝΟΛΟΓΙΕΣ ΔΙΟΙΚΗΣΗΣ ΠΑΡΑΓΩΓΗΣ</option>
-                                <option value="ΠΡΟΗΓΜΕΝΑ ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ">ΠΡΟΗΓΜΕΝΑ ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ</option>
-                            }
-                        </select>
-                    </div>
-                    <!-- Tags selection component -->
-                    <div class="form-group">
-                        <div class="tags-container">
-                            <div class="tags-list">
-                                @foreach (var tag in tags)
+                        <div class="form-group">
+                            <label for="subject">Μάθημα</label>
+                            <select id="subject" class="form-control" @bind="note.Subject">
+                                @if (note.Semester == 0)
                                 {
-                                    <div class="tag-item">
-                                        <span>@tag</span>
-                                        <button type="button" class="tag-remove-btn" @onclick="() => RemoveTag(tag)">
-                                            <i class="fa-solid fa-times"></i>
-                                        </button>
-                                    </div>
+                                    <option value="" disabled selected>Επιλογή μαθήματος</option>
                                 }
-                            </div>
-                            <div class="tag-selection">
-                                <p class="tag-instruction">Επιλέξτε tags για τις σημειώσεις σας:</p>
-                                <div class="tag-options">
-                                    @foreach (var suggestion in tagSuggestions)
-                                    {
-                                        <button type="button"
-                                                class="tag-suggestion-btn @(tags.Contains(suggestion) ? "selected" : "")"
-                                                @onclick="() => ToggleTag(suggestion)">
-                                            @suggestion
-                                        </button>
-                                    }
+                                @if (note.Semester == 1)
+                                {
+                                    <option value="" disabled selected>Επιλογή μαθήματος</option>
+                                    <option value="ΑΛΓΟΡΙΘΜΟΙ">ΑΛΓΟΡΙΘΜΟΙ</option>
+                                    <option value="ΓΡΑΜΜΙΚΗ ΑΛΓΕΒΡΑ">ΓΡΑΜΜΙΚΗ ΑΛΓΕΒΡΑ</option>
+                                    <option value="ΔΙΑΔΙΚΑΣΤΙΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ">ΔΙΑΔΙΚΑΣΤΙΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ</option>
+                                    <option value="ΜΑΘΗΜΑΤΙΚΗ ΑΝΑΛΥΣΗ">ΜΑΘΗΜΑΤΙΚΗ ΑΝΑΛΥΣΗ</option>
+                                    <option value="ΣΥΣΤΗΜΑΤΑ ΥΠΟΛΟΓΙΣΤΩΝ">ΣΥΣΤΗΜΑΤΑ ΥΠΟΛΟΓΙΣΤΩΝ</option>
+                                    <option value="ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΣΤΗΜΗ ΥΠΟΛΟΓΙΣΤΩΝ">ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΣΤΗΜΗ ΥΠΟΛΟΓΙΣΤΩΝ</option>
+                                    <option value="ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΧΕΙΡΗΜΑΤΙΚΗ ΠΛΗΡΟΦΟΡΙΚΗ">ΕΙΣΑΓΩΓΗ ΣΤΗΝ ΕΠΙΧΕΙΡΗΜΑΤΙΚΗ ΠΛΗΡΟΦΟΡΙΚΗ</option>
+                                }
+                                else if (note.Semester == 2)
+                                {
+                                    <option value="" disabled selected>Επιλογή μαθήματος</option>
+                                    <option value="ΑΡΧΙΤΕΚΤΟΝΙΚΗ ΥΠΟΛΟΓΙΣΤΩΝ">ΑΡΧΙΤΕΚΤΟΝΙΚΗ ΥΠΟΛΟΓΙΣΤΩΝ</option>
+                                    <option value="ΒΑΣΕΙΣ ΔΕΔΟΜΕΝΩΝ">ΒΑΣΕΙΣ ΔΕΔΟΜΕΝΩΝ</option>
+                                    <option value="ΔΙΑΚΡΙΤΑ ΜΑΘΗΜΑΤΙΚΑ">ΔΙΑΚΡΙΤΑ ΜΑΘΗΜΑΤΙΚΑ</option>
+                                    <option value="ΔΟΙΗΚΗΣΗ ΚΑΙ ΤΕΧΝΟΛΟΓΙΑ">ΔΟΙΗΚΗΣΗ ΚΑΙ ΤΕΧΝΟΛΟΓΙΑ</option>
+                                    <option value="ΔΟΜΕΣ ΔΕΔΟΜΕΝΩΝ">ΔΟΜΕΣ ΔΕΔΟΜΕΝΩΝ</option>
+                                    <option value="ΠΙΘΑΝΟΤΗΤΕΣ">ΠΙΘΑΝΟΤΗΤΕΣ</option>
+                                    <option value="ΠΙΘΑΝΟΤΗΤΕΣ ΚΑΙ ΣΤΑΤΙΣΤΙΚΗ">ΠΙΘΑΝΟΤΗΤΕΣ ΚΑΙ ΣΤΑΤΙΣΤΙΚΗ</option>
+                                }
+                                else if (note.Semester == 3)
+                                {
+                                    <option value="" disabled selected>Επιλογή μαθήματος</option>
+                                    <option value="ΑΝΤΙΚΕΙΜΕΝΟΣΤΡΕΦΗΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ">ΑΝΤΙΚΕΙΜΕΝΟΣΤΡΕΦΗΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ</option>
+                                    <option value="ΔΙΚΤΥΑ ΥΠΟΛΟΓΙΣΤΩΝ">ΔΙΚΤΥΑ ΥΠΟΛΟΓΙΣΤΩΝ</option>
+                                    <option value="ΛΕΙΤΟΥΡΓΙΚΑ ΣΥΣΤΗΜΑΤΑ">ΛΕΙΤΟΥΡΓΙΚΑ ΣΥΣΤΗΜΑΤΑ</option>
+                                    <option value="ΣΤΑΤΙΣΤΙΚΗ">ΣΤΑΤΙΣΤΙΚΗ</option>
+                                    <option value="ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ">ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ</option>
+                                    <option value="ΗΛΕΚΤΡΟΝΙΚΟ ΕΠΙΧΕΙΡΕΙΝ">ΗΛΕΚΤΡΟΝΙΚΟ ΕΠΙΧΕΙΡΕΙΝ</option>
+                                    <option value="ΔΙΑΧΕΙΡΙΣΗ ΈΡΓΩΝ ΠΛΗΡΟΦΟΡΙΚΗΣ">ΔΙΑΧΕΙΡΙΣΗ ΈΡΓΩΝ ΠΛΗΡΟΦΟΡΙΚΗΣ</option>
+                                }
+                                else if (note.Semester == 4)
+                                {
+                                    <option value="" disabled selected>Επιλογή μαθήματος</option>
+                                    <option value="ΑΝΑΛΥΣΗ ΑΛΓΟΡΙΘΜΩΝ">ΑΝΑΛΥΣΗ ΑΛΓΟΡΙΘΜΩΝ</option>
+                                    <option value="ΑΛΛΗΛΕΠΙΔΡΑΣΗ ΑΝΘΡΩΠΟΥ ΥΠΟΛΟΓΙΣΤΗ">ΑΛΛΗΛΕΠΙΔΡΑΣΗ ΑΝΘΡΩΠΟΥ ΥΠΟΛΟΓΙΣΤΗ</option>
+                                    <option value="ΑΣΦΑΛΕΙΑ ΠΛΗΡΟΦΟΡΙΩΝ ΚΑΙ ΣΥΣΤΗΜΑΤΩΝ">ΑΣΦΑΛΕΙΑ ΠΛΗΡΟΦΟΡΙΩΝ ΚΑΙ ΣΥΣΤΗΜΑΤΩΝ</option>
+                                    <option value="ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ ΔΙΑΔΙΚΤΥΟΥ">ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ ΔΙΑΔΙΚΤΥΟΥ</option>
+                                    <option value="ΨΗΦΙΑΚΗ ΟΙΚΟΝΟΜΙΚΗ">ΨΗΦΙΑΚΗ ΟΙΚΟΝΟΜΙΚΗ</option>
+                                    <option value="ΤΕΧΝΟΛΟΓΙΑ ΛΟΓΙΣΜΙΚΟΥ">ΤΕΧΝΟΛΟΓΙΑ ΛΟΓΙΣΜΙΚΟΥ</option>
+                                    <option value="ΧΡΗΜΑΤΟΟΙΚΟΝΟΜΙΚΗ ΔΙΟΙΚΗΣΗ">ΧΡΗΜΑΤΟΟΙΚΟΝΟΜΙΚΗ ΔΙΟΙΚΗΣΗ</option>
+                                    <option value="ΑΝΑΛΥΣΗ ΚΑΙ ΣΧΕΔΙΑΣΗ ΣΥΣΤΗΜΑΤΩΝ">ΑΝΑΛΥΣΗ ΚΑΙ ΣΧΕΔΙΑΣΗ ΣΥΣΤΗΜΑΤΩΝ</option>
+                                }
+
+                                else if (note.Semester == 5)
+                                {
+                                    <option value="" disabled selected>Επιλογή μαθήματος</option>
+                                    <option value="ΔΙΚΑΙΟ ΠΛΗΡΟΦΟΡΙΚΗΣ ΚΑΙ ∆ΕΟΝΤΟΛΟΓΙΑ">ΔΙΚΑΙΟ ΠΛΗΡΟΦΟΡΙΚΗΣ ΚΑΙ ∆ΕΟΝΤΟΛΟΓΙΑ</option>
+                                    <option value="ΤΕΧΝΗΤΗ ΝΟΗΜΟΣΥΝΗ">ΤΕΧΝΗΤΗ ΝΟΗΜΟΣΥΝΗ</option>
+                                    <option value="ΥΠΗΡΕΣΙΕΣ ΚΑΙ ΣΥΝΑΛΛΑΓΕΣ ΙΣΤΟΥ">ΥΠΗΡΕΣΙΕΣ ΚΑΙ ΣΥΝΑΛΛΑΓΕΣ ΙΣΤΟΥ</option>
+                                    <option value="ΣΥΣΤΗΜΑΤΑ ΒΑΣΕΩΝ ΔΕΔΟΜΕΝΩΝ">ΣΥΣΤΗΜΑΤΑ ΒΑΣΕΩΝ ΔΕΔΟΜΕΝΩΝ</option>
+                                    <option value="ΠΟΙΟΤΗΤΑ ΛΟΓΙΣΜΙΚΟΥ">ΠΟΙΟΤΗΤΑ ΛΟΓΙΣΜΙΚΟΥ</option>
+                                    <option value="ΣΥΣΤΗΜΑΤΑ ΕΠΙΚΟΙΝΩΝΙΩΝ">ΣΥΣΤΗΜΑΤΑ ΕΠΙΚΟΙΝΩΝΙΩΝ</option>
+                                    <option value="ΨΗΦΙΑΚΟ ΜΑΡΚΕΤΙΝΓΚ">ΨΗΦΙΑΚΟ ΜΑΡΚΕΤΙΝΓΚ</option>
+                                    <option value="ΕΠΙΧΕΙΡΗΜΑΤΙΚΕΣ ΕΠΙΚΟΙΝΩΝΙΕΣ ΔΕΔΟΜΕΝΩΝ">ΕΠΙΧΕΙΡΗΜΑΤΙΚΕΣ ΕΠΙΚΟΙΝΩΝΙΕΣ ΔΕΔΟΜΕΝΩΝ</option>
+                                    <option value="ΔΙΑΧΕΙΡΙΣΗ ΕΠΙΧΕΙΡΗΣΙΑΚΩΝ ΔΙΑΔΙΚΑΣΙΩΝ">ΔΙΑΧΕΙΡΙΣΗ ΕΠΙΧΕΙΡΗΣΙΑΚΩΝ ΔΙΑΔΙΚΑΣΙΩΝ</option>
+                                }
+                                else if (note.Semester == 6)
+                                {
+                                    <option value="" disabled selected>Επιλογή μαθήματος</option>
+                                    <option value="ΕΠΙΧΕΙΡΗΣΙΑΚΗ ΕΡΕΥΝΑ">ΕΠΙΧΕΙΡΗΣΙΑΚΗ ΕΡΕΥΝΑ</option>
+                                    <option value="ΥΠΟΛΟΓΙΣΤΙΚΗ ΝΕΦΟΥΣ">ΥΠΟΛΟΓΙΣΤΙΚΗ ΝΕΦΟΥΣ</option>
+                                    <option value="ΑΝΑΠΤΥΞΗ ΕΦΑΡΜΟΓΩΝ ΓΙΑ ΚΙΝΗΤΕΣ ΣΥΣΚΕΥΕΣ">ΑΝΑΠΤΥΞΗ ΕΦΑΡΜΟΓΩΝ ΓΙΑ ΚΙΝΗΤΕΣ ΣΥΣΚΕΥΕΣ</option>
+                                    <option value="ΓΛΩΣΣΕΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΥ ΚΑΙ ΜΕΤΑΓΛΩΤΤΙΣΤΕΣ">ΓΛΩΣΣΕΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΥ ΚΑΙ ΜΕΤΑΓΛΩΤΤΙΣΤΕΣ</option>
+                                    <option value="ΘΕΩΡΙΑ ΥΠΟΛΟΓΙΣΜΟΥ">ΘΕΩΡΙΑ ΥΠΟΛΟΓΙΣΜΟΥ</option>
+                                    <option value="ΠΑΡΑΛΛΗΛΟΣ ΚΑΙ ΚΑΤΑΝΕΜΗΜΕΝΟΣ ΥΠΟΛΟΓΙΣΜΟΣ">ΠΑΡΑΛΛΗΛΟΣ ΚΑΙ ΚΑΤΑΝΕΜΗΜΕΝΟΣ ΥΠΟΛΟΓΙΣΜΟΣ</option>
+                                    <option value="ΔΙΑΧΕΙΡΙΣΗ ΧΡΗΜΑΤΟΟΙΚΟΝΟΜΙΚΩΝ ΚΙΝΔΥΝΩΝ">ΔΙΑΧΕΙΡΙΣΗ ΧΡΗΜΑΤΟΟΙΚΟΝΟΜΙΚΩΝ ΚΙΝΔΥΝΩΝ</option>
+                                    <option value="ΕΠΙΧΕΙΡΗΜΑΤΙΚΟΤΗΤΑ ΚΑΙ ΝΕΟΦΥΕΙΣ ΕΠΙΧΕΙΡΗΣΕΙΣ ΤΠΕ">ΕΠΙΧΕΙΡΗΜΑΤΙΚΟΤΗΤΑ ΚΑΙ ΝΕΟΦΥΕΙΣ ΕΠΙΧΕΙΡΗΣΕΙΣ ΤΠΕ</option>
+                                    <option value="ΣΤΡΑΤΗΓΙΚΗ ΕΠΙΧΕΙΡΗΣΕΩΝ ΚΑΙ ΠΛΗΡΟΦΟΡΙΑΚΩΝ ΣΥΣΤΗΜΑΤΩΝ">ΣΤΡΑΤΗΓΙΚΗ ΕΠΙΧΕΙΡΗΣΕΩΝ ΚΑΙ ΠΛΗΡΟΦΟΡΙΑΚΩΝ ΣΥΣΤΗΜΑΤΩΝ</option>
+                                }
+                                else if (note.Semester == 7)
+                                {
+                                    <option value="" disabled selected>Επιλογή μαθήματος</option>
+                                    <option value="ΑΚΑΔΗΜΑΪΚΕΣ ΔΕΞΙΟΤΗΤΕΣ ΣΤΗΝ ΑΓΓΛΙΚΗ">ΑΚΑΔΗΜΑΪΚΕΣ ΔΕΞΙΟΤΗΤΕΣ ΣΤΗΝ ΑΓΓΛΙΚΗ</option>
+                                    <option value="ΑΝΑΚΑΛΥΨΗ ΓΝΩΣΗΣ ΣΕ ΒΑΣΕΙΣ ΔΕΔΟΜΕΝΩΝ">ΑΝΑΚΑΛΥΨΗ ΓΝΩΣΗΣ ΣΕ ΒΑΣΕΙΣ ΔΕΔΟΜΕΝΩΝ</option>
+                                    <option value="ΜΗΧΑΝΕΣ ΑΝΑΖΗΤΗΣΗΣ ΚΑΙ ΑΝΑΛΥΣΗ ΚΕΙΜΕΝΟΥ">ΜΗΧΑΝΕΣ ΑΝΑΖΗΤΗΣΗΣ ΚΑΙ ΑΝΑΛΥΣΗ ΚΕΙΜΕΝΟΥ</option>
+                                    <option value="ΗΛΕΚΤΡΟΝΙΚΗ ΔΙΑΚΥΒΕΡΝΗΣΗ">ΗΛΕΚΤΡΟΝΙΚΗ ΔΙΑΚΥΒΕΡΝΗΣΗ</option>
+                                    <option value="ΠΛΗΡΟΦΟΡΙΚΗ ΚΑΙ ΒΙΩΣΙΜΗ ΑΝΑΠΤΥΞΗ">ΠΛΗΡΟΦΟΡΙΚΗ ΚΑΙ ΒΙΩΣΙΜΗ ΑΝΑΠΤΥΞΗ</option>
+                                    <option value="ΣΧΕΔΙΑΣΗ ΚΑΙ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ ΨΗΦΙΑΚΩΝ ΣΥΣΤΗΜΑΤΩΝ">ΣΧΕΔΙΑΣΗ ΚΑΙ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ ΨΗΦΙΑΚΩΝ ΣΥΣΤΗΜΑΤΩΝ</option>
+                                    <option value="ΤΕΧΝΟΛΟΓΙΕΣ BLOCKCHAIN ΚΑΙ ΑΠΟΚΕΝΤΡΩΜΕΝΕΣ ΕΦΑΡΜΟΓΕΣ">ΤΕΧΝΟΛΟΓΙΕΣ BLOCKCHAIN ΚΑΙ ΑΠΟΚΕΝΤΡΩΜΕΝΕΣ ΕΦΑΡΜΟΓΕΣ</option>
+                                    <option value="BIG DATA – ΑΝΑΛΥΣΗ ΔΕΔΟΜΕΝΩΝ ΜΕΓΑΛΟΥ ΟΓΚΟΥ">BIG DATA – ΑΝΑΛΥΣΗ ΔΕΔΟΜΕΝΩΝ ΜΕΓΑΛΟΥ ΟΓΚΟΥ</option>
+                                    <option value="ΕΦΑΡΜΟΣΜΕΝΗ ΑΡΙΘΜΗΤΙΚΗ ΑΝΑΛΥΣΗ">ΕΦΑΡΜΟΣΜΕΝΗ ΑΡΙΘΜΗΤΙΚΗ ΑΝΑΛΥΣΗ</option>
+                                    <option value="ΚΑΤΑΝΕΜΗΜΕΝΑ ΣΥΣΤΗΜΑΤΑ">ΚΑΤΑΝΕΜΗΜΕΝΑ ΣΥΣΤΗΜΑΤΑ</option>
+                                    <option value="ΚΡΥΠΤΟΓΡΑΦΙΑ">ΚΡΥΠΤΟΓΡΑΦΙΑ</option>
+                                    <option value="ΤΕΧΝΟΛΟΓΙΕΣ ΠΟΛΥΜΕΣΩΝ ΚΑΙ ΓΡΑΦΙΚΑ">ΤΕΧΝΟΛΟΓΙΕΣ ΠΟΛΥΜΕΣΩΝ ΚΑΙ ΓΡΑΦΙΚΑ</option>
+                                    <option value="ΜΗΧΑΝΙΚΗ ΜΑΘΗΣΗ">ΜΗΧΑΝΙΚΗ ΜΑΘΗΣΗ</option>
+                                    <option value="ΔΙΟΙΚΗΣΗ ΠΟΙΟΤΗΤΑΣ ΚΑΙ ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ">ΔΙΟΙΚΗΣΗ ΠΟΙΟΤΗΤΑΣ ΚΑΙ ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ</option>
+                                    <option value="ΔΙΟΙΚΗΣΗ ΤΕΧΝΟΛΟΓΙΚΗΣ ΑΛΛΑΓΗΣ">ΔΙΟΙΚΗΣΗ ΤΕΧΝΟΛΟΓΙΚΗΣ ΑΛΛΑΓΗΣ</option>
+                                    <option value="ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ ΕΦΟΔΙΑΣΤΙΚΗΣ ΑΛΥΣΙΔΑΣ">ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ ΕΦΟΔΙΑΣΤΙΚΗΣ ΑΛΥΣΙΔΑΣ</option>
+                                    <option value="ΚΑΙΝΟΤΟΜΙΑ ΤΕΧΝΟΛΟΓΙΚΩΝ ΠΡΟΪΟΝΤΩΝ ΚΑΙ ΥΠΗΡΕΣΙΩΝ">ΚΑΙΝΟΤΟΜΙΑ ΤΕΧΝΟΛΟΓΙΚΩΝ ΠΡΟΪΟΝΤΩΝ ΚΑΙ ΥΠΗΡΕΣΙΩΝ</option>
+                                    <option value="ΨΗΦΙΑΚΑ ΝΟΜΙΣΜΑΤΑ">ΨΗΦΙΑΚΑ ΝΟΜΙΣΜΑΤΑ</option>
+                                    <option value="ΨΗΦΙΑΚΗ ΚΑΙΝΟΤΟΜΙΑ ΚΑΙ ΣΥΣΤΗΜΑΤΑ ΜΕΤΑΦΟΡΑΣ ΤΕΧΝΟΛΟΓΙΑΣ">ΨΗΦΙΑΚΗ ΚΑΙΝΟΤΟΜΙΑ ΚΑΙ ΣΥΣΤΗΜΑΤΑ ΜΕΤΑΦΟΡΑΣ ΤΕΧΝΟΛΟΓΙΑΣ</option>
+                                    <option value="ΔΙΑΧΕΙΡΙΣΗ ΧΑΡΤΟΦΥΛΑΚΙΟΥ ΚΑΙ ΕΠΕΝΔΥΣΕΙΣ">ΔΙΑΧΕΙΡΙΣΗ ΧΑΡΤΟΦΥΛΑΚΙΟΥ ΚΑΙ ΕΠΕΝΔΥΣΕΙΣ</option>
+                                    <option value="ΣΥΣΤΗΜΑΤΑ ΤΕΧΝΙΚΗΣ ΑΝΑΛΥΣΗΣ">ΣΥΣΤΗΜΑΤΑ ΤΕΧΝΙΚΗΣ ΑΝΑΛΥΣΗΣ</option>
+                                }
+                                else if (note.Semester == 8)
+                                {
+                                    <option value="" disabled selected>Επιλογή μαθήματος</option>
+                                    <option value="ΑΣΦΑΛΕΙΑ ΔΙΚΤΥΩΝ ΚΑΙ ΔΙΑΔΙΚΤΥΑΚΩΝ ΕΦΑΡΜΟΓΩΝ">ΑΣΦΑΛΕΙΑ ΔΙΚΤΥΩΝ ΚΑΙ ΔΙΑΔΙΚΤΥΑΚΩΝ ΕΦΑΡΜΟΓΩΝ</option>
+                                    <option value="ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ ΚΑΙ ΛΗΨΗ ΑΠΟΦΑΣΕΩΝ">ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ ΚΑΙ ΛΗΨΗ ΑΠΟΦΑΣΕΩΝ</option>
+                                    <option value="ΔΙΚΑΙΟ ΔΙΑΔΙΚΤΥΟΥ">ΔΙΚΑΙΟ ΔΙΑΔΙΚΤΥΟΥ</option>
+                                    <option value="ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΥ ΔΙΑΔΙΚΤΥΟΥ">ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΥ ΔΙΑΔΙΚΤΥΟΥ</option>
+                                    <option value="ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΣΤΑ ΔΙΚΤΥΑ ΥΠΟΛΟΓΙΣΤΩΝ ΚΑΙ ΕΠΙΚΟΙΝΩΝΙΩΝ">ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΣΤΑ ΔΙΚΤΥΑ ΥΠΟΛΟΓΙΣΤΩΝ ΚΑΙ ΕΠΙΚΟΙΝΩΝΙΩΝ</option>
+                                    <option value="ΕΝΟΠΟΙΗΜΕΝΕΣ ΕΠΙΚΟΙΝΩΝΙΕΣ ΚΑΙ ΕΦΑΡΜΟΓΕΣ">ΕΝΟΠΟΙΗΜΕΝΕΣ ΕΠΙΚΟΙΝΩΝΙΕΣ ΚΑΙ ΕΦΑΡΜΟΓΕΣ</option>
+                                    <option value="ΗΘΙΚΗ ΚΑΙ ΔΙΑΚΥΒΕΡΝΗΣΗ ΤΕΧΝΗΤΗΣ ΝΟΗΜΟΣΥΝΗΣ">ΗΘΙΚΗ ΚΑΙ ΔΙΑΚΥΒΕΡΝΗΣΗ ΤΕΧΝΗΤΗΣ ΝΟΗΜΟΣΥΝΗΣ</option>
+                                    <option value="ΘΕΩΡΙΑ ΠΑΙΓΝΙΩΝ">ΘΕΩΡΙΑ ΠΑΙΓΝΙΩΝ</option>
+                                    <option value="ΚΙΝΗΤΗ ΚΑΙ ΔΙΑΧΥΤΗ ΥΠΟΛΟΓΙΣΤΙΚΗ">ΚΙΝΗΤΗ ΚΑΙ ΔΙΑΧΥΤΗ ΥΠΟΛΟΓΙΣΤΙΚΗ</option>
+                                    <option value="ΚΟΙΝΩΝΙΚΑ ΜΕΣΑ – ΚΟΙΝΩΝΙΚΗ ΔΙΚΤΥΩΣΗ">ΚΟΙΝΩΝΙΚΑ ΜΕΣΑ – ΚΟΙΝΩΝΙΚΗ ΔΙΚΤΥΩΣΗ</option>
+                                    <option value="ΣΥΝΔΥΑΣΤΙΚΗ ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ">ΣΥΝΔΥΑΣΤΙΚΗ ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ</option>
+                                    <option value="ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΠΡΟΣΩΠΙΚΩΝ ΔΕΔΟΜΕΝΩΝ">ΕΙΔΙΚΑ ΘΕΜΑΤΑ ΠΡΟΣΩΠΙΚΩΝ ΔΕΔΟΜΕΝΩΝ</option>
+                                    <option value="ΔΙΔΑΚΤΙΚΗ ΤΗΣ ΠΛΗΡΟΦΟΡΙΚΗΣ">ΔΙΔΑΚΤΙΚΗ ΤΗΣ ΠΛΗΡΟΦΟΡΙΚΗΣ</option>
+                                    <option value="ΕΠΑΓΓΕΛΜΑΤΙΚΕΣ ΔΕΞΙΟΤΗΤΕΣ ΣΤΗΝ ΑΓΓΛΙΚΗ">ΕΠΑΓΓΕΛΜΑΤΙΚΕΣ ΔΕΞΙΟΤΗΤΕΣ ΣΤΗΝ ΑΓΓΛΙΚΗ</option>
+                                    <option value="ΑΝΑΠΤΥΞΗ ΚΑΙ ΔΙΑΧΕΙΡΙΣΗ ΔΙΚΤΥΩΝ ΥΠΟΛΟΓΙΣΤΩΝ">ΑΝΑΠΤΥΞΗ ΚΑΙ ΔΙΑΧΕΙΡΙΣΗ ΔΙΚΤΥΩΝ ΥΠΟΛΟΓΙΣΤΩΝ</option>
+                                    <option value="ΛΟΓΙΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ">ΛΟΓΙΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ</option>
+                                    <option value="ΥΠΟΛΟΓΙΣΜΟΣ ΥΨΗΛΩΝ ΕΠΙΔΟΣΕΩΝ">ΥΠΟΛΟΓΙΣΜΟΣ ΥΨΗΛΩΝ ΕΠΙΔΟΣΕΩΝ</option>
+                                    <option value="ΨΗΦΙΑΚΗ ΣΧΕΔΙΑΣΗ ΚΑΙ ΜΟΝΤΕΛΟΠΟΙΗΣΗ ΨΗΦΙΑΚΩΝ ΚΥΚΛΩΜΑΤΩΝ">ΨΗΦΙΑΚΗ ΣΧΕΔΙΑΣΗ ΚΑΙ ΜΟΝΤΕΛΟΠΟΙΗΣΗ ΨΗΦΙΑΚΩΝ ΚΥΚΛΩΜΑΤΩΝ</option>
+                                    <option value="ΝΕΥΡΩΝΙΚΑ ΔΙΚΤΥΑ">ΝΕΥΡΩΝΙΚΑ ΔΙΚΤΥΑ</option>
+                                    <option value="ΕΠΙΧΕΙΡΗΜΑΤΙΚΗ ΑΝΑΛΥΤΙΚΗ">ΕΠΙΧΕΙΡΗΜΑΤΙΚΗ ΑΝΑΛΥΤΙΚΗ</option>
+                                    <option value="ΜΕΘΟΔΟΛΟΓΙΕΣ ΚΑΙ ΤΕΧΝΟΛΟΓΙΕΣ ΔΙΟΙΚΗΣΗΣ ΠΑΡΑΓΩΓΗΣ">ΜΕΘΟΔΟΛΟΓΙΕΣ ΚΑΙ ΤΕΧΝΟΛΟΓΙΕΣ ΔΙΟΙΚΗΣΗΣ ΠΑΡΑΓΩΓΗΣ</option>
+                                    <option value="ΠΡΟΗΓΜΕΝΑ ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ">ΠΡΟΗΓΜΕΝΑ ΠΛΗΡΟΦΟΡΙΑΚΑ ΣΥΣΤΗΜΑΤΑ</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ανάρτηση Αρχείου</label>
+                            <InputFile OnChange="OnFileChange" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png" />
+                            @if (!string.IsNullOrEmpty(fileName))
+                            {
+                                <div class="selected-file mt-2">
+                                    <i class="fa-solid fa-file"></i> @fileName
                                 </div>
-                            </div>
+                            }
+                        </div>
+                        <div class="form-group mt-4">
+                            <button class="action-button w-100" @onclick="() => ValidateAndUpload()">
+                                <i class="fa-solid fa-upload"></i> ΑΝΑΡΤΗΣΗ ΣΗΜΕΙΩΣΗΣ
+                            </button>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label>Ανάρτηση Αρχείου</label>
-                        <InputFile OnChange="OnFileChange" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png" />
-                        @if (!string.IsNullOrEmpty(fileName))
-                        {
-                            <div class="selected-file mt-2">
-                                <i class="fa-solid fa-file"></i> @fileName
-                            </div>
-                        }
-                    </div>
-                    <div class="form-group mt-4">
-                        <button class="action-button w-100" @onclick="() => ValidateAndUpload()">
-                            <i class="fa-solid fa-upload"></i> ΑΝΑΡΤΗΣΗ ΣΗΜΕΙΩΣΗΣ
-                        </button>
-                    </div>
                 </div>
-            </div>
-
+            
         </Authorized>
         <NotAuthorized>
             @{
@@ -297,6 +259,7 @@
         </NotAuthorized>
     </AuthorizeView>
 </CascadingAuthenticationState>
+
 
 @code {
     private bool isUserMenuOpen = false;
@@ -415,11 +378,6 @@
         await UploadNote();
     }
 
-    private void ToggleUserMenu()
-    {
-        isUserMenuOpen = !isUserMenuOpen;
-    }
-
     private async Task Logout()
     {
         if (AuthStateProvider is BlazorAuthStateProvider blazorAuthStateProvider)
@@ -535,4 +493,6 @@
             await JSRuntime.InvokeVoidAsync("document.getElementById", elementId, "focus");
         }
     }
+
+
 }
