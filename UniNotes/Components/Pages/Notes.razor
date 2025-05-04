@@ -19,51 +19,34 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <!-- User icon with dropdown menu -->
-            <div class="user-icon-container">
-                <div class="user-icon" @onclick="ToggleUserMenu">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="white">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-                    </svg>
+            <!-- Navigation tabs (Same as dashboard) -->
+            <div class="navigation-tabs">
+                <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
                 </div>
-                @if (isUserMenuOpen)
-                {
-                    <div class="user-dropdown">
-                        <div class="dropdown-item" style="pointer-events: none">
-                            <i class="fa-solid fa-user"></i>
-                            <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
-                            <i class="fa-solid fa-note-sticky"></i>
-                            <span>Οι Σημειώσεις μου</span>
-                        </div>
-                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/upload")'>
-                            <i class="fa-solid fa-file-arrow-up"></i>
-                            <span>Ανέβασε Σημειώσεις</span>
-                        </div>
-                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
-                            <i class="fa-solid fa-gauge-high"></i>
-                            <span>Dashboard</span>
-                        </div>
-                        <div class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/settings")'>
-                            <i class="fa-solid fa-gear"></i>
-                            <span>Ρυθμίσεις Χρήστη</span>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-item" style="color: red" @onclick="Logout">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Αποσύνδεση</span>
-                        </div>
+                <div class="nav-tab @(IsCurrentPage("/notes") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/notes")'>
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Φόρουμ Σημειώσεων</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/MyNotes") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Οι Σημειώσεις μου</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/upload") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/upload")'>
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <span>Ανέβασε Σημειώσεις</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/settings") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/settings")'>
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Ρυθμίσεις</span>
+                </div>
+                <div class="user-profile">
+                    <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
+                    <div class="user-icon" @onclick="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
                     </div>
-                }
-            </div>
-
-            <!-- Back button -->
-            <div class="back-button-container">
-                <button class="action-button" @onclick="GoBack">
-                    <i class="fa-solid fa-arrow-left"></i> ΠΙΣΩ
-                </button>
+                </div>
             </div>
 
             <div class="full-page-background">
@@ -243,6 +226,11 @@
         .Where(n => selectedSemester == 0 || n.Semester == selectedSemester)
         .OrderByDescending(n => n.CreatedAt)
         .ToList() ?? new List<Note>();
+
+    private bool IsCurrentPage(string route)
+    {
+        return NavigationManager.Uri.EndsWith(route, StringComparison.OrdinalIgnoreCase);
+    }
 
     private void ToggleUserMenu()
     {
