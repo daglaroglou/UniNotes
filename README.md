@@ -77,7 +77,7 @@
 - [x] 1.4) Back function σε register και login
 - [x] 1.5) Να μεταφράσουμε όλο το site στα ελληνικά
 - [x] 1.6) Να φτιάξουμε ένα README.MD
-- [ ] 1.7) Nα κανουμε να δουλευει το view file σε κάθε note
+- [x] 1.7) Nα κανουμε να δουλευει το view file σε κάθε note
 
 ### 2) User functions που απομένουν:
 - [ ] 2.1) Να βάλουμε ratings στα notes
@@ -85,7 +85,7 @@
 - [ ] 2.3) Να βάλουμε report note function
 - [ ] 2.4) Να βάλουμε favorites για τα notes
 - [ ] 2.5) Να βάλουμε view profile για κάθε user και average rating από τα notes του
-- [ ] 2.6) Να βάλουμε tags στα notes
+- [x] 2.6) Να βάλουμε tags στα notes
 - [ ] 2.7) Να βαλουμε download function για τα notes
 
 ### 3) !!! Να φτιάξουμε moderators που να έχουν τα βασικά των users και:
