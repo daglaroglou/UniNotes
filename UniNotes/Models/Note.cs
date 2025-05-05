@@ -34,5 +34,14 @@ namespace UniNotes.Models
         
         [BsonElement("tags")]
         public List<string> Tags { get; set; } = new List<string>();
+        
+        [BsonElement("ratings")]
+        public List<Rating> Ratings { get; set; } = new List<Rating>();
+        
+        [BsonElement("averageRating")]
+        public double AverageRating { get; set; } = 0;
+
+        [BsonIgnore]
+        public int? UserRating { get; set; }
     }
 }

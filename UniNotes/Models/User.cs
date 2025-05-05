@@ -35,5 +35,11 @@ namespace UniNotes.Models
 
         [BsonElement("notes")]
         public List<string> NoteIds { get; set; } = new List<string>();
+        
+        [BsonElement("averageNotesRating")]
+        public double AverageNotesRating { get; set; } = 0;
+        
+        [BsonElement("totalRatingsReceived")]
+        public int TotalRatingsReceived { get; set; } = 0;
     }
 }

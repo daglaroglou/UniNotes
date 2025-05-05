@@ -662,3 +662,93 @@ html, body {
             background-color: rgba(255, 0, 0, 0.3);
         }
 
+/* Add this to your Notes.razor.css file */
+.rating-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.average-rating {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.average-rating i {
+    color: gold;
+    margin-right: 3px;
+}
+
+.rating-count {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-left: 5px;
+}
+
+.user-rating {
+    display: flex;
+}
+
+.star {
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-right: 5px;
+    transition: transform 0.1s;
+}
+
+.star:hover {
+    transform: scale(1.2);
+}
+
+.star i {
+    color: #ccc;
+}
+
+.star.rated i {
+    color: gold;
+}
+
+/* Star hover effect - fills stars from left to right */
+.user-rating:hover .star i {
+    color: #ccc;
+}
+
+.user-rating .star:hover i,
+.user-rating .star:hover ~ .star i {
+    color: gold;
+}
+
+/* Add these styles to your existing CSS */
+.user-rating-container {
+    display: flex;
+    align-items: center;
+}
+
+.remove-rating-btn {
+    background: none;
+    border: none;
+    color: #ff5252;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-left: 8px;
+    padding: 2px 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.remove-rating-btn:hover {
+    background-color: rgba(255, 82, 82, 0.2);
+    transform: scale(1.1);
+}
+
+.remove-rating-btn:focus {
+    outline: none;
+}
+

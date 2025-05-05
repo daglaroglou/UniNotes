@@ -97,7 +97,7 @@
                             
                             <div class="filter-group">
                                 <label for="semesterFilter">Φιλτραρισμα ανα Εξάμηνο:</label>
-                                <select id="semesterFilter" class="form-control" @bind="selectedSemester">
+                                <select id="semesterFilter" class="form-control" @bind="selectedSemester" @bind:after="OnSemesterChanged">
                                     <option value="0">Όλα τα Εξάμηνα</option>
                                     @for (int i = 1; i <= 8; i++)
                                     {
@@ -147,6 +147,33 @@
                                             <span><i class="fa-solid fa-user"></i> @note.Username</span>
                                         </div>
 
+                                        <div class="rating-container">
+                                            <div class="average-rating">
+                                                <span><i class="fa-solid fa-star"></i> @(note.AverageRating > 0 ? note.AverageRating.ToString("F1") : "No ratings")</span>
+                                                <span class="rating-count">(@(note.Ratings?.Count ?? 0))</span>
+                                            </div>
+                                            
+                                            <div class="user-rating-container">
+                                                <div class="user-rating">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        var starValue = i;
+                                                        var isRated = userRatings.ContainsKey(note.Id ?? "") && userRatings[note.Id ?? ""] >= starValue;
+                                                        <span class="star @(isRated ? "rated" : "")" @onclick="@(async () => await RateNote(note.Id ?? "", starValue))">
+                                                            <i class="@(isRated ? "fa-solid" : "fa-regular") fa-star"></i>
+                                                        </span>
+                                                    }
+                                                </div>
+                                                
+                                                @if (userRatings.ContainsKey(note.Id ?? ""))
+                                                {
+                                                    <button class="remove-rating-btn" @onclick="@(async () => await RemoveRating(note.Id ?? ""))">
+                                                        <i class="fa-solid fa-times"></i>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </div>
+
                                         <div class="note-tags">
                                             @if (note.Tags != null && note.Tags.Any())
                                             {
@@ -186,6 +213,7 @@
     private int selectedSemester = 0;
     private List<string> subjectList = new List<string>();
     private Dictionary<string, string> imageCache = new Dictionary<string, string>();
+    private Dictionary<string, int> userRatings = new Dictionary<string, int>();
 
     // User-related properties for the dropdown menu
     private bool isUserMenuOpen = false;
@@ -214,8 +242,8 @@
                 return;
             }
 
-            // Load all notes
-            allNotes = await NoteService.GetAllNotesAsync();
+            // Load all notes with user ratings
+            allNotes = await NoteService.GetNotesWithUserRatingsAsync();
 
             // Extract unique subjects for the filter
             if (allNotes != null && allNotes.Any())
@@ -226,6 +254,18 @@
                     .Distinct()
                     .OrderBy(s => s)
                     .ToList();
+            }
+
+            // Load user ratings into the local dictionary
+            if (allNotes != null)
+            {
+                foreach (var note in allNotes)
+                {
+                    if (note.Id != null && note.UserRating.HasValue)
+                    {
+                        userRatings[note.Id] = note.UserRating.Value;
+                    }
+                }
             }
         }
         catch (Exception ex)
@@ -357,8 +397,120 @@
         }
     }
 
+    private async Task RateNote(string noteId, int rating)
+    {
+        if (string.IsNullOrEmpty(noteId)) return;
+
+        try
+        {
+            bool success = await NoteService.RateNoteAsync(noteId, rating);
+            
+            if (success)
+            {
+                // Update local rating
+                userRatings[noteId] = rating;
+
+                // Update the note's average rating and ratings count in the local list
+                var note = allNotes?.FirstOrDefault(n => n.Id == noteId);
+                if (note != null)
+                {
+                    note.AverageRating = await NoteService.GetAverageRatingAsync(noteId);
+                    note.Ratings = await NoteService.GetRatingsAsync(noteId);
+                    note.UserRating = rating;
+                }
+                
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error rating note: {ex.Message}";
+        }
+    }
+
+    private async Task RemoveRating(string noteId)
+    {
+        if (string.IsNullOrEmpty(noteId)) return;
+
+        try
+        {
+            bool success = await NoteService.RemoveNoteRatingAsync(noteId);
+            
+            if (success)
+            {
+                // Remove the local rating
+                userRatings.Remove(noteId);
+
+                // Update the note's average rating and ratings count in the local list
+                var note = allNotes?.FirstOrDefault(n => n.Id == noteId);
+                if (note != null)
+                {
+                    note.AverageRating = await NoteService.GetAverageRatingAsync(noteId);
+                    note.Ratings = await NoteService.GetRatingsAsync(noteId);
+                    note.UserRating = null;
+                }
+                
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error removing rating: {ex.Message}";
+        }
+    }
+
     private void GoBack()
     {
         NavigationManager.NavigateTo("/");
+    }
+
+    private void OnSemesterChanged()
+    {
+        // Check if there are any notes for the selected semester
+        bool hasNotesForSemester = allNotes?.Any(n => selectedSemester == 0 || n.Semester == selectedSemester) ?? false;
+        
+        // If no notes exist for this semester, or if we have notes but no subjects match the current selection
+        if (!hasNotesForSemester || 
+            (hasNotesForSemester && !string.IsNullOrEmpty(selectedSubject) && 
+             !allNotes!.Any(n => n.Semester == selectedSemester && n.Subject == selectedSubject)))
+        {
+            // Reset to "Όλα τα μαθήματα"
+            selectedSubject = "";
+        }
+        
+        // Update the subject list to only show relevant subjects for the selected semester
+        UpdateSubjectList();
+    }
+    
+    private void UpdateSubjectList()
+    {
+        if (allNotes != null && allNotes.Any())
+        {
+            // If a semester is selected, filter the subject list to only include subjects from that semester
+            if (selectedSemester > 0)
+            {
+                subjectList = allNotes
+                    .Where(n => n.Semester == selectedSemester)
+                    .Select(n => n.Subject)
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .Distinct()
+                    .OrderBy(s => s)
+                    .ToList();
+            }
+            else
+            {
+                // If "All Semesters" is selected, show all subjects
+                subjectList = allNotes
+                    .Select(n => n.Subject)
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .Distinct()
+                    .OrderBy(s => s)
+                    .ToList();
+            }
+        }
+        else
+        {
+            subjectList = new List<string>();
+        }
     }
 }
