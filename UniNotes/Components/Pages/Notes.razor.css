@@ -583,20 +583,60 @@ html, body {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    white-space: nowrap; /* Prevent text wrapping */
+    flex-shrink: 0; /* Prevent tabs from shrinking */
 }
 
-    .nav-tab:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
+.nav-tab:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
 
-    .nav-tab.active {
-        background-color: rgba(255, 255, 255, 0.2);
-        font-weight: bold;
-    }
+.nav-tab.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: bold;
+}
 
-    .nav-tab i {
-        margin-right: 8px;
+.nav-tab i {
+    margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+    .nav-tab {
+        padding: 8px 12px;
+        margin-right: 3px;
     }
+    
+    .nav-tab span {
+        font-size: 0.9rem;
+    }
+    
+    .user-profile {
+        min-width: auto;
+        padding: 0 8px;
+        flex-shrink: 0; /* Prevent user profile from shrinking */
+    }
+    
+    .user-profile span {
+        max-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-tab {
+        padding: 6px 10px;
+    }
+    
+    .nav-tab span {
+        font-size: 0.85rem;
+    }
+    
+    .user-profile span {
+        max-width: 80px;
+    }
+}
 
 .user-profile {
     display: flex;
