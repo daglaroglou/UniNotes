@@ -326,10 +326,10 @@
 }
 
 .logo {
-    font-family: "Lobster", sans-serif;
+    font-family: "Mynerve", cursive;
     font-weight: 400;
     font-style: normal;
-    font-size: min(80px, 10vw) !important;
+    font-size: min(40px, 10vw) !important;
     text-align: center;
     margin-bottom: 15px;
 }

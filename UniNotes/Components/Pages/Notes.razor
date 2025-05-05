@@ -64,7 +64,7 @@
                     {
                         <div class="spinner-container">
                             <div class="spinner"></div>
-                            <p style="color: white;">Φορτώνοντας όλες τις σημειώσεις...</p>
+                            <p style="color: white;"> Φόρτωση σημειώσεων...</p>
                         </div>
                     }
                     else if (errorMessage != null)
@@ -149,7 +149,7 @@
 
                                         <div class="rating-container">
                                             <div class="average-rating">
-                                                <span><i class="fa-solid fa-star"></i> @(note.AverageRating > 0 ? note.AverageRating.ToString("F1") : "No ratings")</span>
+                                                <span><i class="fa-solid fa-star"></i> @(note.AverageRating > 0 ? note.AverageRating.ToString("F1") : "Καμία Αξιολόγηση")</span>
                                                 <span class="rating-count">(@(note.Ratings?.Count ?? 0))</span>
                                             </div>
                                             
