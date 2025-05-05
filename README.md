@@ -97,8 +97,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Επικοινωνία
 
-anastasios.tsalkos@gmail.com
-christos.daglaroglou@gmail.com
+### anastasios.tsalkos@gmail.com
+### christos.daglaroglou@gmail.com
 
 ---
 
