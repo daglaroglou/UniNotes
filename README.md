@@ -7,7 +7,7 @@
 ## Τεχνολογίες
 
 - .NET 9.0
-- Blazor WebAssembly
+- Blazor
 - MongoDB
 - HTML/CSS/JavaScript
 
