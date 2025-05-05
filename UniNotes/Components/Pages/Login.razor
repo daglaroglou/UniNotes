@@ -127,7 +127,7 @@ else
     private string successMessage = string.Empty;
     private bool isRedirecting = false;
     private bool isCheckingAuth = true;
-    private string captchaToken = string.Empty; // Changed from static to instance field
+    private string captchaToken = string.Empty;
     private DotNetObjectReference<Login>? objRef;
     private bool captchaInitialized = false;
 
@@ -161,38 +161,35 @@ else
     {
         if (firstRender && !isCheckingAuth)
         {
-            // Create a reference to this component instance
             objRef = DotNetObjectReference.Create(this);
-
-            // Pass the instance to JavaScript
             await JSRuntime.InvokeVoidAsync("initializeBlazorInstance", objRef);
-
-            await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
-            captchaInitialized = true;
+            await InitializeCaptchaAsync();
         }
-        else if (!firstRender && !isCheckingAuth && !captchaInitialized)
+    }
+
+    private async Task InitializeCaptchaAsync()
+    {
+        if (!captchaInitialized)
         {
-            // Check if hCaptcha is loaded
             bool isLoaded = await JSRuntime.InvokeAsync<bool>("hCaptchaFunctions.isCaptchaLoaded");
-            if (isLoaded && !captchaInitialized)
+            if (isLoaded)
             {
                 await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
                 captchaInitialized = true;
             }
+            else
+            {
+                // Retry after a short delay if not loaded yet
+                await Task.Delay(500);
+                await InitializeCaptchaAsync();
+            }
         }
-    }
-
-    public void Dispose()
-    {
-        objRef?.Dispose();
     }
 
     [JSInvokable]
     public void OnCaptchaCompleted(string token)
     {
-        // Instance method called from JS
         captchaToken = token;
-        Console.WriteLine($"Captcha token received: {token.Substring(0, Math.Min(10, token.Length))}...");
         StateHasChanged();
     }
 
@@ -200,14 +197,14 @@ else
     public void OnCaptchaExpired()
     {
         captchaToken = string.Empty;
-        Console.WriteLine("Captcha expired");
         StateHasChanged();
     }
 
     private async Task ResetCaptcha()
     {
         captchaToken = string.Empty;
-        await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+        captchaInitialized = false;
+        await InitializeCaptchaAsync();
     }
 
     private async Task HandleLogin()
@@ -308,5 +305,10 @@ else
     {
         NavigationManager.NavigateTo("/", forceLoad: false);
     }
-   
+
+    public void Dispose()
+    {
+        objRef?.Dispose();
+        objRef = null;
+    }
 }

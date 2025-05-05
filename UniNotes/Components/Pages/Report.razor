@@ -1,0 +1,350 @@
+﻿@page "/report"
+@inject UniNotes.Services.UserService UserService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JSRuntime
+
+<PageTitle>UniNotes - Report</PageTitle>
+<link href="https://fonts.googleapis.com/css2?family=Mynerve&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div id="particles-js"></div>
+<script src="js/particles/particles.js"></script>
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <!-- Navigation tabs -->
+            <div class="navigation-tabs">
+                <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/notes") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/notes")'>
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Φόρουμ Σημειώσεων</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/MyNotes") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Οι Σημειώσεις μου</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/upload") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/upload")'>
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <span>Ανέβασε Σημειώσεις</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/report") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/report")'>
+                    <i class="fa-solid fa-flag"></i>
+                    <span>Αναφορά</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/settings") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/settings")'>
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Ρυθμίσεις</span>
+                </div>
+                @if (user?.IsAdmin == true)
+                {
+                    <div class="nav-tab @(IsCurrentPage("/admin") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/admin")'>
+                        <i style="color: cornflowerblue;" class="fa-solid fa-user-tie"></i>
+                        <span style="color: cornflowerblue;">Admin Panel</span>
+                    </div>
+                }
+                <div class="user-profile">
+                    <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
+                    <div class="user-icon" @onclick="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="full-page-background">
+                <div class="upload-container">
+                    <h1 class="logo">Αναφορά</h1>
+                    
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="message-container">
+                            <div class="success-message">@((MarkupString)successMessage)</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="message-container">
+                            <div class="error-message">@((MarkupString)errorMessage)</div>
+                        </div>
+                    }
+
+                    <div class="form-group">
+                        <label for="reportType">Είδος Αναφοράς</label>
+                        <select id="reportType" class="form-control" @bind="reportType">
+                            <option value="" disabled selected>Επιλογή είδους αναφοράς</option>
+                            <option value="Τεχνικό Πρόβλημα">Τεχνικό Πρόβλημα</option>
+                            <option value="Αναφορά Περιεχομένου">Αναφορά Περιεχομένου</option>
+                            <option value="Λάθος Πληροφορίες">Λάθος Πληροφορίες</option>
+                            <option value="Βελτίωση Λειτουργικότητας">Βελτίωση Λειτουργικότητας</option>
+                            <option value="Άλλο">Άλλο</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject">Θέμα</label>
+                        <div class="title-container">
+                            <input id="subject" type="text" class="form-control"
+                                   @bind="subject"
+                                   placeholder=""
+                                   @onclick="FocusElement" />
+                            <div class="hover-text">Εισάγετε το θέμα της αναφοράς σας...</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Περιγραφή</label>
+                        <div class="description-container">
+                            <textarea id="description" class="form-control"
+                                      @bind="description"
+                                      placeholder=""
+                                      rows="5"
+                                      @onclick="FocusElement"></textarea>
+                            <div class="hover-text">Παρακαλώ περιγράψτε αναλυτικά το πρόβλημα ή το αίτημά σας...</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactEmail">Email Επικοινωνίας</label>
+                        <div class="title-container">
+                            <input id="contactEmail" type="email" class="form-control"
+                                   @bind="contactEmail"
+                                   placeholder=""
+                                   @onclick="FocusElement" />
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <button class="action-button w-100" @onclick="() => ValidateAndSubmit()">
+                            <i class="fa-solid fa-paper-plane"></i> ΥΠΟΒΟΛΗ ΑΝΑΦΟΡΑΣ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <p>You are not authorized to access this page. Redirecting...</p>
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
+
+@code {
+    private User? user;
+    private bool isLoading = true;
+    private string errorMessage = "";
+    private string successMessage = "";
+    private bool isSubmitting = false;
+
+    // Report form fields
+    private string reportType = "";
+    private string subject = "";
+    private string description = "";
+    private string contactEmail = "";
+
+    // Discord webhook URL (should ideally be stored in a config or settings)
+    private string webhookUrl = "https://discord.com/api/webhooks/1368738742441082880/udH6-h0_-TyHiOhriCM3xTligzW4FpPzUw1abPJkKPvPOixMTsebewhR9iU8p8iDT9MA";
+    private readonly HttpClient httpClient = new HttpClient();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userClaims = authState.User;
+
+        if (userClaims.Identity?.IsAuthenticated == true)
+        {
+            var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                user = await UserService.GetUserByIdAsync(userId);
+                if (user != null)
+                {
+                    contactEmail = user.Email ?? "";
+                }
+            }
+        }
+
+        isLoading = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Only redirect if the user is not authenticated
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            if (!authState.User.Identity?.IsAuthenticated == true)
+            {
+                await Task.Delay(2000); // 2-second delay
+                NavigationManager.NavigateTo("/");
+            }
+        }
+    }
+
+    private async Task ValidateAndSubmit()
+    {
+        // Prevent multiple submissions
+        if (isSubmitting) return;
+
+        // Clear previous messages
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        // Collect validation errors
+        var errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(reportType))
+        {
+            errors.Add("Παρακαλώ επιλέξτε είδος αναφοράς.");
+        }
+
+        if (string.IsNullOrWhiteSpace(subject))
+        {
+            errors.Add("Το θέμα της αναφοράς είναι υποχρεωτικό.");
+        }
+
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            errors.Add("Η περιγραφή είναι υποχρεωτική.");
+        }
+        else if (description.Length < 10)
+        {
+            errors.Add("Παρακαλώ δώστε περισσότερες λεπτομέρειες στην περιγραφή (τουλάχιστον 10 χαρακτήρες).");
+        }
+
+        if (string.IsNullOrWhiteSpace(contactEmail))
+        {
+            errors.Add("Το email επικοινωνίας είναι υποχρεωτικό.");
+        }
+        else if (!IsValidEmail(contactEmail))
+        {
+            errors.Add("Παρακαλώ εισάγετε ένα έγκυρο email.");
+        }
+
+        // If we have validation errors, display them and return
+        if (errors.Count > 0)
+        {
+            errorMessage = string.Join("<br>", errors);
+            return;
+        }
+
+        // If validation passes, proceed with submission
+        await SubmitReport();
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task SubmitReport()
+    {
+        isSubmitting = true;
+
+        try
+        {
+            // Create the Discord webhook payload
+            var payload = new
+            {
+                username = $"{user?.FirstName ?? ""} {user?.LastName ?? ""}",
+                avatar_url = $"https://api.dicebear.com/9.x/notionists-neutral/png?seed={Guid.NewGuid().ToString()}",
+                content = "@everyone",
+                embeds = new[]
+                {
+                    new
+                    {
+                        title = "New Report!",
+                        type = "rich",
+                        color = 16777215,
+                        fields = new object[]
+                        {
+                            new { name = "Report Type", value = reportType, inline = false },
+                            new { name = "Subject", value = subject, inline = false },
+                            new { name = "Description", value = description },
+                            new { name = "Username", value = $"[{user?.Username ?? "Unknown User"}](https://{new Uri(NavigationManager.BaseUri).Host}/user/{user?.Username ?? "unknown-user"})"},
+                            new { name = "Email", value = contactEmail }
+                        },
+                        footer = new
+                        {
+                            text = "UniNotes 2025",
+                        },
+                        timestamp = DateTime.UtcNow.ToString("o")
+                    }
+                }
+            };
+
+            // Convert to JSON
+            string jsonPayload = JsonSerializer.Serialize(payload);
+            
+            // Send to Discord webhook
+            var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(webhookUrl, content);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "Η αναφορά σας υποβλήθηκε με επιτυχία! Θα επικοινωνήσουμε μαζί σας σύντομα.";
+                
+                // Reset form
+                reportType = "";
+                subject = "";
+                description = "";
+                // Keep the email for convenience
+                
+                await Task.Delay(3000);
+                NavigationManager.NavigateTo("/dashboard");
+            }
+            else
+            {
+                errorMessage = $"Σφάλμα κατά την υποβολή της αναφοράς. Κωδικός: {(int)response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Προέκυψε σφάλμα: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private async Task Logout()
+    {
+        if (AuthStateProvider is BlazorAuthStateProvider blazorAuthStateProvider)
+        {
+            await blazorAuthStateProvider.UpdateAuthenticationState(null);
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task FocusElement(MouseEventArgs args)
+    {
+        // Use JavaScript to get the currently focused element
+        var elementId = await JSRuntime.InvokeAsync<string>("eval", "document.activeElement.id");
+
+        if (!string.IsNullOrEmpty(elementId))
+        {
+            // Force focus on the element
+            await JSRuntime.InvokeVoidAsync("document.getElementById", elementId, "focus");
+        }
+    }
+
+    private bool IsCurrentPage(string path)
+    {
+        return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
+    }
+}

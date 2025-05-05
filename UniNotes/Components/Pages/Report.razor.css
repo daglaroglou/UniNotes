@@ -83,11 +83,11 @@
         height: 24px;
         margin: 3px;
     }
-    
+
     .tag-remove-btn {
         margin-left: 4px;
     }
-    
+
     .tags-list {
         gap: 6px;
     }
@@ -100,7 +100,7 @@
         height: 22px;
         margin: 2px;
     }
-    
+
     .tags-list {
         gap: 4px;
     }
@@ -169,24 +169,24 @@
 }
 
 #description,
-#title {
+#subject {
     /* Ensure inputs are transparent to show the text behind them */
     background-color: transparent !important;
     position: relative;
-    z-index: 2; /* Changed from 1 to 2 - inputs now on top */
+    z-index: 2; /* Input on top */
 }
 
-    /* Hide the text when the inputs have content */
-    #description:not(:placeholder-shown) ~ .hover-text,
-    #title:not(:placeholder-shown) ~ .hover-text,
-    /* Hide the text when the inputs are focused */
-    #description:focus ~ .hover-text,
-    #title:focus ~ .hover-text,
-    /* Hide the text when hovering over the containers */
-    .description-container:hover .hover-text,
-    .title-container:hover .hover-text {
-        opacity: 0;
-    }
+/* Hide the text when the inputs have content */
+#description:not(:placeholder-shown) ~ .hover-text,
+#subject:not(:placeholder-shown) ~ .hover-text,
+/* Hide the text when the inputs are focused */
+#description:focus ~ .hover-text,
+#subject:focus ~ .hover-text,
+/* Hide the text when hovering over the containers */
+.description-container:hover .hover-text,
+.title-container:hover .hover-text {
+    opacity: 0;
+}
 
 .dropdown-divider {
     height: 1px;
@@ -326,7 +326,7 @@
 }
 
 .logo {
-    font-family: "Lobster", sans-serif;
+    font-family: "Mynerve", cursive;
     font-weight: 400;
     font-style: normal;
     font-size: min(80px, 10vw) !important;
@@ -644,11 +644,11 @@ select.form-control {
         height: 24px;
         margin: 3px;
     }
-    
+
     .tag-remove-btn {
         margin-left: 4px;
     }
-    
+
     .tags-list {
         gap: 6px;
     }
@@ -689,7 +689,7 @@ select.form-control {
         height: 22px;
         margin: 2px;
     }
-    
+
     .tags-list {
         gap: 4px;
     }
@@ -712,19 +712,19 @@ select.form-control {
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* For Firefox */
 }
 
-/* Customize scrollbar for WebKit browsers */
-.navigation-tabs::-webkit-scrollbar {
-    height: 4px;
-}
+    /* Customize scrollbar for WebKit browsers */
+    .navigation-tabs::-webkit-scrollbar {
+        height: 4px;
+    }
 
-.navigation-tabs::-webkit-scrollbar-track {
-    background: transparent;
-}
+    .navigation-tabs::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-.navigation-tabs::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-}
+    .navigation-tabs::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
 
 /* Ensure nav tabs don't shrink too much on small screens */
 .nav-tab {
@@ -740,18 +740,18 @@ select.form-control {
     flex-shrink: 0; /* Prevent tabs from shrinking */
 }
 
-.nav-tab:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
+    .nav-tab:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 
-.nav-tab.active {
-    background-color: rgba(255, 255, 255, 0.2);
-    font-weight: bold;
-}
+    .nav-tab.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        font-weight: bold;
+    }
 
-.nav-tab i {
-    margin-right: 8px;
-}
+    .nav-tab i {
+        margin-right: 8px;
+    }
 
 /* Responsive adjustments for mobile */
 @media (max-width: 768px) {
@@ -759,34 +759,34 @@ select.form-control {
         padding: 8px 12px;
         margin-right: 3px;
     }
-    
-    .nav-tab span {
-        font-size: 0.9rem;
-    }
-    
+
+        .nav-tab span {
+            font-size: 0.9rem;
+        }
+
     .user-profile {
         min-width: auto;
         padding: 0 8px;
         flex-shrink: 0; /* Prevent user profile from shrinking */
     }
-    
-    .user-profile span {
-        max-width: 100px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+
+        .user-profile span {
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 }
 
 @media (max-width: 480px) {
     .nav-tab {
         padding: 6px 10px;
     }
-    
-    .nav-tab span {
-        font-size: 0.85rem;
-    }
-    
+
+        .nav-tab span {
+            font-size: 0.85rem;
+        }
+
     .user-profile span {
         max-width: 80px;
     }
