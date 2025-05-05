@@ -697,6 +697,7 @@ select.form-control {
     }
 }
 
+/* Update the navigation tabs to be scrollable on mobile devices */
 .navigation-tabs {
     display: flex;
     background-color: rgba(0, 0, 0, 0.7);
@@ -707,8 +708,27 @@ select.form-control {
     left: 0;
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* For Firefox */
 }
 
+/* Customize scrollbar for WebKit browsers */
+.navigation-tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.navigation-tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.navigation-tabs::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+/* Ensure nav tabs don't shrink too much on small screens */
 .nav-tab {
     display: flex;
     align-items: center;
@@ -718,20 +738,48 @@ select.form-control {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    white-space: nowrap; /* Prevent text wrapping */
+    flex-shrink: 0; /* Prevent tabs from shrinking */
 }
 
-    .nav-tab:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+    .nav-tab {
+        padding: 8px 12px;
+        margin-right: 3px;
     }
+    
+    .nav-tab span {
+        font-size: 0.9rem;
+    }
+    
+    .user-profile {
+        min-width: auto;
+        padding: 0 8px;
+        flex-shrink: 0; /* Prevent user profile from shrinking */
+    }
+    
+    .user-profile span {
+        max-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
 
-    .nav-tab.active {
-        background-color: rgba(255, 255, 255, 0.2);
-        font-weight: bold;
+@media (max-width: 480px) {
+    .nav-tab {
+        padding: 6px 10px;
     }
-
-    .nav-tab i {
-        margin-right: 8px;
+    
+    .nav-tab span {
+        font-size: 0.85rem;
     }
+    
+    .user-profile span {
+        max-width: 80px;
+    }
+}
 
 .user-profile {
     display: flex;

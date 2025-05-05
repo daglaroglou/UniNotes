@@ -653,6 +653,7 @@ select.form-control {
         font-size: min(28px, 6vw) !important;
     }
 }
+
 /* Add these navigation tab styles from Dashboard */
 .navigation-tabs {
     display: flex;
@@ -664,8 +665,27 @@ select.form-control {
     left: 0;
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* For Firefox */
 }
 
+/* Customize scrollbar for WebKit browsers */
+.navigation-tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.navigation-tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.navigation-tabs::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+/* Ensure nav tabs don't shrink too much on small screens */
 .nav-tab {
     display: flex;
     align-items: center;
@@ -675,6 +695,8 @@ select.form-control {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    white-space: nowrap; /* Prevent text wrapping */
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
     .nav-tab:hover {
@@ -688,7 +710,7 @@ select.form-control {
 
     .nav-tab i {
         margin-right: 8px;
-    }
+}
 
 .user-profile {
     display: flex;
