@@ -1,12 +1,181 @@
-html, body {
-    width: 100vw;
-    height: 100vh;
+/* Root element scrolling fix - using the suggested approach */
+html {
+    overflow-y: scroll !important; /* Force vertical scrollbar to always be visible */
+    height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
-    z-index: -1;
+}
+
+body {
+    position: relative; /* Changed from absolute to relative for better layout behavior */
+    width: 100%;
+    min-height: 100vh; /* Ensure the body takes at least the full viewport height */
+    margin: 0;
+    padding: 0;
+    padding-bottom: 200px; /* Add extra space at bottom to force scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
     background-color: #000;
     color: white;
+}
+
+/* Override any app-wide styles to ensure scrolling works */
+:root, html, body {
+    overflow-y: scroll !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1);
+    height: auto !important;
+    min-height: 100% !important;
+}
+
+/* Override any cascading styles that might prevent scrolling */
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevent double scrollbars */
+    height: 100%;
+}
+
+/* Ensure scrollbar is always visible in WebKit browsers */
+::-webkit-scrollbar {
+    width: 8px !important;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Force container to be scrollable */
+.full-page-background {
+    position: relative;
+    background-color: rgba(0,0,0,0);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 150vh; /* Force it to be taller than viewport */
+    height: auto;
+    padding: 20px;
+    padding-top: 80px;
+    padding-bottom: 200px; /* Extra padding to ensure content is scrollable */
+    box-sizing: border-box;
+    z-index: 1;
+    pointer-events: auto; /* Changed from none to auto */
+}
+
+    .full-page-background * {
+        pointer-events: auto;
+    }
+
+    .full-page-background a {
+        color: mediumpurple;
+        text-decoration: none;
+        pointer-events: auto;
+    }
+
+/* Make particles absolutely positioned but not restricting scrolling */
+#particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none; /* Prevent it from capturing scroll events */
+}
+
+/* Make sure the particles background is fixed */
+#particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Modify the notes container to ensure it's scrollable with a fixed height */
+.notes-container {
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    padding: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    color: white;
+    width: 95%;
+    max-height: 85vh; /* Slightly taller to show more content */
+    height: calc(100vh - 80px); /* Better calculation for height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1);
+    /* Add more padding at the top to push content below the navigation */
+    padding-top: 2rem;
+}
+
+/* Style scrollbars for WebKit browsers */
+.notes-container::-webkit-scrollbar {
+    width: 10px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.notes-container::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+}
+
+.notes-container::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Remove sticky positioning for logo and filters so they scroll away */
+.logo, .filter-container {
+    position: relative; /* Changed from sticky to relative */
+    z-index: 1; /* Lower z-index so they scroll away normally */
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px 0;
+    margin-bottom: 15px;
+    /* Remove top property that was used for sticky positioning */
+}
+
+/* Add a small gap after the filters before content starts scrolling */
+.filter-container {
+    margin-bottom: 30px;
+}
+
+/* Ensure the notes grid doesn't set its own height limitations */
+.notes-grid {
+    height: auto;
+}
+
+/* Make sure our app container doesn't restrict height */
+.page, app, #app, #blazor-app {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow: visible !important;
+}
+
+/* Add a content wrapper with minimum height to force scrolling */
+.content-wrapper {
+    min-height: 120vh; /* This forces content to be taller than viewport */
+}
+
+/* Footer should not be fixed to avoid blocking content */
+.footer {
+    width: 100%;
+    color: gray;
+    text-align: center;
+    font-size: small;
+    position: relative;
+    margin-top: 40px;
+    background-color: rgba(0, 0, 0, 0);
+    padding: 10px 0;
+    z-index: 1;
 }
 
 .user-info {
@@ -28,7 +197,6 @@ html, body {
     background-color: #e0e0e0;
     margin: 0;
 }
-
 
 .user-icon {
     width: 40px;
@@ -217,54 +385,6 @@ html, body {
     }
 }
 
-#particles-js {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0;
-}
-
-.full-page-background {
-    position: relative;
-    background-color: rgba(0,0,0,0);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-    box-sizing: border-box;
-    z-index: 1;
-    pointer-events: none;
-    padding-top: 70px;
-}
-
-    .full-page-background * {
-        pointer-events: auto;
-    }
-
-    .full-page-background a {
-        color: mediumpurple;
-        text-decoration: none;
-        pointer-events: auto;
-    }
-
-.footer {
-    width: 100%;
-    color: gray;
-    text-align: center;
-    font-size: small;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0);
-    padding: 10px 0;
-    z-index: 1;
-}
-
 .styled-image {
     max-width: 100%;
     border-radius: 20px;
@@ -285,24 +405,12 @@ html, body {
     font-size: 1rem;
 }
 
-/* Notes Forum Styles */
-.notes-container {
-    max-width: 1200px;
-    margin: 1.5rem auto;
-    padding: 1.5rem;
-    background-color: rgba(0, 0, 0, 0.7);
-    border-radius: 10px;
-    color: white;
-    width: 100%;
-}
-
-
 /* Filter section */
 .filter-container {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     background-color: rgba(0, 0, 0, 0.5);
     padding: 15px;
     border-radius: 8px;
@@ -326,6 +434,7 @@ html, body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
+    height: auto;
 }
 
 .note-card {
@@ -542,6 +651,7 @@ html, body {
         left: 10px;
     }
 }
+
 /* Add these navigation tab styles from Dashboard */
 .navigation-tabs {
     display: flex;
@@ -551,7 +661,7 @@ html, body {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 1000; /* Higher z-index to stay on top */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     overflow-x: auto; /* Enable horizontal scrolling */
     -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
@@ -719,6 +829,18 @@ html, body {
 
 .user-rating .star:hover i,
 .user-rating .star:hover ~ .star i {
+    color: #ccc;
+}
+
+/* New style to light up stars from left to right */
+.user-rating .star:hover i,
+.user-rating .star:hover i,
+.user-rating .star:hover ~ .star:has(i) {
+    color: #ccc;
+}
+
+.user-rating .star:hover i,
+.user-rating .star:has(~ .star:hover) i {
     color: gold;
 }
 
@@ -750,5 +872,19 @@ html, body {
 
 .remove-rating-btn:focus {
     outline: none;
+}
+
+/* Create a fixed-height container that will show a scrollbar */
+.scrollable-container {
+    height: 100vh; /* Fixed height equal to viewport height */
+    overflow-y: auto; /* This enables vertical scrolling */
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #000;
+    z-index: 1;
 }
 
