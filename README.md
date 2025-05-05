@@ -1,6 +1,4 @@
-# UniNotes
-
-![UniNotes Logo](wwwroot/logo.png)
+![UniNotes Logo]([wwwroot/logo.png](https://i.imgur.com/jMGS9uL.gif))
 
 ## Περιγραφή Έργου
 
