@@ -56,8 +56,8 @@
 ### 2) User functions που απομένουν:
 - [x] 2.1) Να βάλουμε ratings στα notes
 - [x] 2.2) Να βάλουμε report bug function
-- [ ] 2.3) Να βάλουμε report note function
-- [ ] 2.4) Να βάλουμε favorites για τα notes
+- [x] 2.3) Να βάλουμε report note function
+- [x] 2.4) Να βάλουμε favorites για τα notes
 - [ ] 2.5) Να βάλουμε view profile για κάθε user και average rating από τα notes του
 - [x] 2.6) Να βάλουμε tags στα notes
 - [ ] 2.7) Να βαλουμε download function για τα notes
