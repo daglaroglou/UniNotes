@@ -150,7 +150,7 @@
     // Get avatar URL from DiceBear
     private string GetAvatarUrl(string GUID)
     {
-        // Use username as seed to generate consistent avatars per user
+        // Use username as seed to generate random avatar every time
         return $"https://api.dicebear.com/9.x/notionists-neutral/svg?seed={Guid.NewGuid().ToString()}";
     }
 
