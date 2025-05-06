@@ -34,6 +34,10 @@
                     <i class="fa-solid fa-file-arrow-up"></i>
                     <span>Ανέβασε Σημειώσεις</span>
                 </div>
+                <div class="nav-tab @(IsCurrentPage("/report") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/report")'>
+                    <i class="fa-solid fa-flag"></i>
+                    <span>Αναφορά</span>
+                </div>
                 <div class="nav-tab @(IsCurrentPage("/settings") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/settings")'>
                     <i class="fa-solid fa-gear"></i>
                     <span>Ρυθμίσεις</span>
