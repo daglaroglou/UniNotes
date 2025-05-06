@@ -1,0 +1,189 @@
+﻿@page "/profile"
+@using System.Security.Claims
+@inject UniNotes.Services.UserService UserService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>UniNotes - My Profile</PageTitle>
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div id="particles-js"></div>
+<script src="js/particles/particles.js"></script>
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <!-- Navigation tabs - EXACTLY like Dashboard (no inline styles) -->
+            <div class="navigation-tabs">
+                <a class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-tab @(IsCurrentPage("/notes") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/notes")'>
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Φόρουμ Σημειώσεων</span>
+                </a>
+                <a class="nav-tab @(IsCurrentPage("/MyNotes") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Οι Σημειώσεις μου</span>
+                </a>
+                <a class="nav-tab @(IsCurrentPage("/upload") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/upload")'>
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <span>Ανέβασε Σημειώσεις</span>
+                </a>
+                <a class="nav-tab @(IsCurrentPage("/report") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/report")'>
+                    <i class="fa-solid fa-flag"></i>
+                    <span>Αναφορά</span>
+                </a>
+                <a class="nav-tab @(IsCurrentPage("/settings") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/settings")'>
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Ρυθμίσεις</span>
+                </a>
+                @if (user?.IsAdmin == true)
+                {
+                    <a class="nav-tab @(IsCurrentPage("/admin") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/admin")'>
+                        <i style="color: cornflowerblue;" class="fa-solid fa-user-tie"></i>
+                        <span style="color: cornflowerblue;">Admin Panel</span>
+                    </a>
+                }
+                <div class="user-profile">
+                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo("/profile")'>
+                        @((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))
+                    </button>
+                    <div class="user-icon" @onclick="HandleLogout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+                </div>s
+            </div>
+
+
+            <!-- Content area -->
+            <div style="padding-top: 80px; padding-bottom: 40px; min-height: 100vh; width: 100%;">
+                <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                    <h1 style="font-family: 'Lobster', cursive; font-size: 3.5rem; margin-bottom: 30px; color: white;">My Profile</h1>
+
+                    @if (isLoading)
+                    {
+                        <div style="display: flex; justify-content: center; margin: 50px 0;">
+                            <div style="border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+                        </div>
+                    }
+                    else if (user != null)
+                    {
+                        <!-- Profile card -->
+                        <div style="background: rgba(0,0,0,0.6); border-radius: 15px; padding: 30px; margin: 20px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: white; text-align: center;">
+                            <!-- User avatar and name -->
+                            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
+                                <i class="fa-solid fa-user-circle" style="font-size: 5rem; color: #add8e6; margin-right: 20px;"></i>
+                                <div style="text-align: left;">
+                                    <h2 style="font-size: 2rem; margin: 0 0 5px 0;">@user.FirstName @user.LastName</h2>
+                                    <p style="margin: 0; opacity: 0.8;">@user.Username</p>
+                                </div>
+                            </div>
+
+                            <!-- User details -->
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin-bottom: 30px; text-align: left;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <i class="fa-solid fa-envelope" style="width: 30px; color: #add8e6;"></i>
+                                    <span>@user.Email</span>
+                                </div>
+                                <div style="display: flex; align-items: center;">
+                                    <i class="fa-solid fa-calendar" style="width: 30px; color: #add8e6;"></i>
+                                    <span>Member Since: @user.CreatedAt.ToString("MMMM dd, yyyy")</span>
+                                </div>
+                            </div>
+
+                            <!-- Stats section -->
+                            <h3 style="font-size: 1.5rem; margin: 0 0 20px 0;">Notes Statistics</h3>
+                            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 150px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 0 5px 10px 5px;">
+                                    <i class="fa-solid fa-star" style="font-size: 2rem; color: gold;"></i>
+                                    <div style="font-size: 1.8rem; font-weight: bold; margin-top: 10px;">@user.AverageNotesRating.ToString("0.00")</div>
+                                    <div style="opacity: 0.7;">Average Rating</div>
+                                </div>
+
+                                <div style="flex: 1; min-width: 150px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 0 5px 10px 5px;">
+                                    <i class="fa-solid fa-file-alt" style="font-size: 2rem; color: #add8e6;"></i>
+                                    <div style="font-size: 1.8rem; font-weight: bold; margin-top: 10px;">@user.NoteIds.Count</div>
+                                    <div style="opacity: 0.7;">Total Notes</div>
+                                </div>
+
+                                <div style="flex: 1; min-width: 150px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 0 5px 10px 5px;">
+                                    <i class="fa-solid fa-thumbs-up" style="font-size: 2rem; color: lightgreen;"></i>
+                                    <div style="font-size: 1.8rem; font-weight: bold; margin-top: 10px;">@user.TotalRatingsReceived</div>
+                                    <div style="opacity: 0.7;">Ratings Received</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div style="text-align: center; color: white; margin-top: 150px; padding: 20px;">
+                <h3>Please log in to view your profile</h3>
+                <button style="background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;" @onclick="RedirectToLogin">Log In</button>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
+
+@code {
+    private User? user;
+    private bool isLoading = true;
+    private bool initialized = false;
+
+    // Use OnInitializedAsync for data loading
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userClaims = authState.User;
+
+        if (!userClaims.Identity?.IsAuthenticated ?? true)
+        {
+            NavigationManager.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            NavigationManager.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        user = await UserService.GetUserByIdAsync(userId);
+
+        if (user is null)
+        {
+            var authProvider = (BlazorAuthStateProvider)AuthStateProvider;
+            await authProvider.UpdateAuthenticationState(null);
+            NavigationManager.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        isLoading = false;
+    }
+
+    private async Task HandleLogout()
+    {
+        var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
+        await authStateProvider.UpdateAuthenticationState(null);
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+
+    private void RedirectToLogin()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+
+    private bool IsCurrentPage(string path)
+    {
+        return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
+    }
+}

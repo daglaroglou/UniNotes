@@ -667,3 +667,23 @@ html, body {
     background-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
 }
+.user-name-button {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    padding: 8px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-family: 'Roboto', sans-serif;
+}
+
+    .user-name-button:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .user-name-button:active {
+        transform: translateY(0);
+    }

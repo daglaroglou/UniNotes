@@ -18,7 +18,7 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <!-- Navigation tabs (Same as dashboard) -->
+            <!-- Navigation tabs -->
             <div class="navigation-tabs">
                 <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                     <i class="fa-solid fa-gauge-high"></i>
@@ -43,16 +43,18 @@
                 <div class="nav-tab @(IsCurrentPage("/settings") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/settings")'>
                     <i class="fa-solid fa-gear"></i>
                     <span>Ρυθμίσεις</span>
-                </div>                
+                </div>
                 @if (user?.IsAdmin == true)
                 {
-                    <div class="nav-tab @(IsCurrentPage("/admin") ? "active": "")" @onclick='() => NavigationManager.NavigateTo("/admin")'>  
-                        <i style="color: cornflowerblue;" class="fa-solid fa-user-tie"></i>  
-                        <span style="color: cornflowerblue;">Admin Panel</span>  
+                    <div class="nav-tab @(IsCurrentPage("/admin") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/admin")'>
+                        <i style="color: cornflowerblue;" class="fa-solid fa-user-tie"></i>
+                        <span style="color: cornflowerblue;">Admin Panel</span>
                     </div>
                 }
                 <div class="user-profile">
-                    <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
+                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo("/profile")'>
+                        @((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))
+                    </button>
                     <div class="user-icon" @onclick="HandleLogout">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </div>
@@ -299,9 +301,9 @@
         }
     }
 
-    private bool IsCurrentPage(string route)
+    private bool IsCurrentPage(string path)
     {
-        return NavigationManager.Uri.EndsWith(route, StringComparison.OrdinalIgnoreCase);
+        return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
     }
 
     private void ToggleUserMenu()

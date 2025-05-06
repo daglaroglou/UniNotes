@@ -52,8 +52,10 @@
                     </div>
                 }
                 <div class="user-profile">
-                    <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
-                    <div class="user-icon" @onclick="Logout">
+                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo("/profile")'>
+                        @((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))
+                    </button>
+                    <div class="user-icon" @onclick="HandleLogout">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </div>
                 </div>
@@ -289,21 +291,21 @@
 
             // Convert to JSON
             string jsonPayload = JsonSerializer.Serialize(payload);
-            
+
             // Send to Discord webhook
             var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(webhookUrl, content);
-            
+
             if (response.IsSuccessStatusCode)
             {
                 successMessage = "Η αναφορά σας υποβλήθηκε με επιτυχία! Θα επικοινωνήσουμε μαζί σας σύντομα.";
-                
+
                 // Reset form
                 reportType = "";
                 subject = "";
                 description = "";
                 // Keep the email for convenience
-                
+
                 await Task.Delay(3000);
                 NavigationManager.NavigateTo("/dashboard");
             }
@@ -346,5 +348,9 @@
     private bool IsCurrentPage(string path)
     {
         return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
+    }
+    private void HandleLogout(MouseEventArgs args)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -50,7 +50,9 @@
                     </div>
                 }
                 <div class="user-profile">
-                    <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
+                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo("/profile")'>
+                        @((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))
+                    </button>
                     <div class="user-icon" @onclick="HandleLogout">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </div>

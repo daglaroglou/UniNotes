@@ -53,8 +53,10 @@
                     </div>
                 }
                 <div class="user-profile">
-                    <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
-                    <div class="user-icon" @onclick="Logout">
+                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo("/profile")'>
+                        @((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))
+                    </button>
+                    <div class="user-icon" @onclick="HandleLogout">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </div>
                 </div>
@@ -530,5 +532,9 @@
     private bool IsCurrentPage(string path)
     {
         return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
+    }
+    private void HandleLogout(MouseEventArgs args)
+    {
+        throw new NotImplementedException();
     }
 }

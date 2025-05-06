@@ -1,0 +1,517 @@
+/* Base HTML/Body styling */
+html, body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    z-index: -1;
+    background-color: #000;
+    color: white;
+}
+
+/* Inherit common styles from dashboard.css */
+.full-page-background {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    z-index: 1;
+    pointer-events: none;
+    padding-top: 70px;
+}
+
+.full-page-background * {
+    pointer-events: auto;
+}
+
+#particles-js {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+}
+
+/* Logo and welcome text (matching Dashboard) */
+.logo {
+    font-family: 'Lobster', cursive;
+    font-size: 5rem;
+    color: white;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    margin-bottom: 20px;
+}
+
+/* Copy exact navigation bar styles from Settings.razor.css */
+.navigation-tabs {
+    display: flex;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* For Firefox */
+}
+
+/* Customize scrollbar for WebKit browsers */
+.navigation-tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.navigation-tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.navigation-tabs::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.nav-tab {
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 8px 15px;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    white-space: nowrap; /* Prevent text wrapping */
+    flex-shrink: 0; /* Prevent tabs from shrinking */
+    text-decoration: none;
+}
+
+.nav-tab:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-tab.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: bold;
+}
+
+.nav-tab i {
+    margin-right: 8px;
+}
+
+/* User profile section that matches Settings page */
+.user-profile {
+    display: flex;
+    align-items: center;
+    color: white;
+    margin-left: auto;
+    padding: 0 15px;
+}
+
+.user-name {
+    margin-right: 15px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.user-name:hover {
+    color: #add8e6;
+}
+
+.user-name-button {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    padding: 8px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-family: 'Roboto', sans-serif;
+}
+
+.user-name-button:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.user-name-button:active {
+    transform: translateY(0);
+}
+
+.user-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.user-profile .user-icon {
+    margin-left: 15px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.user-profile .user-icon:hover {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+/* Loading spinner (inherited from Dashboard) */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid white;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Profile-specific styles */
+.profile-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-header h1 {
+    font-family: 'Lobster', cursive;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    display: flex;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.profile-avatar {
+    flex: 0 0 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+.profile-details {
+    flex: 1;
+    padding-left: 30px;
+}
+
+.profile-details h2 {
+    color: #fff;
+    margin-bottom: 20px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.8rem;
+}
+
+.profile-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-family: 'Roboto', sans-serif;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.info-item i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.stats-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.stats-card h3 {
+    color: #fff;
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.stat-item i {
+    font-size: 2rem;
+    color: #fff;
+    margin-right: 15px;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.stat-label {
+    color: #ddd;
+    font-size: 0.9rem;
+}
+
+.redirect-container {
+    text-align: center;
+    color: white;
+    margin-top: 100px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.redirect-container button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.redirect-container button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Profile frame */
+.profile-frame {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 800px;
+    margin: 20px auto;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    color: white;
+    text-align: left;
+}
+
+.profile-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-header i {
+    margin-right: 20px;
+    color: #add8e6;
+}
+
+.profile-header h2 {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.profile-details {
+    padding: 10px;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.info-label {
+    min-width: 150px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.info-label i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    color: #add8e6;
+}
+
+.stats-section h3 {
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.stat-box {
+    flex: 1;
+    min-width: 150px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: #add8e6;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+/* Responsive styling */
+@media (max-width: 768px) {
+    .profile-card {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .profile-avatar {
+        margin-bottom: 20px;
+    }
+    
+    .profile-details {
+        padding-left: 0;
+        text-align: center;
+    }
+    
+    .info-item {
+        justify-content: center;
+    }
+    
+    .profile-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-row {
+        flex-direction: column;
+    }
+    
+    .info-label {
+        margin-bottom: 5px;
+    }
+    
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-header i {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .stats-container {
+        flex-direction: column;
+    }
+}

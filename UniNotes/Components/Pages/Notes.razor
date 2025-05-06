@@ -19,7 +19,6 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <!-- Navigation tabs (Same as dashboard) -->
             <div class="navigation-tabs">
                 <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                     <i class="fa-solid fa-gauge-high"></i>
@@ -47,14 +46,16 @@
                 </div>
                 @if (user?.IsAdmin == true)
                 {
-                    <div class="nav-tab @(IsCurrentPage("/admin") ? "active": "")" @onclick='() => NavigationManager.NavigateTo("/admin")'>  
-                        <i style="color: cornflowerblue;" class="fa-solid fa-user-tie"></i>  
-                        <span style="color: cornflowerblue;">Admin Panel</span>  
+                    <div class="nav-tab @(IsCurrentPage("/admin") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/admin")'>
+                        <i style="color: cornflowerblue;" class="fa-solid fa-user-tie"></i>
+                        <span style="color: cornflowerblue;">Admin Panel</span>
                     </div>
                 }
                 <div class="user-profile">
-                    <span>@((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))</span>
-                    <div class="user-icon" @onclick="Logout">
+                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo("/profile")'>
+                        @((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))
+                    </button>
+                    <div class="user-icon" @onclick="HandleLogout">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </div>
                 </div>
@@ -410,12 +411,12 @@
             // For Word documents, trigger a download
             string base64Data = Convert.ToBase64String(note.Content ?? Array.Empty<byte>());
             string mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"; // .docx
-            
+
             // Use a safe filename based on the note title
             string fileName = string.IsNullOrEmpty(note.Title) 
                 ? "document.docx" 
                 : $"{note.Title.Replace(" ", "_")}.docx";
-                
+
             await JSRuntime.InvokeVoidAsync("downloadFile", base64Data, mimeType, fileName);
         }
         else if (IsImageFile(note) || IsPdfFile(note))
@@ -439,7 +440,7 @@
         try
         {
             bool success = await NoteService.RateNoteAsync(noteId, rating);
-            
+
             if (success)
             {
                 // Update local rating
@@ -453,7 +454,7 @@
                     note.Ratings = await NoteService.GetRatingsAsync(noteId);
                     note.UserRating = rating;
                 }
-                
+
                 StateHasChanged();
             }
         }
@@ -470,7 +471,7 @@
         try
         {
             bool success = await NoteService.RemoveNoteRatingAsync(noteId);
-            
+
             if (success)
             {
                 // Remove the local rating
@@ -484,7 +485,7 @@
                     note.Ratings = await NoteService.GetRatingsAsync(noteId);
                     note.UserRating = null;
                 }
-                
+
                 StateHasChanged();
             }
         }
@@ -503,7 +504,7 @@
     {
         // Check if there are any notes for the selected semester
         bool hasNotesForSemester = allNotes?.Any(n => selectedSemester == 0 || n.Semester == selectedSemester) ?? false;
-        
+
         // If no notes exist for this semester, or if we have notes but no subjects match the current selection
         if (!hasNotesForSemester || 
             (hasNotesForSemester && !string.IsNullOrEmpty(selectedSubject) && 
@@ -512,11 +513,11 @@
             // Reset to "Όλα τα μαθήματα"
             selectedSubject = "";
         }
-        
+
         // Update the subject list to only show relevant subjects for the selected semester
         UpdateSubjectList();
     }
-    
+
     private void UpdateSubjectList()
     {
         if (allNotes != null && allNotes.Any())
@@ -547,5 +548,9 @@
         {
             subjectList = new List<string>();
         }
+    }
+    private void HandleLogout(MouseEventArgs args)
+    {
+        throw new NotImplementedException();
     }
 }
