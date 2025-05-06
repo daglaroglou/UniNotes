@@ -908,3 +908,13 @@ html, body {
     .user-name-button:active {
         transform: translateY(0);
     }
+
+.username-link {
+    color: #4A90E2;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+    .username-link:hover {
+        color: #2A70C2;
+    }

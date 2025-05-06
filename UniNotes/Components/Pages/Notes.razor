@@ -149,7 +149,10 @@
                                         <div class="note-metadata">
                                             <span><i class="fa-solid fa-book"></i> @note.Subject</span>
                                             <span><i class="fa-solid fa-graduation-cap"></i> Εξάμηνο @note.Semester</span>
-                                            <span><i class="fa-solid fa-user"></i> @note.Username</span>
+                                            <span>
+                                                <i class="fa-solid fa-user"></i> 
+                                                <a class="username-link" @onclick="() => NavigateToUserProfile(note.Username)">@note.Username</a>
+                                            </span>
                                         </div>
 
                                         <div class="rating-container">
@@ -552,5 +555,13 @@
     private void HandleLogout(MouseEventArgs args)
     {
         throw new NotImplementedException();
+    }
+
+    private void NavigateToUserProfile(string username)
+    {
+        if (!string.IsNullOrEmpty(username))
+        {
+            NavigationManager.NavigateTo($"/profile/{username}");
+        }
     }
 }

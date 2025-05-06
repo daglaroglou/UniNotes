@@ -1,10 +1,11 @@
 ﻿@page "/profile"
+@page "/profile/{Username}"
 @using System.Security.Claims
 @inject UniNotes.Services.UserService UserService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
 
-<PageTitle>UniNotes - My Profile</PageTitle>
+<PageTitle>UniNotes - @(IsCurrentUserProfile ? "My Profile" : $"{user?.Username}'s Profile")</PageTitle>
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -44,7 +45,7 @@
                     <i class="fa-solid fa-gear"></i>
                     <span>Ρυθμίσεις</span>
                 </a>
-                @if (user?.IsAdmin == true)
+                @if (currentUser?.IsAdmin == true)
                 {
                     <a class="nav-tab @(IsCurrentPage("/admin") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/admin")'>
                         <i style="color: cornflowerblue;" class="fa-solid fa-user-tie"></i>
@@ -53,19 +54,21 @@
                 }
                 <div class="user-profile">
                     <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo("/profile")'>
-                        @((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))
+                        @((currentUser?.FirstName ?? "") + " " + (currentUser?.LastName ?? ""))
                     </button>
                     <div class="user-icon" @onclick="HandleLogout">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </div>
-                </div>s
+                </div>
             </div>
 
 
             <!-- Content area -->
             <div style="padding-top: 80px; padding-bottom: 40px; min-height: 100vh; width: 100%;">
                 <div style="max-width: 800px; margin: 0 auto; text-align: center;">
-                    <h1 style="font-family: 'Lobster', cursive; font-size: 3.5rem; margin-bottom: 30px; color: white;">My Profile</h1>
+                    <h1 style="font-family: 'Lobster', cursive; font-size: 3.5rem; margin-bottom: 30px; color: white;">
+                        @(IsCurrentUserProfile ? "My Profile" : $"{user?.Username}'s Profile")
+                    </h1>
 
                     @if (isLoading)
                     {
@@ -137,37 +140,74 @@
     private User? user;
     private bool isLoading = true;
     private bool initialized = false;
+    private string? currentUserId;
+    private User? currentUser;
+
+    [Parameter]
+    public string? Username { get; set; }
+
+    private string? errorMessage;
+
+    private bool IsCurrentUserProfile => string.IsNullOrEmpty(Username) || 
+                                       (currentUser != null && Username == currentUser.Username);
 
     // Use OnInitializedAsync for data loading
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var userClaims = authState.User;
+        try {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var userClaims = authState.User;
 
-        if (!userClaims.Identity?.IsAuthenticated ?? true)
-        {
-            NavigationManager.NavigateTo("/login", forceLoad: true);
-            return;
+            if (!userClaims.Identity?.IsAuthenticated ?? true)
+            {
+                NavigationManager.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
+            currentUserId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (string.IsNullOrWhiteSpace(currentUserId))
+            {
+                NavigationManager.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+            
+            // Get current user information
+            currentUser = await UserService.GetUserByIdAsync(currentUserId);
+            
+            // If a username parameter is provided, load that user's profile
+            if (!string.IsNullOrEmpty(Username))
+            {
+                user = await UserService.GetUserByUsernameAsync(Username);
+                if (user == null)
+                {
+                    errorMessage = "User not found";
+                    // Fall back to current user profile if the requested one is not found
+                    user = currentUser;
+                }
+            }
+            else
+            {
+                // If no username parameter, load current user's profile
+                user = currentUser;
+            }
+
+            if (user is null)
+            {
+                var authProvider = (BlazorAuthStateProvider)AuthStateProvider;
+                await authProvider.UpdateAuthenticationState(null);
+                NavigationManager.NavigateTo("/login", forceLoad: true);
+                return;
+            }
         }
-
-        var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrWhiteSpace(userId))
+        catch (Exception ex)
         {
-            NavigationManager.NavigateTo("/login", forceLoad: true);
-            return;
+            errorMessage = $"Error loading profile: {ex.Message}";
         }
-
-        user = await UserService.GetUserByIdAsync(userId);
-
-        if (user is null)
+        finally
         {
-            var authProvider = (BlazorAuthStateProvider)AuthStateProvider;
-            await authProvider.UpdateAuthenticationState(null);
-            NavigationManager.NavigateTo("/login", forceLoad: true);
-            return;
+            isLoading = false;
         }
-
-        isLoading = false;
     }
 
     private async Task HandleLogout()

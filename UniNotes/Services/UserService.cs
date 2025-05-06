@@ -34,6 +34,11 @@ namespace UniNotes.Services
         public async Task<User?> GetByUsernameAsync(string username) =>
             await _users.Find(x => x.Username == username).FirstOrDefaultAsync();
 
+        public async Task<User?> GetUserByUsernameAsync(string username)
+        {
+            return await _users.Find(x => x.Username == username).FirstOrDefaultAsync();
+        }
+
         public async Task<bool> CreateAsync(User newUser, string password)
         {
             var existingUserByEmail = await GetByEmailAsync(newUser.Email);
