@@ -60,7 +60,7 @@
 - [x] 2.4) Να βάλουμε favorites για τα notes
 - [x] 2.5) Να βάλουμε view profile για κάθε user και average rating από τα notes του
 - [x] 2.6) Να βάλουμε tags στα notes
-- [x] 2.7) Να βαλουμε download function για τα notes
+- [ ] 2.7) Να βαλουμε download function για τα notes
 
 ### 3) !!! Να φτιάξουμε moderators που να έχουν τα βασικά των users και:
 - [ ] 3.1) Να κάνουν check notes
