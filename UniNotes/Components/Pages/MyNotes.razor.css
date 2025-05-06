@@ -335,6 +335,19 @@ html, body {
         box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
     }
 
+.action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.action-button:disabled:hover {
+    background-color: transparent;
+    color: white;
+    transform: none;
+    box-shadow: none;
+}
+
 .view-button {
     background-color: transparent;
     flex: 1;
@@ -603,3 +616,54 @@ html, body {
         .user-profile .user-icon:hover {
             background-color: rgba(255, 0, 0, 0.3);
         }
+
+.status-message {
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.status-success {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #81c784;
+    border-left: 4px solid #81c784;
+}
+
+.status-error {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: #e57373;
+    border-left: 4px solid #e57373;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.note-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.note-tag {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.note-tag:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}

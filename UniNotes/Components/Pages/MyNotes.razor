@@ -63,6 +63,14 @@
                 <div class="notes-container">
                     <h1 class="logo">Οι σημειώσεις μου</h1>
                     
+                    @if (!string.IsNullOrEmpty(statusMessage))
+                    {
+                        <div class="status-message @(isStatusError ? "status-error" : "status-success")">
+                            <i class="fa-solid @(isStatusError ? "fa-circle-exclamation" : "fa-circle-check")"></i>
+                            <span>@statusMessage</span>
+                        </div>
+                    }
+                    
                     @if (isLoading)
                     {
                         <div class="loading-spinner">
@@ -123,18 +131,39 @@
                                     
                                     <div class="note-body">
                                         <p class="note-description">@(GetDescriptionPreview(note.Description))</p>
+                                        
+                                        @if (note.Tags != null && note.Tags.Any())
+                                        {
+                                            <div class="note-tags">
+                                                @foreach (var tag in note.Tags)
+                                                {
+                                                    <span class="note-tag">@tag</span>
+                                                }
+                                            </div>
+                                        }
+                                        
                                         <div class="note-metadata">
                                             <span><i class="fa-solid fa-book"></i> @note.Subject</span>
-                                            <span><i class="fa-solid fa-graduation-cap"></i> Semester @note.Semester</span>
+                                            <span><i class="fa-solid fa-graduation-cap"></i> Εξάμηνο @note.Semester</span>
                                         </div>
                                     </div>
                                     
                                     <div class="note-actions">
                                         <button class="action-button view-button" @onclick="() => ViewNote(note)">
-                                            <i class="fa-solid fa-eye"></i> View
+                                            <i class="fa-solid fa-eye"></i> Προβολη
                                         </button>
-                                        <button class="action-button delete-button" @onclick="() => DeleteNotePrompt(note.Id)">
-                                            <i class="fa-solid fa-trash"></i> Delete
+                                        <button class="action-button delete-button" 
+                                                @onclick="() => DeleteNotePrompt(note.Id)" 
+                                                disabled="@(isDeletingNote && deletingNoteId == note.Id)">
+                                            @if (isDeletingNote && deletingNoteId == note.Id)
+                                            {
+                                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fa-solid fa-trash"></i>
+                                            }
+                                            Διαγραφη
                                         </button>
                                     </div>
                                 </div>
@@ -159,6 +188,12 @@
     private List<Note>? userNotes;
     private bool isLoading = true;
     private Dictionary<string, string> imageCache = new Dictionary<string, string>();
+
+    // Add these properties
+    private bool isDeletingNote = false;
+    private string? deletingNoteId;
+    private string? statusMessage;
+    private bool isStatusError = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -285,28 +320,12 @@
         return dataUrl;
     }
     
-    private async Task ViewNote(Note note)
+    private void ViewNote(Note note)
     {
         if (note?.Id == null) return;
         
-        if (IsImageFile(note))
-        {
-            // For images, we can display them directly in the browser
-            string dataUrl = GetImageDataUrl(note);
-            await JSRuntime.InvokeVoidAsync("window.open", dataUrl, "_blank");
-        }
-        else if (IsPdfFile(note))
-        {
-            // For PDFs, we'll create a temporary object URL and open it
-            string base64Data = Convert.ToBase64String(note.Content ?? Array.Empty<byte>());
-            string dataUrl = $"data:application/pdf;base64,{base64Data}";
-            await JSRuntime.InvokeVoidAsync("window.open", dataUrl, "_blank");
-        }
-        else
-        {
-            // For other files, navigate to a dedicated page
-            NavigationManager.NavigateTo($"/note/{note.Id}");
-        }
+        // Navigate to the note details page for all file types
+        NavigationManager.NavigateTo($"/note/{note.Id}");
     }
     
     private async Task DeleteNotePrompt(string? noteId)
@@ -323,21 +342,45 @@
     
     private async Task DeleteNote(string noteId)
     {
-        bool result = await NoteService.DeleteNoteAsync(noteId);
-        if (result)
+        try
         {
-            // Clear the image from cache if it exists
-            if (imageCache.ContainsKey(noteId))
-            {
-                imageCache.Remove(noteId);
-            }
+            isDeletingNote = true;
+            deletingNoteId = noteId;
             
-            await LoadUserNotes();
-            StateHasChanged();
+            bool result = await NoteService.DeleteNoteAsync(noteId);
+            if (result)
+            {
+                // Clear the image from cache if it exists
+                if (imageCache.ContainsKey(noteId))
+                {
+                    imageCache.Remove(noteId);
+                }
+                
+                await LoadUserNotes();
+                statusMessage = "Note successfully deleted!";
+                isStatusError = false;
+            }
+            else
+            {
+                statusMessage = "Failed to delete the note. Please try again.";
+                isStatusError = true;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("alert", "Failed to delete the note. Please try again.");
+            statusMessage = $"Error: {ex.Message}";
+            isStatusError = true;
+        }
+        finally
+        {
+            isDeletingNote = false;
+            deletingNoteId = null;
+            StateHasChanged();
+            
+            // Clear status message after 5 seconds
+            await Task.Delay(5000);
+            statusMessage = null;
+            StateHasChanged();
         }
     }
 

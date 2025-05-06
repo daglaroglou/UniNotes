@@ -191,7 +191,14 @@
                                     
                                     <div class="note-actions">
                                         <button class="action-button view-button" @onclick="() => ViewNote(note)">
-                                            <i class="fa-solid fa-eye"></i> Προβολή
+                                            @if (IsWordFile(note))
+                                            {
+                                                <span><i class="fa-solid fa-download"></i> Κατεβάστε</span>
+                                            }
+                                            else
+                                            {
+                                                <span><i class="fa-solid fa-eye"></i> Προβολή</span>
+                                            }
                                         </button>
                                     </div>
                                 </div>
@@ -279,6 +286,22 @@
         finally
         {
             isLoading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                window.downloadFile = (base64Data, mimeType, fileName) => {
+                    const linkSource = `data:${mimeType};base64,${base64Data}`;
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = linkSource;
+                    downloadLink.download = fileName;
+                    downloadLink.click();
+                };
+            ");
         }
     }
 
@@ -382,12 +405,20 @@
     {
         if (note?.Id == null) return;
 
-        if (IsImageFile(note))
+        if (IsWordFile(note))
         {
-            string dataUrl = GetImageDataUrl(note);
-            await JSRuntime.InvokeVoidAsync("window.open", dataUrl, "_blank");
+            // For Word documents, trigger a download
+            string base64Data = Convert.ToBase64String(note.Content ?? Array.Empty<byte>());
+            string mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"; // .docx
+            
+            // Use a safe filename based on the note title
+            string fileName = string.IsNullOrEmpty(note.Title) 
+                ? "document.docx" 
+                : $"{note.Title.Replace(" ", "_")}.docx";
+                
+            await JSRuntime.InvokeVoidAsync("downloadFile", base64Data, mimeType, fileName);
         }
-        else if (IsPdfFile(note))
+        else if (IsImageFile(note) || IsPdfFile(note))
         {
             // string base64Data = Convert.ToBase64String(note.Content ?? Array.Empty<byte>());
             // string dataUrl = $"data:application/pdf;base64,{base64Data}";
