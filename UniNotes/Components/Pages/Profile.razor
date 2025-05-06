@@ -1,6 +1,4 @@
-﻿@page "/profile"
-@page "/profile/{Username}"
-@using System.Security.Claims
+﻿@page "/profile/{Username}"
 @inject UniNotes.Services.UserService UserService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
@@ -53,7 +51,7 @@
                     </a>
                 }
                 <div class="user-profile">
-                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo("/profile")'>
+                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo($"/profile/{currentUser?.Username}", forceLoad: true)'>
                         @((currentUser?.FirstName ?? "") + " " + (currentUser?.LastName ?? ""))
                     </button>
                     <div class="user-icon" @onclick="HandleLogout">
@@ -82,10 +80,10 @@
                         <div style="background: rgba(0,0,0,0.6); border-radius: 15px; padding: 30px; margin: 20px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: white; text-align: center;">
                             <!-- User avatar and name -->
                             <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
-                                <i class="fa-solid fa-user-circle" style="font-size: 5rem; color: #add8e6; margin-right: 20px;"></i>
+                                <img src="@GetAvatarUrl(user.Username)" alt="User Avatar" style="width: 80px; height: 80px; border-radius: 50%; margin-right: 20px; background-color: #add8e6;" />
                                 <div style="text-align: left;">
                                     <h2 style="font-size: 2rem; margin: 0 0 5px 0;">@user.FirstName @user.LastName</h2>
-                                    <p style="margin: 0; opacity: 0.8;">@user.Username</p>
+                                    <p style="margin: 0; opacity: 0.8;">AKA: <strong>@user.Username</strong></p>
                                 </div>
                             </div>
 
@@ -128,10 +126,7 @@
             </div>
         </Authorized>
         <NotAuthorized>
-            <div style="text-align: center; color: white; margin-top: 150px; padding: 20px;">
-                <h3>Please log in to view your profile</h3>
-                <button style="background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;" @onclick="RedirectToLogin">Log In</button>
-            </div>
+            <div class="spinner"></div>
         </NotAuthorized>
     </AuthorizeView>
 </CascadingAuthenticationState>
@@ -142,19 +137,28 @@
     private bool initialized = false;
     private string? currentUserId;
     private User? currentUser;
+    private string? previousUsername;
 
     [Parameter]
     public string? Username { get; set; }
 
     private string? errorMessage;
 
-    private bool IsCurrentUserProfile => string.IsNullOrEmpty(Username) || 
+    private bool IsCurrentUserProfile => string.IsNullOrEmpty(Username) ||
                                        (currentUser != null && Username == currentUser.Username);
+
+    // Get avatar URL from DiceBear
+    private string GetAvatarUrl(string GUID)
+    {
+        // Use username as seed to generate consistent avatars per user
+        return $"https://api.dicebear.com/9.x/notionists-neutral/svg?seed={Guid.NewGuid().ToString()}";
+    }
 
     // Use OnInitializedAsync for data loading
     protected override async Task OnInitializedAsync()
     {
-        try {
+        try
+        {
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
             var userClaims = authState.User;
 
@@ -165,16 +169,37 @@
             }
 
             currentUserId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (string.IsNullOrWhiteSpace(currentUserId))
             {
                 NavigationManager.NavigateTo("/login", forceLoad: true);
                 return;
             }
-            
+
             // Get current user information
             currentUser = await UserService.GetUserByIdAsync(currentUserId);
-            
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading profile: {ex.Message}";
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!initialized || previousUsername != Username)
+        {
+            previousUsername = Username;
+            await LoadUserData();
+            initialized = true;
+        }
+    }
+
+    private async Task LoadUserData()
+    {
+        isLoading = true;
+        try
+        {
             // If a username parameter is provided, load that user's profile
             if (!string.IsNullOrEmpty(Username))
             {

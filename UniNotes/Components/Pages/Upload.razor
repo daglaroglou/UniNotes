@@ -53,7 +53,7 @@
                     </div>
                 }
                 <div class="user-profile">
-                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo("/profile")'>
+                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo($"/profile/{user?.Username}")'>
                         @((user?.FirstName ?? "") + " " + (user?.LastName ?? ""))
                     </button>
                     <div class="user-icon" @onclick="HandleLogout">

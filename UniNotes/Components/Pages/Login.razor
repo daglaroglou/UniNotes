@@ -1,5 +1,4 @@
 ﻿@page "/login"
-@using Microsoft.AspNetCore.Components.Authorization
 @inject UniNotes.Services.UserService UserService
 @inject NavigationManager NavigationManager
 @inject NavigationManager Navigation
@@ -105,7 +104,9 @@ else
                 <div id="h-captcha"></div>
             </div>
             <div class="button-container">
-                <button class="action-button" @onclick="HandleLogin">Login</button>
+                <button class="action-button" @onclick="HandleLogin">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login
+                </button>
             </div>
             <br>
         </div>
