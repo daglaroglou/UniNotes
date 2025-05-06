@@ -45,19 +45,19 @@
 
 ### 1) QOL και απαραίτητα updates:
 - [ ] 1.1) Άμα πας στο /dashboard και κάνεις refresh, να μένεις logged in (όποια σελίδα και να πας, άμα κάνεις refresh να σε πετάει στο dashboard ή landing)
-- [ ] 1.2) Να αλλάξουμε τον τρόπο αλλαγής από page σε page
+- [x] 1.2) Να αλλάξουμε τον τρόπο αλλαγής από page σε page
 - [x] 1.3) Σε κάθε page να υπάρχει επιλογή να πας σε όλα τα άλλα
 - [x] 1.4) Back function σε register και login
 - [x] 1.5) Να μεταφράσουμε όλο το site στα ελληνικά
 - [x] 1.6) Να φτιάξουμε ένα README.MD
 - [x] 1.7) Nα κανουμε να δουλευει το view file σε κάθε note
-- [ ] 1.8) Να κανουμε scrollable το "Φορουμ Σημειώσεων" για mobile devices
+- [x] 1.8) Να κανουμε scrollable το "Φορουμ Σημειώσεων" για mobile devices
 
 ### 2) User functions που απομένουν:
-- [ ] 2.1) Να βάλουμε ratings στα notes
-- [ ] 2.2) Να βάλουμε report bug function
-- [ ] 2.3) Να βάλουμε report note function
-- [ ] 2.4) Να βάλουμε favorites για τα notes
+- [x] 2.1) Να βάλουμε ratings στα notes
+- [x] 2.2) Να βάλουμε report bug function
+- [x] 2.3) Να βάλουμε report note function
+- [x] 2.4) Να βάλουμε favorites για τα notes
 - [ ] 2.5) Να βάλουμε view profile για κάθε user και average rating από τα notes του
 - [x] 2.6) Να βάλουμε tags στα notes
 - [ ] 2.7) Να βαλουμε download function για τα notes

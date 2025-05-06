@@ -6,6 +6,7 @@
 <PageTitle>UniNotes</PageTitle>
 
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <div id="particles-js"></div>
 
@@ -25,10 +26,9 @@
 		<span id="text"></span><span class="cursor">|</span>
 	</div>
 	<div class="button-container">
-		<button class="action-button" @onclick='() => Navigation.NavigateTo("login")'>ΣΥΝΔΕΣΗ</button>
-		<button class="action-button" @onclick='() => Navigation.NavigateTo("register")'>ΕΓΓΡΑΦΗ</button>
-        <button class="action-button" @onclick='() => Navigation.NavigateTo("report")'>Report</button>
-
+		<button class="action-button" @onclick='() => Navigation.NavigateTo("login")'><i class="fa-solid fa-right-to-bracket"></i> ΣΥΝΔΕΣΗ</button>
+		<button class="action-button" @onclick='() => Navigation.NavigateTo("register")'><i class="fa-solid fa-user-plus"></i> ΕΓΓΡΑΦΗ</button>
+        <button class="action-button" @onclick='() => Navigation.NavigateTo("report")'><i class="fa-solid fa-flag"></i> ΑΝΑΦΟΡΑ</button>
 	</div>
 </div>
 <script src="js/typewriter.js"></script>
