@@ -44,7 +44,7 @@
 ## Λίστα Εκκρεμών Εργασιών (Todo List)
 
 ### 1) QOL και απαραίτητα updates:
-- [ ] 1.1) Άμα πας στο /dashboard και κάνεις refresh, να μένεις logged in (όποια σελίδα και να πας, άμα κάνεις refresh να σε πετάει στο dashboard ή landing)
+- [x] 1.1) Άμα πας στο /dashboard και κάνεις refresh, να μένεις logged in (όποια σελίδα και να πας, άμα κάνεις refresh να σε πετάει στο dashboard ή landing)
 - [x] 1.2) Να αλλάξουμε τον τρόπο αλλαγής από page σε page
 - [x] 1.3) Σε κάθε page να υπάρχει επιλογή να πας σε όλα τα άλλα
 - [x] 1.4) Back function σε register και login
