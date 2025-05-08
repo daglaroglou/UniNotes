@@ -276,7 +276,7 @@
                             new { name = "Report Type", value = reportType, inline = false },
                             new { name = "Subject", value = subject, inline = false },
                             new { name = "Description", value = description },
-                            new { name = "Username", value = $"[{user?.Username ?? "Unknown User"}](https://{new Uri(NavigationManager.BaseUri).Host}/user/{user?.Username ?? "unknown-user"})"},
+                            new { name = "Username", value = $"[{user?.Username ?? "Unknown User"}](https://{new Uri(NavigationManager.BaseUri).Host}/profile/{user?.Username ?? "unknown-user"})"},
                             new { name = "Email", value = contactEmail }
                         },
                         footer = new
