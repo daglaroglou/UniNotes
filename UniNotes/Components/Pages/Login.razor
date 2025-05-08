@@ -35,48 +35,79 @@
     // Global hCaptcha handler functions
     window.hCaptchaFunctions = {
         renderCaptcha: function() {
-            // Check if hcaptcha is loaded and remove any existing widgets first
+            // Check if hcaptcha is loaded
             if (typeof hcaptcha !== 'undefined') {
-                // Get all existing widget IDs and reset them
-                try {
-                    hcaptcha.reset();
-                } catch (e) {
-                    console.log("No widgets to reset");
+                // Check if we already have a widget
+                const existingWidgets = document.querySelectorAll('[data-hcaptcha-widget-id]');
+                if (existingWidgets.length > 0) {
+                    console.log("Captcha widget already exists, resetting...");
+                    try {
+                        // Instead of reset, we'll remove all existing widgets
+                        const containerElement = document.getElementById('h-captcha');
+                        if (containerElement) {
+                            // Clear the container
+                            containerElement.innerHTML = '';
+                        }
+                        // Reset any existing hCaptcha widgets
+                        hcaptcha.reset();
+                    } catch (e) {
+                        console.log("Error clearing captcha widgets: ", e);
+                    }
                 }
                 
                 // Store reference to dotnet instance
                 const dotnetRef = window.blazorInstance;
                 
+                // Make sure container exists before rendering
+                const containerElement = document.getElementById('h-captcha');
+                if (!containerElement) {
+                    console.error("Captcha container not found!");
+                    return;
+                }
+                
                 // Render a new widget
-                hcaptcha.render('h-captcha', {
-                    sitekey: '4dce49f0-164e-45e6-ad6e-4740ccdcef90',
-                    callback: function(token) {
-                        // Call the instance method directly if available
-                        if (dotnetRef) {
-                            dotnetRef.invokeMethodAsync('OnCaptchaCompleted', token);
-                        } else {
-                            // Fallback to static method
-                            DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', token);
+                try {
+                    console.log("Rendering new captcha widget");
+                    hcaptcha.render('h-captcha', {
+                        sitekey: '4dce49f0-164e-45e6-ad6e-4740ccdcef90',
+                        callback: function(token) {
+                            // Call the instance method directly if available
+                            if (dotnetRef) {
+                                dotnetRef.invokeMethodAsync('OnCaptchaCompleted', token);
+                            } else {
+                                // Fallback to static method
+                                DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', token);
+                            }
+                            console.log('Captcha completed with token: ' + token.substring(0, 10) + '...');
+                        },
+                        'expired-callback': function() {
+                            if (dotnetRef) {
+                                dotnetRef.invokeMethodAsync('OnCaptchaExpired');
+                            } else {
+                                DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', '');
+                            }
+                            console.log('Captcha expired');
                         }
-                        console.log('Captcha completed with token: ' + token.substring(0, 10) + '...');
-                    },
-                    'expired-callback': function() {
-                        if (dotnetRef) {
-                            dotnetRef.invokeMethodAsync('OnCaptchaExpired');
-                        } else {
-                            DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', '');
-                        }
-                        console.log('Captcha expired');
-                    }
-                });
+                    });
+                } catch (e) {
+                    console.error("Error rendering captcha:", e);
+                }
             } else {
                 // If hCaptcha isn't loaded yet, try again in a moment
+                console.log("hCaptcha not loaded yet, retrying in 500ms");
                 setTimeout(window.hCaptchaFunctions.renderCaptcha, 500);
             }
         },
         
         isCaptchaLoaded: function() {
             return typeof hcaptcha !== 'undefined';
+        },
+        
+        clearCaptcha: function() {
+            const container = document.getElementById('h-captcha');
+            if (container) {
+                container.innerHTML = '';
+            }
         }
     };
 </script>
@@ -162,27 +193,34 @@ else
     {
         if (firstRender && !isCheckingAuth)
         {
+            // Create a reference to this component instance
             objRef = DotNetObjectReference.Create(this);
-            await JSRuntime.InvokeVoidAsync("initializeBlazorInstance", objRef);
-            await InitializeCaptchaAsync();
-        }
-    }
 
-    private async Task InitializeCaptchaAsync()
-    {
-        if (!captchaInitialized)
+            // Pass the instance to JavaScript
+            await JSRuntime.InvokeVoidAsync("initializeBlazorInstance", objRef);
+
+            // Add a small delay to ensure DOM is fully loaded
+            await Task.Delay(500);
+
+            // Clear any existing captcha first
+            await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.clearCaptcha");
+
+            // Then render the captcha
+            await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+            captchaInitialized = true;
+        }
+        else if (!firstRender && !captchaInitialized && !isCheckingAuth)
         {
+            // Check if hCaptcha is loaded
             bool isLoaded = await JSRuntime.InvokeAsync<bool>("hCaptchaFunctions.isCaptchaLoaded");
-            if (isLoaded)
+            if (isLoaded && !captchaInitialized)
             {
+                // Clear any existing captcha first
+                await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.clearCaptcha");
+
+                // Then render fresh
                 await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
                 captchaInitialized = true;
-            }
-            else
-            {
-                // Retry after a short delay if not loaded yet
-                await Task.Delay(500);
-                await InitializeCaptchaAsync();
             }
         }
     }
@@ -190,7 +228,9 @@ else
     [JSInvokable]
     public void OnCaptchaCompleted(string token)
     {
+        // Instance method called from JS
         captchaToken = token;
+        Console.WriteLine($"Captcha token received: {token.Substring(0, Math.Min(10, token.Length))}...");
         StateHasChanged();
     }
 
@@ -198,14 +238,32 @@ else
     public void OnCaptchaExpired()
     {
         captchaToken = string.Empty;
+        Console.WriteLine("Captcha expired");
         StateHasChanged();
+    }
+
+    // Keep this for backward compatibility
+    [JSInvokable]
+    public static Task SetCaptchaToken(string token)
+    {
+        // This method will be called if the instance method fails
+        // But we should prefer the instance method
+        Console.WriteLine("Warning: Using static SetCaptchaToken method instead of instance method");
+        return Task.CompletedTask;
     }
 
     private async Task ResetCaptcha()
     {
         captchaToken = string.Empty;
-        captchaInitialized = false;
-        await InitializeCaptchaAsync();
+
+        // First, clear the captcha container
+        await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.clearCaptcha");
+
+        // Short delay to ensure DOM is updated
+        await Task.Delay(100);
+
+        // Then re-render the captcha
+        await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
     }
 
     private async Task HandleLogin()
