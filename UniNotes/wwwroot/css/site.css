@@ -48,4 +48,35 @@
     text-shadow: none;
 }
 
+/* Add these styles to your CSS file */
+.captcha-container {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.captcha-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.captcha-image img {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    height: 50px;
+}
+
+.refresh-captcha {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.captcha-input {
+    width: 100%;
+}
+
 /* Keep your existing settings page styles below this point */

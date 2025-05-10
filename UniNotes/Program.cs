@@ -23,6 +23,10 @@ builder.Services.AddHttpClient();
 // Add authorization services
 builder.Services.AddAuthorizationCore();
 
+// Add memory cache and captcha service
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ICaptchaService, CaptchaService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

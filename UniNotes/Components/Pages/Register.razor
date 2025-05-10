@@ -3,6 +3,7 @@
 @inject IJSRuntime JSRuntime
 @inject UserService UserService
 @inject NavigationManager NavigationManager
+@inject ICaptchaService CaptchaService
 @implements IDisposable
 
 @attribute [StreamRendering]
@@ -12,18 +13,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<script>
-    // Store the Blazor instance when component is initialized
-    window.initializeBlazorInstance = (instance) => {
-        window.blazorInstance = instance;
-        console.log("Blazor instance initialized");
-    };
-</script>
-
 <div id="particles-js"></div>
 
 <script src="js/particles/particles.js"></script>
-<script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
 
 <!-- Back button -->
 <div class="back-button-container">
@@ -32,88 +24,8 @@
     </button>
 </div>
 
-
 <script>
     particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
-
-    // Global hCaptcha handler functions
-    window.hCaptchaFunctions = {
-        renderCaptcha: function() {
-            // Check if hcaptcha is loaded
-            if (typeof hcaptcha !== 'undefined') {
-                // Check if we already have a widget
-                const existingWidgets = document.querySelectorAll('[data-hcaptcha-widget-id]');
-                if (existingWidgets.length > 0) {
-                    console.log("Captcha widget already exists, resetting...");
-                    try {
-                        // Instead of reset, we'll remove all existing widgets
-                        const containerElement = document.getElementById('h-captcha');
-                        if (containerElement) {
-                            // Clear the container
-                            containerElement.innerHTML = '';
-                        }
-                        // Reset any existing hCaptcha widgets
-                        hcaptcha.reset();
-                    } catch (e) {
-                        console.log("Error clearing captcha widgets: ", e);
-                    }
-                }
-                
-                // Store reference to dotnet instance
-                const dotnetRef = window.blazorInstance;
-                
-                // Make sure container exists before rendering
-                const containerElement = document.getElementById('h-captcha');
-                if (!containerElement) {
-                    console.error("Captcha container not found!");
-                    return;
-                }
-                
-                // Render a new widget
-                try {
-                    console.log("Rendering new captcha widget");
-                    hcaptcha.render('h-captcha', {
-                        sitekey: '4dce49f0-164e-45e6-ad6e-4740ccdcef90',
-                        callback: function(token) {
-                            // Call the instance method directly if available
-                            if (dotnetRef) {
-                                dotnetRef.invokeMethodAsync('OnCaptchaCompleted', token);
-                            } else {
-                                // Fallback to static method
-                                DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', token);
-                            }
-                            console.log('Captcha completed with token: ' + token.substring(0, 10) + '...');
-                        },
-                        'expired-callback': function() {
-                            if (dotnetRef) {
-                                dotnetRef.invokeMethodAsync('OnCaptchaExpired');
-                            } else {
-                                DotNet.invokeMethodAsync('UniNotes', 'SetCaptchaToken', '');
-                            }
-                            console.log('Captcha expired');
-                        }
-                    });
-                } catch (e) {
-                    console.error("Error rendering captcha:", e);
-                }
-            } else {
-                // If hCaptcha isn't loaded yet, try again in a moment
-                console.log("hCaptcha not loaded yet, retrying in 500ms");
-                setTimeout(window.hCaptchaFunctions.renderCaptcha, 500);
-            }
-        },
-        
-        isCaptchaLoaded: function() {
-            return typeof hcaptcha !== 'undefined';
-        },
-        
-        clearCaptcha: function() {
-            const container = document.getElementById('h-captcha');
-            if (container) {
-                container.innerHTML = '';
-            }
-        }
-    };
 </script>
 
 <div class="full-page-background">
@@ -147,10 +59,19 @@
             </div>
         </div>
         <div class="captcha-container">
-            <div id="h-captcha"></div>
+            <!-- C# CAPTCHA implementation -->
+            <div class="captcha-image">
+                <img src="@captchaImageUrl" alt="CAPTCHA" />
+                <button class="refresh-captcha" @onclick="RefreshCaptchaAsync" title="Refresh CAPTCHA">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+            </div>
+            <div class="captcha-input">
+                <input type="text" placeholder="Enter the code above" class="action-input" @bind="captchaInput" />
+            </div>
         </div>
         <div class="button-container">
-            <button class="action-button" @onclick="HandleRegister">Register</button>
+            <button class="action-button" @onclick="HandleRegister"><i class="fa-solid fa-user-plus"></i> Register</button>
         </div>
         <br>
     </div>
@@ -173,91 +94,28 @@
     private string uniIdNumber = string.Empty;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
-    private string captchaToken = string.Empty; // Changed from static to instance field
     private bool isRedirecting = false;
-    private DotNetObjectReference<Register>? objRef;
-    private bool captchaInitialized = false;
+    private string captchaImageUrl = string.Empty;
+    private string captchaInput = string.Empty;
+    private string captchaId = string.Empty;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            // Create a reference to this component instance
-            objRef = DotNetObjectReference.Create(this);
-
-            // Pass the instance to JavaScript
-            await JSRuntime.InvokeVoidAsync("initializeBlazorInstance", objRef);
-
-            // Add a small delay to ensure DOM is fully loaded
-            await Task.Delay(500);
-
-            // Clear any existing captcha first
-            await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.clearCaptcha");
-
-            // Then render the captcha
-            await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
-            captchaInitialized = true;
-        }
-        else if (!firstRender && !captchaInitialized)
-        {
-            // Check if hCaptcha is loaded
-            bool isLoaded = await JSRuntime.InvokeAsync<bool>("hCaptchaFunctions.isCaptchaLoaded");
-            if (isLoaded && !captchaInitialized)
-            {
-                // Clear any existing captcha first
-                await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.clearCaptcha");
-
-                // Then render fresh
-                await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
-                captchaInitialized = true;
-            }
-        }
+        // Generate a new CAPTCHA
+        await GenerateCaptchaAsync();
     }
 
-    public void Dispose()
+    private async Task GenerateCaptchaAsync()
     {
-        objRef?.Dispose();
+        var captchaResult = await CaptchaService.GenerateCaptchaAsync();
+        captchaId = captchaResult.CaptchaId;
+        captchaImageUrl = captchaResult.ImageUrl;
+        captchaInput = string.Empty; // Clear previous input
     }
 
-    [JSInvokable]
-    public void OnCaptchaCompleted(string token)
+    private async Task RefreshCaptchaAsync()
     {
-        // Instance method called from JS
-        captchaToken = token;
-        Console.WriteLine($"Captcha token received: {token.Substring(0, Math.Min(10, token.Length))}...");
-        StateHasChanged();
-    }
-
-    [JSInvokable]
-    public void OnCaptchaExpired()
-    {
-        captchaToken = string.Empty;
-        Console.WriteLine("Captcha expired");
-        StateHasChanged();
-    }
-
-    // Keep this for backward compatibility
-    [JSInvokable]
-    public static Task SetCaptchaToken(string token)
-    {
-        // This method will be called if the instance method fails
-        // But we should prefer the instance method
-        Console.WriteLine("Warning: Using static SetCaptchaToken method instead of instance method");
-        return Task.CompletedTask;
-    }
-
-    private async Task ResetCaptcha()
-    {
-        captchaToken = string.Empty;
-
-        // First, clear the captcha container
-        await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.clearCaptcha");
-
-        // Short delay to ensure DOM is updated
-        await Task.Delay(100);
-
-        // Then re-render the captcha
-        await JSRuntime.InvokeVoidAsync("hCaptchaFunctions.renderCaptcha");
+        await GenerateCaptchaAsync();
     }
 
     private async Task HandleRegister()
@@ -269,10 +127,10 @@
         errorMessage = string.Empty;
         successMessage = string.Empty;
 
-        // Check if captcha token is set
-        if (string.IsNullOrEmpty(captchaToken))
+        // Check if captcha input is provided
+        if (string.IsNullOrEmpty(captchaInput))
         {
-            errorMessage = "Please complete the captcha verification";
+            errorMessage = "Please enter the CAPTCHA code";
             return;
         }
 
@@ -288,13 +146,13 @@
         {
             try
             {
-                // Validate the captcha token
-                bool captchaValid = await ValidateCaptchaAsync(captchaToken);
+                // Validate the captcha
+                bool captchaValid = await CaptchaService.ValidateCaptchaAsync(captchaId, captchaInput);
 
                 if (!captchaValid)
                 {
-                    errorMessage = "Captcha validation failed. Please try again.";
-                    await ResetCaptcha();
+                    errorMessage = "CAPTCHA validation failed. Please try again.";
+                    await GenerateCaptchaAsync(); // Generate new captcha
                     return;
                 }
 
@@ -325,13 +183,13 @@
                 else
                 {
                     errorMessage = "Registration failed. Username or email already be in use.";
-                    await ResetCaptcha();
+                    await GenerateCaptchaAsync(); // Generate new captcha
                 }
             }
             catch (Exception ex)
             {
                 errorMessage = $"An error occurred: {ex.Message}";
-                await ResetCaptcha();
+                await GenerateCaptchaAsync(); // Generate new captcha
             }
         }
         else
@@ -381,23 +239,17 @@
             }
 
             errorMessage = string.Join("<br>", errors);
-            await ResetCaptcha();
+            await GenerateCaptchaAsync(); // Generate new captcha
         }
-    }
-
-    private async Task<bool> ValidateCaptchaAsync(string token)
-    {
-        // In a real application, you would make an HTTP request to your backend
-        // which would then validate the token with the hCaptcha API
-
-        // For demonstration purposes, assuming token presence is valid
-        // In production, implement proper server-side validation
-        return !string.IsNullOrEmpty(token);
     }
 
     private void GoBack()
     {
         Navigation.NavigateTo("/", forceLoad: false);
     }
-   
+
+    public void Dispose()
+    {
+        // Clean up any resources
+    }
 }
