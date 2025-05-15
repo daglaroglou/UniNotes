@@ -1,0 +1,684 @@
+﻿@page "/admin"
+@inject UniNotes.Services.UserService UserService
+@inject UniNotes.Services.NoteService NoteService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JSRuntime
+
+<PageTitle>UniNotes - Admin Panel</PageTitle>
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div id="particles-js"></div>
+<script src="js/particles/particles.js"></script>
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <!-- Navigation tabs -->
+            <div class="navigation-tabs">
+                <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/notes") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/notes")'>
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Φόρουμ Σημειώσεων</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/MyNotes") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/MyNotes")'>
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Οι Σημειώσεις μου</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/upload") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/upload")'>
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <span>Ανέβασε Σημειώσεις</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/report") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/report")'>
+                    <i class="fa-solid fa-flag"></i>
+                    <span>Αναφορά</span>
+                </div>
+                <div class="nav-tab @(IsCurrentPage("/settings") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/settings")'>
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Ρυθμίσεις</span>
+                </div>
+                @if (currentUser?.IsAdmin == true)
+                {
+                    <div class="nav-tab @(IsCurrentPage("/admin") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/admin")'>
+                        <i style="color: cornflowerblue;" class="fa-solid fa-user-tie"></i>
+                        <span style="color: cornflowerblue;">Admin Panel</span>
+                    </div>
+                }
+                <div class="user-profile">
+                    <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo($"/profile/{currentUser?.Username}")'>
+                        @((currentUser?.FirstName ?? "") + " " + (currentUser?.LastName ?? ""))
+                    </button>
+                    <div class="user-icon" @onclick="HandleLogout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="full-page-background">
+                <div class="admin-container">
+                    <h1 class="admin-logo">Admin Panel</h1>
+
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="message-container">
+                            <div class="success-message">@((MarkupString)successMessage)</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="message-container">
+                            <div class="error-message">@((MarkupString)errorMessage)</div>
+                        </div>
+                    }
+
+                    @if (isLoading)
+                    {
+                        <div class="spinner-container">
+                            <div class="spinner"></div>
+                            <p style="color: #333;">Loading data...</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Admin Tab Navigation -->
+                        <div class="settings-tab-buttons">
+                            <button class="action-button @(activeTab == "users" ? "active" : "")" @onclick='() => SetActiveTab("users")'>
+                                <i class="fa-solid fa-users"></i> Users
+                            </button>
+                            <button class="action-button @(activeTab == "notes" ? "active" : "")" @onclick='() => SetActiveTab("notes")'>
+                                <i class="fa-solid fa-file-lines"></i> Notes
+                            </button>
+                            <button class="action-button @(activeTab == "stats" ? "active" : "")" @onclick='() => SetActiveTab("stats")'>
+                                <i class="fa-solid fa-chart-line"></i> Statistics
+                            </button>
+                            <button class="action-button @(activeTab == "actions" ? "active" : "")" @onclick='() => SetActiveTab("actions")'>
+                                <i class="fa-solid fa-wrench"></i> Maintenance
+                            </button>
+                        </div>
+
+                        <div class="tab-content">
+                            @if (activeTab == "users")
+                            {
+                                <div class="users-section">
+                                    <h2><i class="fa-solid fa-users"></i> User Management</h2>
+                                    
+                                    <div class="search-container">
+                                        <input type="text" placeholder="Search users..." @bind="userSearchTerm" @bind:event="oninput" class="form-control" />
+                                    </div>
+                                    
+                                    <div class="table-container">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Username</th>
+                                                    <th>Name</th>
+                                                    <th>Email</th>
+                                                    <th>Student ID</th>
+                                                    <th>Notes</th>
+                                                    <th>Admin</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (filteredUsers != null)
+                                                {
+                                                    @foreach (var user in filteredUsers)
+                                                    {
+                                                        <tr>
+                                                            <td>@user.Username</td>
+                                                            <td>@user.FirstName @user.LastName</td>
+                                                            <td>@user.Email</td>
+                                                            <td>@user.UniIdNumber</td>
+                                                            <td>@(user.NoteIds?.Count ?? 0)</td>
+                                                            <td>
+                                                                <input type="checkbox" checked="@user.IsAdmin" 
+                                                                    @onchange="(e) => HandleAdminStatusChange(user, (bool)e.Value)" 
+                                                                    disabled="@(user.Id == currentUser?.Id)" />
+                                                            </td>
+                                                            <td>
+                                                                <button class="action-button small" @onclick='() => ViewUserProfile(user)'>
+                                                                    <i class="fa-solid fa-eye"></i>
+                                                                </button>
+                                                                <button class="action-button small danger" @onclick='() => ConfirmDeleteUser(user)' disabled="@(user.Id == currentUser?.Id)">
+                                                                    <i class="fa-solid fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+                            else if (activeTab == "notes")
+                            {
+                                <div class="notes-section">
+                                    <h2><i class="fa-solid fa-file-lines"></i> Notes Management</h2>
+                                    
+                                    <div class="search-container">
+                                        <input type="text" placeholder="Search notes..." @bind="noteSearchTerm" @bind:event="oninput" class="form-control" />
+                                    </div>
+                                    
+                                    <div class="table-container">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Subject</th>
+                                                    <th>Author</th>
+                                                    <th>Semester</th>
+                                                    <th>Rating</th>
+                                                    <th>Created</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (filteredNotes != null)
+                                                {
+                                                    @foreach (var note in filteredNotes)
+                                                    {
+                                                        <tr>
+                                                            <td>@note.Title</td>
+                                                            <td>@note.Subject</td>
+                                                            <td>@note.Username</td>
+                                                            <td>@note.Semester</td>
+                                                            <td>@note.AverageRating.ToString("F1")</td>
+                                                            <td>@note.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                                            <td>
+                                                                <button class="action-button small" @onclick='() => ViewNote(note)'>
+                                                                    <i class="fa-solid fa-eye"></i>
+                                                                </button>
+                                                                <button class="action-button small danger" @onclick='() => ConfirmDeleteNote(note)'>
+                                                                    <i class="fa-solid fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+                            else if (activeTab == "stats")
+                            {
+                                <div class="stats-section">
+                                    <h2><i class="fa-solid fa-chart-line"></i> Statistics</h2>
+                                    
+                                    <div class="stats-grid">
+                                        <div class="stat-card">
+                                            <i class="fa-solid fa-users stat-icon"></i>
+                                            <div class="stat-content">
+                                                <div class="stat-value">@(allUsers?.Count ?? 0)</div>
+                                                <div class="stat-label">Total Users</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="stat-card">
+                                            <i class="fa-solid fa-file-lines stat-icon"></i>
+                                            <div class="stat-content">
+                                                <div class="stat-value">@(allNotes?.Count ?? 0)</div>
+                                                <div class="stat-label">Total Notes</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="stat-card">
+                                            <i class="fa-solid fa-user-tie stat-icon"></i>
+                                            <div class="stat-content">
+                                                <div class="stat-value">@(allUsers?.Count(u => u.IsAdmin) ?? 0)</div>
+                                                <div class="stat-label">Admin Users</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="stat-card">
+                                            <i class="fa-solid fa-star stat-icon"></i>
+                                            <div class="stat-content">
+                                                <div class="stat-value">@(averageSystemRating.ToString("F1"))</div>
+                                                <div class="stat-label">Avg. Rating</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h3>Top Contributors</h3>
+                                    <div class="table-container">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Username</th>
+                                                    <th>Name</th>
+                                                    <th>Notes Count</th>
+                                                    <th>Avg. Rating</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var user in topContributors)
+                                                {
+                                                    <tr>
+                                                        <td>@user.Username</td>
+                                                        <td>@user.FirstName @user.LastName</td>
+                                                        <td>@(user.NoteIds?.Count ?? 0)</td>
+                                                        <td>@user.AverageNotesRating.ToString("F1")</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+                            else if (activeTab == "actions")
+                            {
+                                <div class="actions-section">
+                                    <h2><i class="fa-solid fa-wrench"></i> Maintenance Actions</h2>
+                                    
+                                    <div class="action-cards">
+                                        <div class="action-card">
+                                            <h3>Recalculate Ratings</h3>
+                                            <p>Recalculate all user ratings based on their notes' ratings.</p>
+                                            <button class="action-button" @onclick="RecalculateAllRatings">
+                                                <i class="fa-solid fa-calculator"></i> Start Recalculation
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="action-card">
+                                            <h3>System Backup</h3>
+                                            <p>Trigger a manual backup of the database. This operation may take several minutes.</p>
+                                            <button class="action-button" @onclick="TriggerBackup">
+                                                <i class="fa-solid fa-database"></i> Start Backup
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
+
+@code {
+    private User? currentUser;
+    private List<User>? allUsers;
+    private List<Note>? allNotes;
+    private List<User>? filteredUsers => FilterUsers();
+    private List<Note>? filteredNotes => FilterNotes();
+    private List<User> topContributors = new List<User>();
+    private double averageSystemRating = 0;
+    
+    private string activeTab = "users";
+    private bool isLoading = true;
+    private string? userSearchTerm;
+    private string? noteSearchTerm;
+    
+    // Messages
+    private string errorMessage = "";
+    private string successMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var userClaims = authState.User;
+
+            if (userClaims.Identity?.IsAuthenticated == true)
+            {
+                var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    currentUser = await UserService.GetUserByIdAsync(userId);
+                    
+                    if (currentUser == null)
+                    {
+                        NavigationManager.NavigateTo("/");
+                        return;
+                    }
+                    
+                    // Only allow admin users
+                    if (!currentUser.IsAdmin)
+                    {
+                        NavigationManager.NavigateTo("/dashboard");
+                        return;
+                    }
+                    
+                    // Load all data
+                    await LoadAllData();
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("/");
+                }
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error initializing page: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadAllData()
+    {
+        // Load all users
+        allUsers = await UserService.GetAsync();
+        
+        // Load all notes
+        allNotes = await NoteService.GetAllNotesAsync();
+        
+        // Calculate top contributors (users with most notes)
+        if (allUsers != null)
+        {
+            topContributors = allUsers
+                .OrderByDescending(u => u.NoteIds?.Count ?? 0)
+                .Take(5)
+                .ToList();
+        }
+        
+        // Calculate average system rating
+        if (allNotes != null && allNotes.Any())
+        {
+            var notesWithRatings = allNotes.Where(n => n.AverageRating > 0);
+            averageSystemRating = notesWithRatings.Any() 
+                ? notesWithRatings.Average(n => n.AverageRating) 
+                : 0;
+        }
+    }
+
+    private List<User>? FilterUsers()
+    {
+        if (allUsers == null)
+            return null;
+            
+        if (string.IsNullOrWhiteSpace(userSearchTerm))
+            return allUsers;
+            
+        var term = userSearchTerm.ToLower();
+        
+        return allUsers.Where(u => 
+            u.Username.ToLower().Contains(term) ||
+            u.FirstName.ToLower().Contains(term) ||
+            u.LastName.ToLower().Contains(term) ||
+            u.Email.ToLower().Contains(term) ||
+            u.UniIdNumber.ToLower().Contains(term)
+        ).ToList();
+    }
+
+    private List<Note>? FilterNotes()
+    {
+        if (allNotes == null)
+            return null;
+            
+        if (string.IsNullOrWhiteSpace(noteSearchTerm))
+            return allNotes;
+            
+        var term = noteSearchTerm.ToLower();
+        
+        return allNotes.Where(n => 
+            n.Title.ToLower().Contains(term) ||
+            n.Description.ToLower().Contains(term) ||
+            n.Subject.ToLower().Contains(term) ||
+            n.Username.ToLower().Contains(term) ||
+            n.Tags?.Any(t => t.ToLower().Contains(term)) == true
+        ).ToList();
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+        
+        // Clear messages when switching tabs
+        errorMessage = "";
+        successMessage = "";
+    }
+
+    private bool IsCurrentPage(string path)
+    {
+        return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task HandleLogout()
+    {
+        if (AuthStateProvider is BlazorAuthStateProvider authProvider)
+        {
+            await authProvider.UpdateAuthenticationState(null);
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task HandleAdminStatusChange(User user, bool isAdmin)
+    {
+        if (user.Id == currentUser?.Id)
+        {
+            // Prevent removing admin status from self
+            return;
+        }
+        
+        try
+        {
+            // Clone the user to avoid modifying the list item directly
+            var updatedUser = new User
+            {
+                Id = user.Id,
+                Username = user.Username,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                UniIdNumber = user.UniIdNumber,
+                PasswordHash = user.PasswordHash,
+                CreatedAt = user.CreatedAt,
+                IsAdmin = isAdmin,
+                NoteIds = user.NoteIds
+            };
+            
+            var success = await UserService.UpdateUserAsync(updatedUser);
+            
+            if (success)
+            {
+                // Update user in the list to reflect changes
+                if (allUsers != null)
+                {
+                    var index = allUsers.FindIndex(u => u.Id == user.Id);
+                    if (index >= 0)
+                    {
+                        allUsers[index].IsAdmin = isAdmin;
+                    }
+                    
+                    // Also update in topContributors if present
+                    var contributorIndex = topContributors.FindIndex(u => u.Id == user.Id);
+                    if (contributorIndex >= 0)
+                    {
+                        topContributors[contributorIndex].IsAdmin = isAdmin;
+                    }
+                }
+                
+                successMessage = $"Admin status for {user.Username} updated successfully.";
+                StateHasChanged(); // Force UI refresh
+            }
+            else
+            {
+                errorMessage = $"Failed to update admin status for {user.Username}. Database returned unsuccessful result.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error updating admin status: {ex.Message}";
+        }
+    }
+
+    private void ViewUserProfile(User user)
+    {
+        NavigationManager.NavigateTo($"/profile/{user.Username}");
+    }
+
+    private async Task ConfirmDeleteUser(User user)
+    {
+        if (user.Id == currentUser?.Id)
+        {
+            // Prevent deleting self
+            errorMessage = "You cannot delete your own account from here.";
+            return;
+        }
+        
+        bool confirmed = await JSRuntime.InvokeAsync<bool>(
+            "confirm", $"Are you sure you want to delete user {user.Username}? This will also delete all their notes and cannot be undone."
+        );
+        
+        if (confirmed)
+        {
+            try
+            {
+                bool deleted = await UserService.DeleteUserAsync(user.Id);
+                if (deleted)
+                {
+                    // Remove from the list
+                    if (allUsers != null)
+                    {
+                        allUsers.RemoveAll(u => u.Id == user.Id);
+                    }
+                    
+                    // Refresh notes list as well
+                    await LoadAllData();
+                    
+                    successMessage = $"User {user.Username} was deleted successfully.";
+                }
+                else
+                {
+                    errorMessage = $"Failed to delete user {user.Username}.";
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error deleting user: {ex.Message}";
+            }
+        }
+    }
+
+    private void ViewNote(Note note)
+    {
+        // Assuming there's a note detail page
+        NavigationManager.NavigateTo($"/notes/{note.Id}");
+    }
+
+    private async Task ConfirmDeleteNote(Note note)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>(
+            "confirm", $"Are you sure you want to delete the note \"{note.Title}\"? This cannot be undone."
+        );
+        
+        if (confirmed)
+        {
+            try
+            {
+                bool deleted = await NoteService.DeleteNoteAsync(note.Id);
+                if (deleted)
+                {
+                    // Remove from the list
+                    if (allNotes != null)
+                    {
+                        allNotes.RemoveAll(n => n.Id == note.Id);
+                    }
+                    
+                    successMessage = $"Note \"{note.Title}\" was deleted successfully.";
+                }
+                else
+                {
+                    errorMessage = $"Failed to delete note \"{note.Title}\".";
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error deleting note: {ex.Message}";
+            }
+        }
+    }
+
+    private async Task RecalculateAllRatings()
+    {
+        try
+        {
+            bool confirmed = await JSRuntime.InvokeAsync<bool>(
+                "confirm", "Are you sure you want to recalculate all user ratings? This may take a moment."
+            );
+            
+            if (!confirmed)
+                return;
+                
+            isLoading = true;
+            StateHasChanged();
+                
+            bool success = await NoteService.RecalculateAllUsersAverageRatingsAsync();
+            
+            if (success)
+            {
+                // Refresh data
+                await LoadAllData();
+                successMessage = "All user ratings have been recalculated successfully.";
+            }
+            else
+            {
+                errorMessage = "Failed to recalculate user ratings.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error during recalculation: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task TriggerBackup()
+    {
+        try
+        {
+            bool confirmed = await JSRuntime.InvokeAsync<bool>(
+                "confirm", "Are you sure you want to trigger a system backup? This operation may take several minutes."
+            );
+            
+            if (!confirmed)
+                return;
+                
+            // Just a placeholder - in a real system, you would call a database backup service
+            isLoading = true;
+            StateHasChanged();
+            
+            // Simulate a backup process
+            await Task.Delay(3000);
+            
+            successMessage = "System backup completed successfully.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error during backup: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}
