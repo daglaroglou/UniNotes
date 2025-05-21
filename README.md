@@ -11,6 +11,57 @@
 - MongoDB
 - HTML/CSS/JavaScript
 
+## Οδηγίες Εγκατάστασης και Εκτέλεσης
+
+### Προαπαιτούμενα
+- .NET 9.0 SDK
+- MongoDB (τοπικά ή σε cloud service)
+
+### Βήματα Εγκατάστασης
+
+1. **Κλωνοποιήστε το αποθετήριο**
+   ```
+   git clone https://github.com/yourusername/UniNotes.git
+   cd UniNotes
+   ```
+
+2. **Ρύθμιση MongoDB**
+   - Δημιουργήστε ένα λογαριασμό στο MongoDB Atlas ή εγκαταστήστε τοπικά το MongoDB
+   - Δημιουργήστε μια νέα βάση δεδομένων για το UniNotes
+
+3. **Ρύθμιση AppSettings**
+   - Δημιουργήστε ένα αρχείο `AppSettings.json` στον κύριο φάκελο του project (UniNotes/)
+   - Χρησιμοποιήστε το παρακάτω πρότυπο, αντικαθιστώντας το `<CONNECTION_STRING>` με το connection string της MongoDB βάσης σας και το `<WEBHOOK_URL>` με το :
+
+   ```json
+    {
+    "ConnectionStrings": {
+        "MongoDb": "<CONNECTION_STRING>"
+    },
+    "Logging": {
+        "LogLevel": {
+        "Default": "Information",
+        "Microsoft.AspNetCore": "Warning"
+        }
+    },
+    "AllowedHosts": "*",
+    "DiscordWebhook": {
+        "Url": "<WEBHOOK_URL>"
+        }
+    }
+   ```
+   
+   **Σημείωση**: Κάποιες εκδόσεις του Visual Studio δημιουργούν αυτόματα αυτό το αρχείο, αλλά για χρήστες εκτός Windows ή άλλων IDE, είναι απαραίτητο να το δημιουργήσετε χειροκίνητα. Το αρχείο αυτό δεν περιλαμβάνεται στο αποθετήριο για λόγους ασφαλείας.
+
+4. **Εγκατάσταση Εξαρτήσεων και Εκτέλεση**
+   ```
+   dotnet restore
+   dotnet run --project UniNotes
+   ```
+
+5. **Πρόσβαση στην Εφαρμογή**
+   - Ανοίξτε τον περιηγητή σας και πλοηγηθείτε στη διεύθυνση `https://localhost:5001` ή `http://localhost:5000`
+
 ## Δομή Εφαρμογής και Σελίδες
 
 ### Κύριες Σελίδες
@@ -88,13 +139,14 @@
 
 1. Κάντε fork το αποθετήριο
 2. Δημιουργήστε ένα νέο branch για τη λειτουργία (`git checkout -b feature/amazing-feature`)
-3. Κάντε commit τις αλλαγές σας (`git commit -m 'Προσθήκη νέας λειτουργίας'`)
-4. Κάντε push στο branch (`git push origin feature/amazing-feature`)
-5. Ανοίξτε ένα Pull Request
+3. Ρυθμίστε το περιβάλλον ανάπτυξης σύμφωνα με τις οδηγίες εγκατάστασης παραπάνω
+4. Κάντε commit τις αλλαγές σας (`git commit -m 'Προσθήκη νέας λειτουργίας'`)
+5. Κάντε push στο branch (`git push origin feature/amazing-feature`)
+6. Ανοίξτε ένα Pull Request
 
 ## Άδεια Χρήσης
 
-Distributed under the MIT License. See `LICENSE` for more information.
+MIT License. Δείτε `LICENSE` για περισσότερα
 
 ## Επικοινωνία
 
