@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IJSRuntime JSRuntime
+@inject IConfiguration Configuration
 
 <PageTitle>UniNotes - Report</PageTitle>
 <link href="https://fonts.googleapis.com/css2?family=Mynerve&display=swap" rel="stylesheet">
@@ -149,8 +150,8 @@
     private string description = "";
     private string contactEmail = "";
 
-    // Discord webhook URL (should ideally be stored in a config or settings)
-    private string webhookUrl = "https://discord.com/api/webhooks/1368738742441082880/udH6-h0_-TyHiOhriCM3xTligzW4FpPzUw1abPJkKPvPOixMTsebewhR9iU8p8iDT9MA";
+    // Get Discord webhook URL from configuration
+    private string webhookUrl => Configuration["DiscordWebhook:Url"];
     private readonly HttpClient httpClient = new HttpClient();
 
     protected override async Task OnInitializedAsync()
@@ -258,6 +259,13 @@
 
         try
         {
+            // Check if webhook URL is configured
+            if (string.IsNullOrEmpty(webhookUrl))
+            {
+                errorMessage = "Σφάλμα ρύθμισης: Η διεύθυνση webhook δεν έχει οριστεί.";
+                return;
+            }
+
             // Create the Discord webhook payload
             var payload = new
             {
