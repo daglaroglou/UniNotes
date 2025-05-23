@@ -13,6 +13,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<ProtectedLocalStorage>();
 builder.Services.AddScoped<AuthenticationStateProvider, BlazorAuthStateProvider>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<SubjectService>();
 
 // Add NoteService registration
 builder.Services.AddScoped<NoteService>();
