@@ -1,6 +1,7 @@
 ﻿@page "/admin"
 @inject UniNotes.Services.UserService UserService
 @inject UniNotes.Services.NoteService NoteService
+@inject UniNotes.Services.SubjectService SubjectService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IJSRuntime JSRuntime
@@ -95,6 +96,9 @@
                             </button>
                             <button class="action-button @(activeTab == "notes" ? "active" : "")" @onclick='() => SetActiveTab("notes")'>
                                 <i class="fa-solid fa-file-lines"></i> Notes
+                            </button>
+                            <button class="action-button @(activeTab == "subjects" ? "active" : "")" @onclick='() => SetActiveTab("subjects")'>
+                                <i class="fa-solid fa-book"></i> Subjects
                             </button>
                             <button class="action-button @(activeTab == "stats" ? "active" : "")" @onclick='() => SetActiveTab("stats")'>
                                 <i class="fa-solid fa-chart-line"></i> Statistics
@@ -207,6 +211,113 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                </div>
+                            }
+                            else if (activeTab == "subjects")
+                            {
+                                <div class="subjects-section">
+                                    <h2><i class="fa-solid fa-book"></i> Subject Management</h2>
+                                    
+                                    @if (subjectsData == null)
+                                    {
+                                        <div class="spinner-container">
+                                            <div class="spinner"></div>
+                                            <p>Loading subjects data...</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="semester-tabs">
+                                            @foreach (var semester in subjectsData.Semesters.OrderBy(s => s.Id))
+                                            {
+                                                <button class="semester-tab @(selectedSemesterId == semester.Id ? "active" : "")" 
+                                                        @onclick="() => SelectSemester(semester.Id)">
+                                                    Semester @semester.Id
+                                                </button>
+                                            }
+                                        </div>
+                                        
+                                        @if (selectedSemesterId > 0)
+                                        {
+                                            var selectedSemester = subjectsData.Semesters.FirstOrDefault(s => s.Id == selectedSemesterId);
+                                            
+                                            <div class="semester-subjects-container">
+                                                <h3>Subjects for Semester @selectedSemesterId</h3>
+                                                
+                                                <div class="subjects-list">
+                                                    @if (selectedSemester != null && selectedSemester.Subjects.Any())
+                                                    {
+                                                        <table class="data-table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Subject Name</th>
+                                                                    <th>Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var subject in selectedSemester.Subjects)
+                                                                {
+                                                                    <tr>
+                                                                        <td>
+                                                                            @if (editingSubjectId == subject)
+                                                                            {
+                                                                                <input type="text" class="form-control" @bind="editingSubjectValue" 
+                                                                                       @bind:event="oninput" @onkeyup="HandleSubjectEditKeyPress" />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                @subject
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            @if (editingSubjectId == subject)
+                                                                            {
+                                                                                <button class="action-button small" @onclick="SaveSubjectEdit">
+                                                                                    <i class="fa-solid fa-save"></i>
+                                                                                </button>
+                                                                                <button class="action-button small danger" @onclick="CancelSubjectEdit">
+                                                                                    <i class="fa-solid fa-times"></i>
+                                                                                </button>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <button class="action-button small" @onclick="() => EditSubject(subject)">
+                                                                                    <i class="fa-solid fa-edit"></i>
+                                                                                </button>
+                                                                                <button class="action-button small danger" @onclick="() => ConfirmDeleteSubject(subject)">
+                                                                                    <i class="fa-solid fa-trash"></i>
+                                                                                </button>
+                                                                            }
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="empty-state">
+                                                            <p>No subjects added for this semester yet.</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                
+                                                <div class="add-subject-container">
+                                                    <input type="text" class="form-control" placeholder="New subject name" 
+                                                           @bind="newSubjectName" @bind:event="oninput" @onkeyup="HandleNewSubjectKeyPress" />
+                                                    <button class="action-button" @onclick="AddNewSubject" disabled="@string.IsNullOrWhiteSpace(newSubjectName)">
+                                                        <i class="fa-solid fa-plus"></i> Add Subject
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="no-semester-selected">
+                                                <p>Select a semester to manage its subjects</p>
+                                            </div>
+                                        }
+                                    }
                                 </div>
                             }
                             else if (activeTab == "stats")
@@ -322,6 +433,13 @@
     private string? userSearchTerm;
     private string? noteSearchTerm;
     
+    // Subject management
+    private SubjectsData? subjectsData;
+    private int selectedSemesterId = 0;
+    private string? newSubjectName;
+    private string? editingSubjectId;
+    private string? editingSubjectValue;
+    
     // Messages
     private string errorMessage = "";
     private string successMessage = "";
@@ -385,6 +503,15 @@
         
         // Load all notes
         allNotes = await NoteService.GetAllNotesAsync();
+        
+        // Load subjects data
+        subjectsData = await SubjectService.GetSubjectsDataAsync();
+        
+        // Set default selected semester to the first one if it exists
+        if (subjectsData?.Semesters.Any() == true)
+        {
+            selectedSemesterId = subjectsData.Semesters.Min(s => s.Id);
+        }
         
         // Calculate top contributors (users with most notes)
         if (allUsers != null)
@@ -450,6 +577,13 @@
         // Clear messages when switching tabs
         errorMessage = "";
         successMessage = "";
+        
+        // Reset editing state when switching away from subjects tab
+        if (tab != "subjects")
+        {
+            editingSubjectId = null;
+            editingSubjectValue = null;
+        }
     }
 
     private bool IsCurrentPage(string path)
@@ -679,6 +813,192 @@
         {
             isLoading = false;
             StateHasChanged();
+        }
+    }
+    
+    // Subject Management Methods
+    private void SelectSemester(int semesterId)
+    {
+        selectedSemesterId = semesterId;
+        ClearSubjectEditState();
+    }
+    
+    private void EditSubject(string subject)
+    {
+        editingSubjectId = subject;
+        editingSubjectValue = subject;
+    }
+    
+    private void CancelSubjectEdit()
+    {
+        editingSubjectId = null;
+        editingSubjectValue = null;
+    }
+    
+    private async Task SaveSubjectEdit()
+    {
+        if (string.IsNullOrWhiteSpace(editingSubjectValue) || subjectsData == null || selectedSemesterId <= 0)
+        {
+            CancelSubjectEdit();
+            return;
+        }
+        
+        var semester = subjectsData.Semesters.FirstOrDefault(s => s.Id == selectedSemesterId);
+        if (semester != null)
+        {
+            int index = semester.Subjects.IndexOf(editingSubjectId);
+            if (index >= 0)
+            {
+                // Update the subject name
+                semester.Subjects[index] = editingSubjectValue.Trim();
+                
+                // Save changes
+                await SaveSubjectsChanges();
+                
+                // Update notes that use this subject (this would require additional implementation)
+                // await UpdateNotesWithSubject(editingSubjectId, editingSubjectValue.Trim());
+            }
+        }
+        
+        CancelSubjectEdit();
+    }
+    
+    private void ClearSubjectEditState()
+    {
+        editingSubjectId = null;
+        editingSubjectValue = null;
+        newSubjectName = null;
+    }
+    
+    private async Task AddNewSubject()
+    {
+        if (string.IsNullOrWhiteSpace(newSubjectName) || subjectsData == null || selectedSemesterId <= 0)
+        {
+            return;
+        }
+        
+        var semester = subjectsData.Semesters.FirstOrDefault(s => s.Id == selectedSemesterId);
+        if (semester != null)
+        {
+            // Check if subject already exists
+            if (semester.Subjects.Any(s => s.Equals(newSubjectName.Trim(), StringComparison.OrdinalIgnoreCase)))
+            {
+                errorMessage = $"Subject '{newSubjectName}' already exists in this semester.";
+                return;
+            }
+            
+            // Add the new subject
+            semester.Subjects.Add(newSubjectName.Trim());
+            
+            // Save changes
+            await SaveSubjectsChanges();
+            
+            // Clear the input
+            newSubjectName = null;
+        }
+    }
+    
+    private async Task ConfirmDeleteSubject(string subject)
+    {
+        if (subjectsData == null || selectedSemesterId <= 0)
+        {
+            return;
+        }
+        
+        bool confirmed = await JSRuntime.InvokeAsync<bool>(
+            "confirm", $"Are you sure you want to delete the subject '{subject}'? This may affect notes that use this subject."
+        );
+        
+        if (confirmed)
+        {
+            var semester = subjectsData.Semesters.FirstOrDefault(s => s.Id == selectedSemesterId);
+            if (semester != null)
+            {
+                // Remove the subject
+                semester.Subjects.Remove(subject);
+                
+                // Save changes
+                await SaveSubjectsChanges();
+            }
+        }
+    }
+    
+    private async Task ConfirmDeleteSemester(int semesterId)
+    {
+        if (subjectsData == null || semesterId <= 0 || semesterId == 1) // Don't allow deleting semester 1
+        {
+            return;
+        }
+        
+        bool confirmed = await JSRuntime.InvokeAsync<bool>(
+            "confirm", $"Are you sure you want to delete Semester {semesterId} and all its subjects? This cannot be undone."
+        );
+        
+        if (confirmed)
+        {
+            // Remove the semester
+            subjectsData.Semesters.RemoveAll(s => s.Id == semesterId);
+            
+            // Save changes
+            await SaveSubjectsChanges();
+            
+            // Select the first available semester
+            if (subjectsData.Semesters.Any())
+            {
+                selectedSemesterId = subjectsData.Semesters.Min(s => s.Id);
+            }
+            else
+            {
+                selectedSemesterId = 0;
+            }
+        }
+    }
+    
+    private async Task SaveSubjectsChanges()
+    {
+        if (subjectsData == null)
+        {
+            return;
+        }
+        
+        try
+        {
+            // Save the changes
+            bool success = await SubjectService.SaveSubjectsDataAsync(subjectsData);
+            
+            if (success)
+            {
+                successMessage = "Subjects updated successfully.";
+            }
+            else
+            {
+                errorMessage = "Failed to save subject changes.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving subject changes: {ex.Message}";
+        }
+    }
+    
+    // Keyboard event handlers
+    private async Task HandleNewSubjectKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(newSubjectName))
+        {
+            await AddNewSubject();
+        }
+    }
+    
+    private async Task HandleSubjectEditKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(editingSubjectValue))
+        {
+            await SaveSubjectEdit();
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelSubjectEdit();
         }
     }
 }

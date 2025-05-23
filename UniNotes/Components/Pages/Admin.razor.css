@@ -9,6 +9,109 @@
     color: white;
 }
 
+/* Subject Management Styles - Updated to match monochrome theme */
+.subjects-section {
+    padding: 1rem;
+    color: white;
+}
+
+/* Modified semester tabs to include delete button */
+.semester-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.semester-tab {
+    padding: 0.5rem 1rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: white;
+}
+
+    .semester-tab:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .semester-tab.active {
+        background-color: rgba(255, 255, 255, 0.25);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+/* Updated the add-semester class to be applied to both buttons */
+.add-semester, .delete-semester {
+    background-color: rgba(51, 51, 51, 0.8);
+    color: white;
+    border-color: rgba(200, 200, 200, 0.5);
+}
+
+.add-semester:hover {
+    background-color: rgba(70, 70, 70, 0.8);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.delete-semester:hover {
+    background-color: rgba(70, 70, 70, 0.8);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.semester-subjects-container {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.subjects-list {
+    margin-bottom: 1.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.add-subject-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+    .add-subject-container input {
+        flex: 1;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+        .add-subject-container input:focus {
+            border-color: white;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(200, 200, 200, 0.25);
+        }
+
+.no-semester-selected {
+    text-align: center;
+    padding: 3rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
 .admin-container {
     background: rgba(0, 0, 0, 0.7);
     border-radius: 15px;

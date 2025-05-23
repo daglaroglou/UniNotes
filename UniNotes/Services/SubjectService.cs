@@ -47,5 +47,31 @@ namespace UniNotes.Services
             
             return semester?.Subjects ?? new List<string>();
         }
+        
+        public async Task<bool> SaveSubjectsDataAsync(SubjectsData subjectsData)
+        {
+            try
+            {
+                string filePath = Path.Combine(_environment.WebRootPath, "subjects.json");
+                
+                // Configure JSON options for pretty formatting
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                };
+                
+                using FileStream stream = File.Create(filePath);
+                await JsonSerializer.SerializeAsync(stream, subjectsData, options);
+                
+                // Update the cached data
+                _subjectsData = subjectsData;
+                
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
