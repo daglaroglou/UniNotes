@@ -15,9 +15,9 @@ namespace UniNotes.Funcs
             return Regex.IsMatch(uniID, @"^[0-9]{12}$");
         }
 
-        public static bool isValidUsername(string username)
+        public static bool IsValidUsername(string username)
         {
-            return Regex.IsMatch(username, @"^[a-zA-Z0-9]{3,}$");
+            return Regex.IsMatch(username, @"^[a-zA-Z0-9_]{3,}$");
         }
 
         public static bool IsValidPassword(string password)

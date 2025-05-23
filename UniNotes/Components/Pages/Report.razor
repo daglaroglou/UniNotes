@@ -256,6 +256,7 @@
     private async Task SubmitReport()
     {
         isSubmitting = true;
+        bool isRedirecting = false;
 
         try
         {
@@ -305,16 +306,22 @@
 
             if (response.IsSuccessStatusCode)
             {
-                successMessage = "Η αναφορά σας υποβλήθηκε με επιτυχία! Θα επικοινωνήσουμε μαζί σας σύντομα.";
-
-                // Reset form
+                // Reset form fields
                 reportType = "";
                 subject = "";
                 description = "";
                 // Keep the email for convenience
 
+                // Show success message
+                successMessage = "Η αναφορά σας υποβλήθηκε με επιτυχία! Θα επικοινωνήσουμε μαζί σας σύντομα. Ανακατεύθυνση στο dashboard...";
+                StateHasChanged();
+                
+                // Prevent duplicate redirections
+                isRedirecting = true;
+                
+                // Add a delay to make sure the user sees the success message
                 await Task.Delay(3000);
-                NavigationManager.NavigateTo("/dashboard");
+                NavigationManager.NavigateTo("/dashboard", forceLoad: false);
             }
             else
             {
@@ -327,7 +334,11 @@
         }
         finally
         {
-            isSubmitting = false;
+            // Only reset isSubmitting flag if we're not redirecting
+            if (!isRedirecting)
+            {
+                isSubmitting = false;
+            }
         }
     }
 
