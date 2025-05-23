@@ -82,7 +82,15 @@
                             <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
                                 <img src="@GetAvatarUrl(user.Username)" alt="User Avatar" style="width: 80px; height: 80px; border-radius: 50%; margin-right: 20px; background-color: #add8e6;" />
                                 <div style="text-align: left;">
-                                    <h2 style="font-size: 2rem; margin: 0 0 5px 0;">@user.FirstName @user.LastName</h2>
+                                    <h2 style="font-size: 2rem; margin: 0 0 5px 0;">
+                                        @user.FirstName @user.LastName
+                                        @if (user.IsAdmin)
+                                        {
+                                            <span class="admin-badge" title="Administrator">
+                                                <i class="fa-solid fa-shield-halved"></i> ADMIN
+                                            </span>
+                                        }
+                                    </h2>
                                     <p style="margin: 0; opacity: 0.8;">AKA: <strong>@user.Username</strong></p>
                                 </div>
                             </div>
