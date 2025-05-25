@@ -21,7 +21,7 @@ html, body {
     vertical-align: middle;
     font-weight: bold;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    animation: badge-glow 2s infinite alternate;
+    animation: admin-badge-glow 2s infinite alternate;
 }
 
     .admin-badge i {
@@ -29,13 +29,42 @@ html, body {
         color: white;
     }
 
-@keyframes badge-glow {
+.secretary-badge {
+    display: inline-block;
+    background-color: #cc0000;
+    color: #ffffff;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-left: 10px;
+    vertical-align: middle;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    animation: secretary-badge-glow 2s infinite alternate;
+}
+
+    .secretary-badge i {
+        margin-right: 4px;
+        color: white;
+    }
+
+@keyframes admin-badge-glow {
     from {
         box-shadow: 0 0 5px rgba(30, 58, 138, 0.7);
     }
 
     to {
-        box-shadow: 0 0 15px rgba(100, 149, 237, 0.9);
+        box-shadow: 0 0 15px rgba(30, 58, 138, 0.9);
+    }
+}
+
+@keyframes secretary-badge-glow {
+    from {
+        box-shadow: 0 0 5px rgba(204, 0, 0, 0.7);
+    }
+
+    to {
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.9);
     }
 }
 

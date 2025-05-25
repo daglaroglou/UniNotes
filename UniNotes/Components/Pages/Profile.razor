@@ -90,6 +90,12 @@
                                                 <i class="fa-solid fa-shield-halved"></i> ADMIN
                                             </span>
                                         }
+                                        @if (user.IsSecretary)
+                                        {
+                                            <span class="secretary-badge" title="Secretary">
+                                                <i class="fa-solid fa-user-tie"></i> SECRETARY
+                                            </span>
+                                        }
                                     </h2>
                                     <p style="margin: 0; opacity: 0.8;">AKA: <strong>@user.Username</strong></p>
                                 </div>
