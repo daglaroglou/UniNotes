@@ -53,6 +53,13 @@
                         <span style="color: cornflowerblue;">Admin Panel</span>
                     </div>
                 }
+                @if (currentUser?.IsSecretary == true)
+                {
+                    <div class="nav-tab @(IsCurrentPage("/secretary") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/secretary")'>
+                        <i style="color: yellow" class="fa-solid fa-envelope"></i>
+                        <span style="color: yellow">Γραμματεία</span>
+                    </div>
+                }
                 <div class="user-profile">
                     <button class="user-name-button" @onclick='() => NavigationManager.NavigateTo($"/profile/{currentUser?.Username}")'>
                         @((currentUser?.FirstName ?? "") + " " + (currentUser?.LastName ?? ""))
@@ -62,8 +69,10 @@
                     </div>
                 </div>
             </div>
-
+            
             <div class="full-page-background">
+                @if (currentUser?.IsAdmin == true)
+                {
                 <div class="admin-container">
                     <h1 class="admin-logo">Admin Panel</h1>
 
@@ -411,7 +420,15 @@
                             }
                         </div>
                     }
-                </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="admin-container">
+                        <h1 class="admin-logo" >Admin Panel</h1>
+                        <div class="error-message">You don't have access to this page.</div>
+                    </div>
+                }
             </div>
         </Authorized>
         <NotAuthorized>
