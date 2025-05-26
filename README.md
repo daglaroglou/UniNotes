@@ -30,7 +30,7 @@
    - Δημιουργήστε μια νέα βάση δεδομένων για το UniNotes
 
 3. **Ρύθμιση AppSettings**
-   - Δημιουργήστε ένα αρχείο `appsettings.json` στον κύριο φάκελο του project (UniNotes/)
+   - Δημιουργήστε ένα αρχείο `appsettings.json` ή μεταονομάστε το `appsettings.template.json` σε `appsettings.json`, στον κύριο φάκελο του project (UniNotes/)
    - Χρησιμοποιήστε το παρακάτω πρότυπο, αντικαθιστώντας το `<CONNECTION_STRING>` με το connection string της MongoDB βάσης σας και τα `<WEBHOOK_URL>` με τα URL απο τα Discord Webhooks:
 
    ```json
