@@ -30,8 +30,8 @@
    - Δημιουργήστε μια νέα βάση δεδομένων για το UniNotes
 
 3. **Ρύθμιση AppSettings**
-   - Δημιουργήστε ένα αρχείο `AppSettings.json` στον κύριο φάκελο του project (UniNotes/)
-   - Χρησιμοποιήστε το παρακάτω πρότυπο, αντικαθιστώντας το `<CONNECTION_STRING>` με το connection string της MongoDB βάσης σας και το `<WEBHOOK_URL>` με το :
+   - Δημιουργήστε ένα αρχείο `appsettings.json` στον κύριο φάκελο του project (UniNotes/)
+   - Χρησιμοποιήστε το παρακάτω πρότυπο, αντικαθιστώντας το `<CONNECTION_STRING>` με το connection string της MongoDB βάσης σας και τα `<WEBHOOK_URL>` με τα URL απο τα Discord Webhooks:
 
    ```json
     {
@@ -46,7 +46,8 @@
     },
     "AllowedHosts": "*",
     "DiscordWebhook": {
-        "Url": "<WEBHOOK_URL>"
+        "ReportUrl": "<WEBHOOK_URL>",
+        "SecretaryUrl": "<WEBHOOK_URL>"
         }
     }
    ```
@@ -56,11 +57,11 @@
 4. **Εγκατάσταση Εξαρτήσεων και Εκτέλεση**
    ```
    dotnet restore
-   dotnet run --project UniNotes
+   dotnet run
    ```
 
 5. **Πρόσβαση στην Εφαρμογή**
-   - Ανοίξτε τον περιηγητή σας και πλοηγηθείτε στη διεύθυνση `https://localhost:5001` ή `http://localhost:5000`
+   - Ανοίξτε τον περιηγητή σας και πλοηγηθείτε στη διεύθυνση `https://localhost:5073` ή `http://localhost:7073`
 
 ## Δομή Εφαρμογής και Σελίδες
 
@@ -143,10 +144,6 @@
 4. Κάντε commit τις αλλαγές σας (`git commit -m 'Προσθήκη νέας λειτουργίας'`)
 5. Κάντε push στο branch (`git push origin feature/amazing-feature`)
 6. Ανοίξτε ένα Pull Request
-
-## Άδεια Χρήσης
-
-MIT License. Δείτε `LICENSE` για περισσότερα
 
 ## Επικοινωνία
 
