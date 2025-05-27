@@ -1,0 +1,532 @@
+﻿@page "/beta"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<PageTitle>UniNotes - Beta</PageTitle>
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div id="particles-js"></div>
+<script src="js/particles/particles.js"></script>
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<!-- Back button -->
+<div class="back-button-container">
+    <button class="action-button" @onclick="GoBack">
+        <i class="fa-solid fa-arrow-left"></i> ΠΙΣΩ
+    </button>
+</div>
+
+<div class="full-page-background">
+    <div class="beta-container">
+        <h1 class="logo">Beta</h1>
+
+        @if (isLoading)
+        {
+            <div class="spinner-container">
+                <div class="spinner"></div>
+                <p style="color: white;">Loading Discord profiles...</p>
+            </div>
+        }
+        else if (errorMessage != null)
+        {
+            <div class="message-container">
+                <div class="error-message">@errorMessage</div>
+            </div>
+        }
+        else
+        {
+            <div class="discord-profiles">
+                @foreach (var profile in discordProfiles)
+                {
+                    <div class="discord-card">
+                        <div class="discord-header">
+                            <div class="avatar-container @GetStatusClass(profile)">
+                                <img src="@GetAvatarUrl(profile)" alt="@profile.data.discord_user.username" class="discord-avatar" />
+                            </div>
+                        </div>
+                        <div class="discord-info">
+                            <h3 class="username">
+                                @profile.data.discord_user.username
+                                @if (profile.data.discord_user.display_name != profile.data.discord_user.username)
+                                {
+                                    <span class="display-name">(@profile.data.discord_user.display_name)</span>
+                                }
+                            </h3>
+
+                            @if (profile.data.discord_status != "offline")
+                            {
+                                <div class="status-text">
+                                    <span class="status-label">Status:</span>
+                                    <span class="status-value">@FormatStatus(profile.data.discord_status)</span>
+                                </div>
+                            }
+
+                            @{
+                                // Filter out custom status (type 4)
+                                var filteredActivities = profile.data.activities?.Where(a => a.type != 4).ToArray();
+                            }
+
+                            @if (filteredActivities != null && filteredActivities.Length > 0)
+                            {
+                                <div class="activities">
+                                    @foreach (var activity in filteredActivities)
+                                    {
+                                        <div class="activity">
+                                            @if (activity.assets != null && !string.IsNullOrEmpty(activity.assets.large_image))
+                                            {
+                                                <div class="activity-image-container">
+                                                    <img src="@GetActivityImageUrl(activity.assets.large_image, activity.application_id)"
+                                                         alt="@(activity.assets.large_text ?? activity.name)"
+                                                         class="activity-image"
+                                                         title="@activity.assets.large_text" 
+                                                         onerror="this.onerror=null; this.src='https://cdn.discordapp.com/embed/avatars/0.png';" />
+
+                                                    @if (activity.assets != null && !string.IsNullOrEmpty(activity.assets.small_image))
+                                                    {
+                                                        <img src="@GetActivityImageUrl(activity.assets.small_image, activity.application_id)"
+                                                             alt="@(activity.assets.small_text ?? "Small icon")"
+                                                             class="activity-small-image"
+                                                             title="@activity.assets.small_text" 
+                                                             onerror="this.onerror=null; this.src='';" />
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <i class="@GetActivityIcon(activity.type)"></i>
+                                            }
+
+                                            <div class="activity-details">
+                                                <span class="activity-name">@activity.name</span>
+                                                @if (!string.IsNullOrEmpty(activity.details))
+                                                {
+                                                    <span class="activity-details-text">@activity.details</span>
+                                                }
+                                                @if (!string.IsNullOrEmpty(activity.state))
+                                                {
+                                                    <span class="activity-state">@activity.state</span>
+                                                }
+                                                @if (activity.type == 2 && profile.data.listening_to_spotify && profile.data.spotify != null)
+                                                {
+                                                    <div class="spotify-progress">
+                                                        <div class="spotify-times">
+                                                            <span>@FormatElapsedTime(profile.data.spotify)</span>
+                                                            <span>@FormatTotalTime(profile.data.spotify)</span>
+                                                        </div>
+                                                        <div class="spotify-progress-bar">
+                                                            <div class="spotify-progress-fill" style="width: @GetSpotifyProgress(profile.data.spotify)%"></div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else if (activity.timestamps?.start.HasValue == true)
+                                                {
+                                                    <span class="activity-time">
+                                                        <i class="fa-solid fa-clock"></i> @GetElapsedTime(activity.timestamps.start.Value)
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else if (profile.data.discord_status != "offline")
+                            {
+                                <div class="no-activity">
+                                    <i class="fa-solid fa-circle-info"></i> No current activity
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+<div class="footer">
+    Powered by <a href="https://lanyard.rest" target="_blank">Lanyard API</a> | UniNotes 2025
+</div>
+
+@code {
+    private bool isLoading = true;
+    private string? errorMessage;
+    private List<LanyardResponse> discordProfiles = new();
+    private System.Threading.Timer? timer;
+    private readonly HttpClient httpClient = new HttpClient();
+
+    // Discord user IDs to fetch from Lanyard API
+    private readonly string[] discordIds = new[] { "852825042630475827", "950746586437283870" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initial load
+        await LoadDiscordProfiles();
+
+        // Set up timer for auto-refresh every 1 second
+        timer = new System.Threading.Timer(async _ =>
+        {
+            await LoadDiscordProfiles();
+            await InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+    }
+
+    private async Task LoadDiscordProfiles()
+    {
+        try
+        {
+            var newProfiles = new List<LanyardResponse>();
+            
+            foreach (var id in discordIds)
+            {
+                // Fetch user data from Lanyard API
+                var response = await httpClient.GetFromJsonAsync<LanyardResponse>($"https://api.lanyard.rest/v1/users/{id}");
+
+                if (response != null && response.success)
+                {
+                    // Debug Spotify data
+                    newProfiles.Add(response);
+                }
+            }
+
+            if (newProfiles.Count > 0)
+            {
+                discordProfiles = newProfiles;
+                errorMessage = null;
+            }
+            else if (discordProfiles.Count == 0)
+            {
+                errorMessage = "Could not load Discord profiles.";
+            }
+        }
+        catch (Exception ex)
+        {
+            if (discordProfiles.Count == 0)
+            {
+                errorMessage = $"Error loading Discord profiles: {ex.Message}";
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // Calculate Spotify progress percentage
+    private double GetSpotifyProgress(Spotify spotify)
+    {
+        try
+        {      
+            if (spotify == null || spotify.timestamps == null)
+                return 0;
+                
+            long start = spotify.timestamps.start;
+            long end = spotify.timestamps.end;
+            
+            // Skip calculation if timestamps are invalid
+            if (start <= 0 || end <= 0 || end <= start)
+            {
+                return 0;
+            }
+            
+            // Get current time in milliseconds
+            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            
+            // Calculate progress percentage
+            double totalDuration = end - start;
+            double currentPosition = now - start;
+            
+            // Ensure we have valid values
+            if (totalDuration <= 0 || currentPosition < 0)
+                return 0;
+                
+            double progressPercentage = Math.Min(100, Math.Max(0, (currentPosition / totalDuration) * 100));
+            
+            return Math.Round(progressPercentage, 1);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error calculating Spotify progress: {ex.Message}");
+            return 0;
+        }
+    }
+
+    // Format time for Spotify elapsed time
+    private string FormatElapsedTime(Spotify spotify)
+    {
+        try
+        {
+            if (spotify == null || spotify.timestamps == null || spotify.timestamps.start <= 0)
+                return "0:00";
+                
+            // Current time
+            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            
+            // Calculate elapsed time
+            long elapsedMs = now - spotify.timestamps.start;
+            
+            // Ensure we don't have negative time
+            if (elapsedMs < 0)
+                elapsedMs = 0;
+                
+            TimeSpan elapsed = TimeSpan.FromMilliseconds(elapsedMs);
+            
+            // Format as mm:ss
+            return $"{(int)elapsed.TotalMinutes}:{elapsed.Seconds:D2}";
+        }
+        catch
+        {
+            return "0:00";
+        }
+    }
+
+    // Format time for Spotify total duration
+    private string FormatTotalTime(Spotify spotify)
+    {
+        try
+        {
+            if (spotify == null || spotify.timestamps == null || 
+                spotify.timestamps.start <= 0 || spotify.timestamps.end <= 0)
+                return "0:00";
+                
+            // Calculate total duration
+            long durationMs = spotify.timestamps.end - spotify.timestamps.start;
+            
+            // Ensure we don't have negative or zero duration
+            if (durationMs <= 0)
+                return "0:00";
+                
+            TimeSpan duration = TimeSpan.FromMilliseconds(durationMs);
+            
+            // Format as mm:ss
+            return $"{(int)duration.TotalMinutes}:{duration.Seconds:D2}";
+        }
+        catch
+        {
+            return "0:00";
+        }
+    }
+
+    // IDisposable implementation to clean up the timer
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+
+    private string GetStatusClass(LanyardResponse profile)
+    {
+        return profile.data.discord_status.ToLower() switch
+        {
+            "online" => "status-online",
+            "idle" => "status-idle",
+            "dnd" => "status-dnd",
+            _ => "status-offline"
+        };
+    }
+
+    private string FormatStatus(string status)
+    {
+        return status.ToLower() switch
+        {
+            "online" => "Online",
+            "idle" => "Idle",
+            "dnd" => "Do Not Disturb",
+            _ => "Offline"
+        };
+    }
+
+    private string GetActivityIcon(int type)
+    {
+        // Discord activity types: https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-types
+        return type switch
+        {
+            0 => "fa-solid fa-gamepad", // Playing
+            1 => "fa-solid fa-twitch", // Streaming
+            2 => "fa-solid fa-music", // Listening
+            3 => "fa-solid fa-eye", // Watching
+            4 => "fa-solid fa-user", // Custom
+            5 => "fa-solid fa-trophy", // Competing
+            _ => "fa-solid fa-circle"
+        };
+    }
+
+    private string GetActivityImageUrl(string imageId, string applicationId)
+    {
+        try
+        {
+            // Check for null or empty imageId
+            if (string.IsNullOrEmpty(imageId))
+            {
+                return ""; // Return empty string for null images
+            }
+
+            // Handle different types of image IDs
+            if (imageId.StartsWith("spotify:"))
+            {
+                // Spotify album art
+                string spotifyId = imageId.Replace("spotify:", "");
+                return $"https://i.scdn.co/image/{spotifyId}";
+            }
+            else if (imageId.StartsWith("mp:"))
+            {
+                // Discord Media Proxy
+                string mediaId = imageId.Replace("mp:", "");
+                return $"https://media.discordapp.net/{mediaId}";
+            }
+            else if (imageId.StartsWith("external:"))
+            {
+                // External URL (already a full URL)
+                return imageId.Replace("external:", "");
+            }
+            else if (imageId.StartsWith("twitch:"))
+            {
+                // Twitch image
+                string twitchId = imageId.Replace("twitch:", "");
+                return $"https://static-cdn.jtvnw.net/previews-ttv/live_user_{twitchId}-440x248.jpg";
+            }
+            else if (imageId.StartsWith("youtube:"))
+            {
+                // YouTube thumbnail
+                string youtubeId = imageId.Replace("youtube:", "");
+                return $"https://img.youtube.com/vi/{youtubeId}/default.jpg";
+            }
+            else if (!string.IsNullOrEmpty(applicationId) && !imageId.Contains('/'))
+            {
+                // For game activities, combine application ID with asset ID
+                // This is the most common case for game activity images
+                return $"https://cdn.discordapp.com/app-assets/{applicationId}/{imageId}.png";
+            }
+            else if (imageId.Contains('/'))
+            {
+                // If the imageId already contains a slash, it might be formatted as "applicationId/imageId"
+                return $"https://cdn.discordapp.com/app-assets/{imageId}";
+            }
+            else
+            {
+                // Fallback to app icons format
+                return $"https://cdn.discordapp.com/app-icons/{imageId}.png";
+            }
+        }
+        catch
+        {
+            // Return a placeholder image or empty string if there's any error processing the image ID
+            return "";
+        }
+    }
+
+    private string GetElapsedTime(long startTimestamp)
+    {
+        var start = DateTimeOffset.FromUnixTimeMilliseconds(startTimestamp);
+        var elapsed = DateTime.UtcNow - start;
+
+        if (elapsed.TotalDays >= 1)
+        {
+            return $"{(int)elapsed.TotalDays}d {elapsed.Hours}h {elapsed.Minutes}m";
+        }
+        else if (elapsed.TotalHours >= 1)
+        {
+            return $"{(int)elapsed.TotalHours}h {elapsed.Minutes}m";
+        }
+        else if (elapsed.TotalMinutes >= 1)
+        {
+            return $"{(int)elapsed.Minutes}m {elapsed.Seconds}s";
+        }
+        else
+        {
+            return $"{elapsed.Seconds}s";
+        }
+    }
+
+    private string GetAvatarUrl(LanyardResponse profile)
+    {
+        var user = profile.data.discord_user;
+        string avatarId = user.avatar;
+        string userId = user.id;
+
+        if (string.IsNullOrEmpty(avatarId))
+        {
+            // Default Discord avatar based on user discriminator
+            return $"https://cdn.discordapp.com/embed/avatars/{int.Parse(user.discriminator) % 5}.png";
+        }
+
+        // Format: https://cdn.discordapp.com/avatars/user_id/avatar_id.png
+        return $"https://cdn.discordapp.com/avatars/{userId}/{avatarId}.png";
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    // Lanyard API response data classes
+    public class LanyardResponse
+    {
+        public bool success { get; set; }
+        public LanyardData data { get; set; }
+    }
+
+    public class LanyardData
+    {
+        public string discord_status { get; set; }
+        public DiscordUser discord_user { get; set; }
+        public Activity[] activities { get; set; }
+        public Spotify spotify { get; set; }
+        public bool active_on_discord_mobile { get; set; }
+        public bool active_on_discord_desktop { get; set; }
+        public bool listening_to_spotify { get; set; }
+    }
+
+    public class DiscordUser
+    {
+        public string id { get; set; }
+        public string username { get; set; }
+        public string avatar { get; set; }
+        public string discriminator { get; set; }
+        public string display_name { get; set; }
+    }
+
+    public class Activity
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public int type { get; set; }
+        public string state { get; set; }
+        public string details { get; set; }
+        public string application_id { get; set; } // Add this property for game activity images
+        public ActivityTimestamps timestamps { get; set; }
+        public ActivityAssets assets { get; set; }
+    }
+
+    public class ActivityTimestamps
+    {
+        public long? start { get; set; }
+        public long? end { get; set; }
+    }
+
+    public class ActivityAssets
+    {
+        public string large_image { get; set; }
+        public string large_text { get; set; }
+        public string small_image { get; set; }
+        public string small_text { get; set; }
+    }
+
+    public class Spotify
+    {
+        public string track_id { get; set; }
+        public string album { get; set; }
+        public string album_art_url { get; set; }
+        public string artist { get; set; }
+        public string song { get; set; }
+        public SpotifyTimestamps timestamps { get; set; }
+    }
+
+    public class SpotifyTimestamps
+    {
+        public long start { get; set; }
+        public long end { get; set; }
+    }
+}
