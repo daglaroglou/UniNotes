@@ -102,17 +102,17 @@
                                             }
 
                                             <div class="activity-details">
-                                                <span class="activity-name">@activity.name</span>
-                                                @if (!string.IsNullOrEmpty(activity.details))
-                                                {
-                                                    <span class="activity-details-text">@activity.details</span>
-                                                }
-                                                @if (!string.IsNullOrEmpty(activity.state))
-                                                {
-                                                    <span class="activity-state">@activity.state</span>
-                                                }
                                                 @if (activity.type == 2 && profile.data.listening_to_spotify && profile.data.spotify != null)
                                                 {
+                                                    <a class="spotify-links" href="https://open.spotify.com/track/@profile.data.spotify.track_id" target="_blank" title="@profile.data.spotify.song">
+                                                        <span class="activity-name">@profile.data.spotify.song</span>
+                                                    </a>
+                                                    
+                                                    @if (!string.IsNullOrEmpty(activity.state))
+                                                    {
+                                                            <span class="activity-state">@activity.state.Replace(';', ',')</span>
+                                                    }
+                                                    
                                                     <div class="spotify-progress">
                                                         <div class="spotify-times">
                                                             <span>@FormatElapsedTime(profile.data.spotify)</span>
@@ -122,12 +122,31 @@
                                                             <div class="spotify-progress-fill" style="width: @GetSpotifyProgress(profile.data.spotify)%"></div>
                                                         </div>
                                                     </div>
+                                                    <div class="listening-to">
+                                                        <span class="spotify-artist">
+                                                            <i class="fa-brands fa-spotify"></i> Listening to Spotify
+                                                        </span>
+                                                    </div>
                                                 }
-                                                else if (activity.timestamps?.start.HasValue == true)
+                                                else
                                                 {
-                                                    <span class="activity-time">
-                                                        <i class="fa-solid fa-clock"></i> @GetElapsedTime(activity.timestamps.start.Value)
-                                                    </span>
+                                                    <span class="activity-name">@activity.name</span>
+                                                    
+                                                    @if (!string.IsNullOrEmpty(activity.details))
+                                                    {
+                                                        <span class="activity-state">@activity.details</span>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(activity.state))
+                                                    {
+                                                        <span class="activity-state">@activity.state</span>
+                                                    }
+                                                    
+                                                    @if (activity.timestamps?.start.HasValue == true)
+                                                    {
+                                                        <span class="activity-time">
+                                                            <i class="fa-solid fa-clock"></i> @GetElapsedTime(activity.timestamps.start.Value)
+                                                        </span>
+                                                    }
                                                 }
                                             </div>
                                         </div>
@@ -454,6 +473,16 @@
 
         // Format: https://cdn.discordapp.com/avatars/user_id/avatar_id.png
         return $"https://cdn.discordapp.com/avatars/{userId}/{avatarId}.png";
+    }
+
+    private string GetSpotifyArtistUrl(string artistName)
+    {
+        if (string.IsNullOrEmpty(artistName))
+            return "#";
+            
+        // Create a search URL for the artist since we don't have the artist ID directly
+        string encodedArtist = Uri.EscapeDataString(artistName);
+        return $"https://open.spotify.com/search/{encodedArtist}/artists";
     }
 
     private void GoBack()

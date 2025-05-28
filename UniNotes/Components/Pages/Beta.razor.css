@@ -346,7 +346,7 @@
 
 /* Spotify progress bar styling */
 .spotify-progress {
-    margin-top: 8px;
+    margin-top: 1px;
     width: 100%;
     font-family: 'Roboto', sans-serif;
 }
@@ -376,6 +376,43 @@
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.spotify-links {
+    font-size: 0.9em;
+}
+
+.spotify-links:hover {
+    text-decoration: underline;
+}
+
+.spotify-links a {
+    color: white;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.spotify-links a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.spotify-song {
+    font-weight: bold;
+}
+
+.spotify-artist {
+    margin-left: 5px;
+    color: #ccc;
+}
+
+.listening-to {
+    font-family: 'Roboto', sans-serif;
+    margin-top: 5px;
+    margin-left: -5px;
+    color: #ccc;
+    text-decoration: none;
+    font-size: 0.9em
 }
 
 .back-button-container {
