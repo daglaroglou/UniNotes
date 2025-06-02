@@ -103,6 +103,12 @@
                                                 <i class="fa-solid fa-user-tie"></i> SECRETARY
                                             </span>
                                         }
+                                        @if (user.AverageNotesRating > 4.5)
+                                        {
+                                            <span class="verified-badge" title="Verified User">
+                                                <i class="fa-solid fa-check-circle"></i> TRUSTED
+                                            </span>
+                                        }
                                     </h2>
                                     <p style="margin: 0; opacity: 0.8;">AKA: <strong>@user.Username</strong></p>
                                 </div>

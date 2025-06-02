@@ -48,6 +48,24 @@ html, body {
         color: white;
     }
 
+.verified-badge {
+    display: inline-block;
+    background-color: #3cb371; /* Medium sea green */
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-left: 10px;
+    vertical-align: middle;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    animation: verified-badge-glow 2s infinite alternate;
+}
+
+    .verified-badge i {
+        margin-right: 2px;
+    }
+
 @keyframes admin-badge-glow {
     from {
         box-shadow: 0 0 5px rgba(30, 58, 138, 0.7);
@@ -65,6 +83,16 @@ html, body {
 
     to {
         box-shadow: 0 0 15px rgba(255, 0, 0, 0.9);
+    }
+}
+
+@keyframes verified-badge-glow {
+    from {
+        box-shadow: 0 0 5px rgba(60, 179, 113, 0.7);
+    }
+
+    to {
+        box-shadow: 0 0 15px rgba(60, 179, 113, 0.9);
     }
 }
 
