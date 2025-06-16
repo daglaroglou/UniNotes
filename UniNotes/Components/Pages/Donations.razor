@@ -1,0 +1,231 @@
+﻿@page "/donations"
+@using System.Text.Json.Serialization
+@using System.Net
+@using UniNotes.Services
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject IConfiguration Configuration
+@inject GitHubService GitHubService
+@implements IDisposable
+
+<PageTitle>UniNotes - Donations</PageTitle>
+<link href="https://fonts.googleapis.com/css2?family=Mynerve&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div id="particles-js"></div>
+<script src="js/particles/particles.js"></script>
+<script>
+    particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
+</script>
+
+<!-- Back button -->
+<div class="back-button-container">
+    <button class="action-button" @onclick="GoBack">
+        <i class="fa-solid fa-arrow-left"></i> ΠΙΣΩ
+    </button>
+</div>
+
+<div class="full-page-background">
+    <div class="donations-container">
+        <h1 class="logo">Δωρεές</h1>
+
+        @if (isLoading)
+        {
+            <div class="spinner-container">
+                <div class="spinner"></div>
+                <p style="color: white;">Φόρτωση δεδομένων δωρεών...</p>
+            </div>
+        }
+        else if (errorMessage != null)
+        {
+            <div class="message-container">
+                <div class="error-message">@errorMessage</div>
+            </div>
+        }
+        else
+        {
+            <div class="donation-card">
+                <div class="donation-header">
+                    <h3>Πρόοδος Δωρεών</h3>
+                    <p>Βοηθήστε μας να φτάσουμε τον στόχο μας!</p>
+                </div>
+
+                <div class="donation-progress-container">
+                    <div class="donation-amounts">
+                        <span>€@currentAmount.ToString("0.00")</span>
+                        <span>€@targetAmount.ToString("0.00")</span>
+                    </div>
+                    <div class="donation-progress-bar">
+                        <div class="donation-progress-fill" style="width: @progressPercentage%"></div>
+                    </div>
+                    <div class="donation-percentage">
+                        @progressPercentage.ToString("0.0")%
+                    </div>
+                </div>
+
+                <div class="donation-info">
+                    <p><i class="fa-solid fa-heart"></i> Ευχαριστούμε όλους όσους έχουν συνεισφέρει!</p>
+                    <div class="donation-stats">
+                        <div class="stat-item">
+                            <i class="fa-solid fa-users"></i>
+                            <span>@sponsorCount χορηγοί</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fa-solid fa-star"></i>
+                            <span>@repoStars αστέρια</span>
+                        </div>
+                    </div>
+                    <a href="https://github.com/sponsors/daglaroglou" target="_blank" class="action-button">
+                        <i class="fa-brands fa-github"></i> Κάνε Δωρεά
+                    </a>
+                </div>
+
+                <div class="donation-sponsors">
+                    <h4>Πρόσφατοι Χορηγοί</h4>
+                    <div class="sponsors-list">
+                        @foreach (var sponsor in sponsors)
+                        {
+                            <div class="sponsor-item">
+                                <img src="@sponsor.AvatarUrl" alt="@sponsor.Name" />
+                                <span>@sponsor.Name</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @if (lastUpdated.HasValue)
+                {
+                    <div class="update-timestamp">
+                        Τελευταία ενημέρωση: @lastUpdated.Value.ToString("dd/MM/yyyy HH:mm:ss")
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<div class="footer" style="font-family: 'Mynerve', cursive;">
+    Δημιουργήθηκε με ❤️ από φοιτητές για φοιτητές
+</div>
+
+@code {
+    private bool isLoading = true;
+    private string? errorMessage;
+    private double currentAmount = 0.0;
+    private double targetAmount = 20.0; // Maximum 20 euro as requested
+    private double progressPercentage = 0.0;
+    private List<Sponsor> sponsors = new();
+    private System.Threading.Timer? timer;
+    private readonly HttpClient httpClient = new HttpClient();
+    private int sponsorCount = 0;
+    private int repoStars = 0;
+    private DateTime? lastUpdated = null;
+
+    // Class to store sponsor information
+    private class Sponsor
+    {
+        public string Name { get; set; } = "";
+        public string AvatarUrl { get; set; } = "";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDonationData();
+
+        // Set up timer for auto-refresh every 5 minutes
+        timer = new System.Threading.Timer(async _ =>
+        {
+            await LoadDonationData();
+            await InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(5));
+    }
+
+    private async Task LoadDonationData()
+    {
+        try
+        {
+            isLoading = true;
+            
+            // Get real sponsorship data from the GitHub GraphQL API
+            var sponsorshipData = await GitHubService.GetSponsorshipData();
+            
+            // Update values based on real data
+            currentAmount = sponsorshipData.TotalAmount;
+            sponsorCount = sponsorshipData.SponsorCount;
+            
+            // Calculate progress percentage
+            progressPercentage = Math.Min(100, (currentAmount / targetAmount) * 100);
+            
+            // Update sponsors list
+            sponsors = sponsorshipData.Sponsors
+                .Select(s => new Sponsor { 
+                    Name = s.Name, 
+                    AvatarUrl = s.AvatarUrl 
+                })
+                .ToList();
+                
+            // Also get repository stars using REST API
+            await FetchRepositoryStats();
+            
+            lastUpdated = DateTime.Now;
+            errorMessage = null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Donation data error: {ex.Message}");
+            errorMessage = "Σφάλμα κατά τη φόρτωση δεδομένων δωρεών. Παρακαλώ δοκιμάστε ξανά αργότερα.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    
+    private async Task FetchRepositoryStats()
+    {
+        try
+        {
+            // Reset HttpClient headers for each request
+            httpClient.DefaultRequestHeaders.Clear();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "UniNotes");
+            httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+            
+            // Fetch repository data to get star count
+            HttpResponseMessage response = await httpClient.GetAsync("https://api.github.com/repos/daglaroglou/UniNotes");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var repoData = await response.Content.ReadFromJsonAsync<RepositoryData>();
+                if (repoData != null)
+                {
+                    repoStars = repoData.Stars;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Just log the error but don't fail the entire operation
+            Console.WriteLine($"Error fetching repository stats: {ex.Message}");
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+    
+    // Clean up timer when component is disposed
+    public void Dispose()
+    {
+        timer?.Dispose();
+        httpClient.Dispose();
+    }
+    
+    // Data classes for GitHub API responses
+    private class RepositoryData
+    {
+        [JsonPropertyName("stargazers_count")]
+        public int Stars { get; set; }
+    }
+}

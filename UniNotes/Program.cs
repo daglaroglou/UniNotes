@@ -20,6 +20,8 @@ builder.Services.AddScoped<NoteService>();
 
 // Add HttpClient
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<GitHubService>();
+builder.Services.AddScoped<GitHubService>();
 
 // Add authorization services
 builder.Services.AddAuthorizationCore();
