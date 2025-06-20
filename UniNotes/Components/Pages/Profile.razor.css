@@ -1,4 +1,4 @@
-/* Base HTML/Body styling */
+﻿/* Βασικές ρυθμίσεις HTML/Body */
 html, body {
     width: 100vw;
     height: 100vh;
@@ -10,6 +10,7 @@ html, body {
     color: white;
 }
 
+/* Διακριτικά σήματα για διαφορετικούς ρόλους χρηστών */
 .admin-badge {
     display: inline-block;
     background-color: #1e3a8a;
@@ -66,6 +67,7 @@ html, body {
         margin-right: 2px;
     }
 
+/* Εφέ λάμψης για τα διαφορετικά σήματα */
 @keyframes admin-badge-glow {
     from {
         box-shadow: 0 0 5px rgba(30, 58, 138, 0.7);
@@ -96,7 +98,7 @@ html, body {
     }
 }
 
-/* Inherit common styles from dashboard.css */
+/* Κληρονόμηση κοινών στυλ από το dashboard.css */
 .full-page-background {
     position: relative;
     background-color: rgba(0, 0, 0, 0);
@@ -113,10 +115,11 @@ html, body {
     padding-top: 70px;
 }
 
-.full-page-background * {
-    pointer-events: auto;
-}
+    .full-page-background * {
+        pointer-events: auto;
+    }
 
+/* Φόντο σωματιδίων */
 #particles-js {
     position: absolute;
     top: 0;
@@ -126,7 +129,7 @@ html, body {
     z-index: 0;
 }
 
-/* Logo and welcome text (matching Dashboard) */
+/* Λογότυπο και κείμενο καλωσορίσματος */
 .logo {
     font-family: 'Lobster', cursive;
     font-size: 5rem;
@@ -135,7 +138,7 @@ html, body {
     margin-bottom: 20px;
 }
 
-/* Copy exact navigation bar styles from Settings.razor.css */
+/* Στυλ μπάρας πλοήγησης */
 .navigation-tabs {
     display: flex;
     background-color: rgba(0, 0, 0, 0.7);
@@ -146,25 +149,25 @@ html, body {
     left: 0;
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    overflow-x: auto; /* Enable horizontal scrolling */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* For Firefox */
+    overflow-x: auto; /* Ενεργοποίηση οριζόντιας κύλισης */
+    -webkit-overflow-scrolling: touch; /* Ομαλή κύλιση για iOS */
+    scrollbar-width: thin; /* Για Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Για Firefox */
 }
 
-/* Customize scrollbar for WebKit browsers */
-.navigation-tabs::-webkit-scrollbar {
-    height: 4px;
-}
+    /* Προσαρμογή γραμμής κύλισης για WebKit browsers */
+    .navigation-tabs::-webkit-scrollbar {
+        height: 4px;
+    }
 
-.navigation-tabs::-webkit-scrollbar-track {
-    background: transparent;
-}
+    .navigation-tabs::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-.navigation-tabs::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-}
+    .navigation-tabs::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
 
 .nav-tab {
     display: flex;
@@ -175,25 +178,25 @@ html, body {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    white-space: nowrap; /* Prevent text wrapping */
-    flex-shrink: 0; /* Prevent tabs from shrinking */
+    white-space: nowrap; /* Αποτροπή αναδίπλωσης κειμένου */
+    flex-shrink: 0; /* Αποτροπή συρρίκνωσης καρτελών */
     text-decoration: none;
 }
 
-.nav-tab:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
+    .nav-tab:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 
-.nav-tab.active {
-    background-color: rgba(255, 255, 255, 0.2);
-    font-weight: bold;
-}
+    .nav-tab.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        font-weight: bold;
+    }
 
-.nav-tab i {
-    margin-right: 8px;
-}
+    .nav-tab i {
+        margin-right: 8px;
+    }
 
-/* User profile section that matches Settings page */
+/* Περιοχή προφίλ χρήστη */
 .user-profile {
     display: flex;
     align-items: center;
@@ -208,9 +211,9 @@ html, body {
     transition: color 0.3s;
 }
 
-.user-name:hover {
-    color: #add8e6;
-}
+    .user-name:hover {
+        color: #add8e6;
+    }
 
 .user-name-button {
     background-color: rgba(255, 255, 255, 0.15);
@@ -224,14 +227,14 @@ html, body {
     font-family: 'Roboto', sans-serif;
 }
 
-.user-name-button:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-}
+    .user-name-button:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+    }
 
-.user-name-button:active {
-    transform: translateY(0);
-}
+    .user-name-button:active {
+        transform: translateY(0);
+    }
 
 .user-icon {
     width: 32px;
@@ -257,11 +260,11 @@ html, body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.user-profile .user-icon:hover {
-    background-color: rgba(255, 0, 0, 0.3);
-}
+    .user-profile .user-icon:hover {
+        background-color: rgba(255, 0, 0, 0.3);
+    }
 
-/* Loading spinner (inherited from Dashboard) */
+/* Δείκτης φόρτωσης */
 .spinner-container {
     display: flex;
     justify-content: center;
@@ -288,7 +291,7 @@ html, body {
     }
 }
 
-/* Profile-specific styles */
+/* Ειδικά στυλ για τη σελίδα προφίλ */
 .profile-container {
     max-width: 1200px;
     margin: 30px auto;
@@ -306,6 +309,7 @@ html, body {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* Κάρτα προφίλ χρήστη */
 .profile-card {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
@@ -329,13 +333,14 @@ html, body {
     padding-left: 30px;
 }
 
-.profile-details h2 {
-    color: #fff;
-    margin-bottom: 20px;
-    font-family: 'Roboto', sans-serif;
-    font-size: 1.8rem;
-}
+    .profile-details h2 {
+        color: #fff;
+        margin-bottom: 20px;
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.8rem;
+    }
 
+/* Πληροφορίες προφίλ σε μορφή πλέγματος */
 .profile-info {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -352,13 +357,14 @@ html, body {
     border-radius: 8px;
 }
 
-.info-item i {
-    margin-right: 12px;
-    width: 20px;
-    text-align: center;
-    font-size: 1.1rem;
-}
+    .info-item i {
+        margin-right: 12px;
+        width: 20px;
+        text-align: center;
+        font-size: 1.1rem;
+    }
 
+/* Κάρτα στατιστικών */
 .stats-card {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
@@ -367,13 +373,13 @@ html, body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.stats-card h3 {
-    color: #fff;
-    margin-bottom: 20px;
-    text-align: center;
-    font-family: 'Roboto', sans-serif;
-    font-size: 1.5rem;
-}
+    .stats-card h3 {
+        color: #fff;
+        margin-bottom: 20px;
+        text-align: center;
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.5rem;
+    }
 
 .stats-grid {
     display: grid;
@@ -390,16 +396,16 @@ html, body {
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.stat-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-}
+    .stat-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
 
-.stat-item i {
-    font-size: 2rem;
-    color: #fff;
-    margin-right: 15px;
-}
+    .stat-item i {
+        font-size: 2rem;
+        color: #fff;
+        margin-right: 15px;
+    }
 
 .stat-info {
     display: flex;
@@ -417,6 +423,7 @@ html, body {
     font-size: 0.9rem;
 }
 
+/* Περιοχή ανακατεύθυνσης */
 .redirect-container {
     text-align: center;
     color: white;
@@ -430,22 +437,22 @@ html, body {
     margin-right: auto;
 }
 
-.redirect-container button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+    .redirect-container button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
 
-.redirect-container button:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
+        .redirect-container button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
 
-/* Profile frame */
+/* Πλαίσιο προφίλ */
 .profile-frame {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 15px;
@@ -470,16 +477,16 @@ html, body {
     margin-bottom: 20px;
 }
 
-.profile-header i {
-    margin-right: 20px;
-    color: #add8e6;
-}
+    .profile-header i {
+        margin-right: 20px;
+        color: #add8e6;
+    }
 
-.profile-header h2 {
-    font-family: 'Roboto', sans-serif;
-    font-size: 1.8rem;
-    margin: 0;
-}
+    .profile-header h2 {
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.8rem;
+        margin: 0;
+    }
 
 .profile-details {
     padding: 10px;
@@ -500,13 +507,14 @@ html, body {
     align-items: center;
 }
 
-.info-label i {
-    margin-right: 10px;
-    width: 20px;
-    text-align: center;
-    color: #add8e6;
-}
+    .info-label i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+        color: #add8e6;
+    }
 
+/* Ενότητα στατιστικών */
 .stats-section h3 {
     text-align: center;
     font-family: 'Roboto', sans-serif;
@@ -532,11 +540,11 @@ html, body {
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.stat-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    background: rgba(255, 255, 255, 0.15);
-}
+    .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.15);
+    }
 
 .stat-icon {
     font-size: 2rem;
@@ -555,48 +563,48 @@ html, body {
     color: #ddd;
 }
 
-/* Responsive styling */
+/* Προσαρμογή για διαφορετικά μεγέθη οθόνης */
 @media (max-width: 768px) {
     .profile-card {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .profile-avatar {
         margin-bottom: 20px;
     }
-    
+
     .profile-details {
         padding-left: 0;
         text-align: center;
     }
-    
+
     .info-item {
         justify-content: center;
     }
-    
+
     .profile-info {
         grid-template-columns: 1fr;
     }
-    
+
     .info-row {
         flex-direction: column;
     }
-    
+
     .info-label {
         margin-bottom: 5px;
     }
-    
+
     .profile-header {
         flex-direction: column;
         text-align: center;
     }
-    
-    .profile-header i {
-        margin-right: 0;
-        margin-bottom: 10px;
-    }
-    
+
+        .profile-header i {
+            margin-right: 0;
+            margin-bottom: 10px;
+        }
+
     .stats-container {
         flex-direction: column;
     }

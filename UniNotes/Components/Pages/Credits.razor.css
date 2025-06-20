@@ -1,4 +1,4 @@
-/* Inherit all the base styles from Settings.razor.css */
+﻿/* Φόντο με κινούμενα σωματίδια */
 #particles-js {
     position: absolute;
     top: 0;
@@ -8,6 +8,7 @@
     z-index: 0;
 }
 
+/* Φόντο σελίδας */
 .full-page-background {
     position: relative;
     background-color: rgba(0,0,0,0);
@@ -33,6 +34,7 @@
         pointer-events: auto;
     }
 
+/* Λογότυπο */
 .logo {
     font-family: "Mynerve", cursive;
     font-weight: 400;
@@ -42,6 +44,7 @@
     margin-bottom: 15px;
 }
 
+/* Στυλ κουμπιών */
 .action-button {
     background-color: transparent;
     color: white;
@@ -63,7 +66,7 @@
         box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
     }
 
-/* Spinner */
+/* Δείκτης φόρτωσης */
 .spinner-container {
     display: flex;
     flex-direction: column;
@@ -92,7 +95,7 @@
     }
 }
 
-/* Error message */
+/* Μηνύματα σφαλμάτων */
 .message-container {
     display: flex;
     justify-content: center;
@@ -112,7 +115,7 @@
     border: 1px solid rgba(255, 82, 82, 0.3);
 }
 
-/* Credits specific styles */
+/* Ειδικά στυλ για τη σελίδα συντελεστών */
 .credits-container {
     max-width: 90%;
     margin: 1.5rem auto;
@@ -123,7 +126,7 @@
     text-align: center;
 }
 
-/* Improved contributors grid - using flexbox for better control */
+/* Πλέγμα συντελεστών */
 .contributors-grid {
     display: flex;
     flex-wrap: wrap;
@@ -140,8 +143,8 @@
     flex-direction: column;
     align-items: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    width: calc(33.333% - 20px); /* Display 3 cards per row by default */
-    min-width: 200px; /* Minimum width for each card */
+    width: calc(33.333% - 20px);
+    min-width: 200px;
     margin-bottom: 10px;
 }
 
@@ -201,7 +204,7 @@
     z-index: 1000;
 }
 
-/* Footer styles */
+/* Υποσέλιδο */
 .footer {
     width: 100%;
     color: white;
@@ -216,19 +219,19 @@
     pointer-events: auto;
 }
 
-/* Media queries for responsiveness */
-/* Large screens */
+/* Προσαρμογές για διάφορα μεγέθη οθόνης */
+/* Μεγάλες οθόνες */
 @media (min-width: 1200px) {
     .credits-container {
         max-width: 1100px;
     }
 
     .contributor-card {
-        width: calc(25% - 20px); /* 4 cards per row on very large screens */
+        width: calc(25% - 20px);
     }
 }
 
-/* Medium/Tablet sizes */
+/* Μεσαίες οθόνες/Tablet */
 @media (max-width: 992px) {
     .credits-container {
         max-width: 95%;
@@ -237,7 +240,7 @@
     }
 
     .contributor-card {
-        width: calc(50% - 15px); /* 2 cards per row on medium screens */
+        width: calc(50% - 15px);
     }
 
     .contributor-avatar {
@@ -260,7 +263,7 @@
     }
 }
 
-/* Small screens/Mobile sizes */
+/* Μικρές οθόνες/Κινητά */
 @media (max-width: 576px) {
     .credits-container {
         max-width: 98%;
@@ -272,9 +275,9 @@
     }
 
     .contributor-card {
-        width: 100%; /* Full width - stack vertically on small screens */
+        width: 100%;
         padding: 15px;
-        flex-direction: row; /* Change to horizontal layout on mobile */
+        flex-direction: row;
         justify-content: flex-start;
         text-align: left;
     }
@@ -324,7 +327,7 @@
     }
 }
 
-/* Extra small screens */
+/* Πολύ μικρές οθόνες */
 @media (max-width: 360px) {
     .contributor-avatar {
         width: 60px;

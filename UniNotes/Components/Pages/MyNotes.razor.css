@@ -1,6 +1,6 @@
-﻿/* Root element scrolling fix - using the suggested approach */
+﻿/* Διόρθωση κύλισης στοιχείου ρίζας - χρησιμοποιώντας την προτεινόμενη προσέγγιση */
 html {
-    overflow-y: scroll !important; /* Force vertical scrollbar to always be visible */
+    overflow-y: scroll !important; /* Αναγκαστική εμφάνιση κάθετης γραμμής κύλισης */
     height: 100%;
     margin: 0;
     padding: 0;
@@ -18,7 +18,7 @@ body {
     color: white;
 }
 
-/* Override any app-wide styles to ensure scrolling works */
+/* Παράκαμψη τυχόν στυλ σε επίπεδο εφαρμογής για να διασφαλιστεί η λειτουργία της κύλισης */
 :root, html, body {
     overflow-y: scroll !important;
     scrollbar-width: thin;
@@ -27,7 +27,7 @@ body {
     min-height: 100% !important;
 }
 
-/* Override any cascading styles that might prevent scrolling */
+/* Παράκαμψη τυχόν εξαρτώμενων στυλ που μπορεί να εμποδίζουν την κύλιση */
 html, body {
     margin: 0;
     padding: 0;
@@ -35,7 +35,7 @@ html, body {
     height: 100%;
 }
 
-/* Ensure scrollbar is always visible in WebKit browsers */
+/* Διασφάλιση ότι η γραμμή κύλισης είναι πάντα ορατή σε WebKit browsers */
 ::-webkit-scrollbar {
     width: 8px !important;
     background-color: rgba(0, 0, 0, 0.1);
@@ -46,11 +46,11 @@ html, body {
     border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.5);
-}
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
 
-/* Force container to be scrollable */
+/* Εξαναγκασμός περιέχοντος στοιχείου σε κυλιόμενο */
 .full-page-background {
     position: relative;
     background-color: rgba(0,0,0,0);
@@ -77,7 +77,7 @@ html, body {
         pointer-events: auto;
     }
 
-/* Make particles absolutely positioned but not restricting scrolling */
+/* Τοποθέτηση των σωματιδίων απόλυτα αλλά χωρίς περιορισμό κύλισης */
 #particles-js {
     position: fixed;
     top: 0;
@@ -85,10 +85,10 @@ html, body {
     width: 100%;
     height: 100%;
     z-index: 0;
-    pointer-events: none; /* Prevent it from capturing scroll events */
+    pointer-events: none; /* Εμποδίζει τη σύλληψη συμβάντων κύλισης */
 }
 
-/* Modify the notes container to ensure it's scrollable with a fixed height */
+/* Τροποποίηση του περιέχοντος στοιχείου σημειώσεων για να είναι κυλιόμενο με σταθερό ύψος */
 .notes-container {
     max-width: 1200px;
     margin: 1.5rem auto;
@@ -97,32 +97,32 @@ html, body {
     border-radius: 10px;
     color: white;
     width: 95%;
-    max-height: 85vh; /* Slightly taller to show more content */
-    height: calc(100vh - 80px); /* Better calculation for height */
-    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 85vh; /* Ελαφρώς ψηλότερο για να δείχνει περισσότερο περιεχόμενο */
+    height: calc(100vh - 80px); /* Καλύτερος υπολογισμός ύψους */
+    overflow-y: auto; /* Ενεργοποίηση κάθετης κύλισης */
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1);
     padding-top: 2rem;
 }
 
-/* Style scrollbars for WebKit browsers */
-.notes-container::-webkit-scrollbar {
-    width: 10px;
-    background-color: rgba(0, 0, 0, 0.1);
-}
+    /* Στυλ για τις γραμμές κύλισης στους WebKit browsers */
+    .notes-container::-webkit-scrollbar {
+        width: 10px;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
 
-.notes-container::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 5px;
-}
+    .notes-container::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+    }
 
-.notes-container::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.5);
-}
+        .notes-container::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
 
-/* Remove sticky positioning for logo so it scrolls away */
+/* Αφαίρεση της σταθερής τοποθέτησης για το λογότυπο ώστε να κυλιέται μαζί */
 .logo {
-    position: relative; /* Changed from sticky to relative */
+    position: relative; /* Αλλαγή από sticky σε relative */
     z-index: 1;
     background-color: rgba(0, 0, 0, 0.8);
     padding: 10px 0;
@@ -135,7 +135,7 @@ html, body {
     font-size: min(100px, 12vw) !important;
 }
 
-/* Allow filters to scroll with content */
+/* Επιτρέπει στα φίλτρα να κυλιούνται με το περιεχόμενο */
 .filter-container {
     position: relative;
     z-index: 1;
@@ -145,7 +145,7 @@ html, body {
     border-radius: 8px;
 }
 
-/* Ensure navigation tabs stay visible at the top */
+/* Διασφάλιση ότι οι καρτέλες πλοήγησης παραμένουν ορατές στην κορυφή */
 .navigation-tabs {
     display: flex;
     background-color: rgba(0, 0, 0, 0.7);
@@ -162,7 +162,7 @@ html, body {
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
-/* Notes grid layout */
+/* Διάταξη πλέγματος σημειώσεων */
 .notes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -170,10 +170,10 @@ html, body {
     height: auto;
 }
 
-/* Create a fixed-height container that will show a scrollbar */
+/* Δημιουργία περιέχοντος στοιχείου σταθερού ύψους που θα εμφανίζει μια γραμμή κύλισης */
 .scrollable-container {
-    height: 100vh; /* Fixed height equal to viewport height */
-    overflow-y: auto; /* This enables vertical scrolling */
+    height: 100vh; /* Σταθερό ύψος ίσο με το ύψος του παραθύρου προβολής */
+    overflow-y: auto; /* Αυτό ενεργοποιεί την κάθετη κύλιση */
     width: 100%;
     position: absolute;
     top: 0;
@@ -184,12 +184,12 @@ html, body {
     z-index: 1;
 }
 
-/* Add some padding to ensure content doesn't get hidden under the navigation bar */
+/* Προσθήκη περιθωρίου για να διασφαλιστεί ότι το περιεχόμενο δεν κρύβεται κάτω από τη γραμμή πλοήγησης */
 .notes-content {
     padding-top: 60px;
 }
 
-/* Make sure the rest of the CSS matches the Notes page for consistency */
+/* Διασφάλιση ότι το υπόλοιπο CSS ταιριάζει με τη σελίδα Notes για συνέπεια */
 .note-card {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
@@ -206,7 +206,7 @@ html, body {
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
 
-/* Responsive layout for smaller screens */
+/* Προσαρμοστική διάταξη για μικρότερες οθόνες */
 @media (max-width: 768px) {
     .notes-grid {
         justify-content: center;
@@ -228,7 +228,7 @@ html, body {
     }
 }
 
-/* Keep the rest of your CSS the same */
+/* Στυλ κεφαλίδας κάρτας σημείωσης */
 .note-header {
     padding: 1rem;
     background: rgba(0, 0, 0, 0.3);
@@ -252,6 +252,7 @@ html, body {
     color: #aaa;
 }
 
+/* Στυλ προεπισκόπησης σημείωσης */
 .note-preview {
     height: 150px;
     display: flex;
@@ -285,6 +286,7 @@ html, body {
     object-fit: contain;
 }
 
+/* Στυλ σώματος σημείωσης */
 .note-body {
     padding: 1rem;
     flex-grow: 1;
@@ -307,12 +309,14 @@ html, body {
     font-size: 0.85rem;
 }
 
+/* Στυλ ενεργειών σημείωσης */
 .note-actions {
     display: flex;
     padding: 1rem;
     gap: 0.5rem;
 }
 
+/* Στυλ κουμπιών ενεργειών */
 .action-button {
     background-color: transparent;
     color: white;
@@ -334,19 +338,20 @@ html, body {
         box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
     }
 
-.action-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
+    .action-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
 
-.action-button:disabled:hover {
-    background-color: transparent;
-    color: white;
-    transform: none;
-    box-shadow: none;
-}
+        .action-button:disabled:hover {
+            background-color: transparent;
+            color: white;
+            transform: none;
+            box-shadow: none;
+        }
 
+/* Στυλ κουμπιών προβολής και διαγραφής */
 .view-button {
     background-color: transparent;
     flex: 1;
@@ -375,6 +380,7 @@ html, body {
         box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
     }
 
+/* Στυλ κενών καταστάσεων και φόρτωσης */
 .empty-state {
     text-align: center;
     padding: 3rem 1rem;
@@ -387,6 +393,7 @@ html, body {
     color: white;
 }
 
+/* Στυλ εικονιδίων και μενού χρήστη */
 .user-icon {
     width: 40px;
     height: 40px;
@@ -433,11 +440,13 @@ html, body {
     margin: 0;
 }
 
+/* Γραμμή εργαλείων ενεργειών */
 .action-bar {
     display: flex;
     justify-content: center;
 }
 
+/* Πληροφορίες χρήστη */
 .user-info {
     padding: 10px 15px;
     display: flex;
@@ -445,13 +454,14 @@ html, body {
     color: #333;
     font-weight: bold;
     background-color: #f0f0f0;
-    pointer-events: none; /* This makes it unclickable */
+    pointer-events: none; /* Αυτό το καθιστά μη κλικάρσιμο */
 }
 
     .user-info i {
         margin-right: 10px;
     }
 
+/* Δείκτης φόρτωσης */
 .spinner-container {
     display: flex;
     justify-content: center;
@@ -478,6 +488,7 @@ html, body {
     }
 }
 
+/* Στυλ καλωσορίσματος */
 .welcome {
     font-family: "Roboto", sans-serif;
     font-optical-sizing: auto;
@@ -485,9 +496,9 @@ html, body {
     font-style: normal;
 }
 
-/* Fix particles container to ensure it doesn't affect scrolling */
+/* Διόρθωση περιέχοντος στοιχείου σωματιδίων για να μην επηρεάζει την κύλιση */
 #particles-js {
-    position: fixed; /* Changed from absolute to fixed */
+    position: fixed; /* Αλλαγή από absolute σε fixed */
     top: 0;
     left: 0;
     width: 100%;
@@ -495,7 +506,7 @@ html, body {
     z-index: 0;
 }
 
-/* Update the navigation tabs to be scrollable on mobile devices */
+/* Ενημέρωση των καρτελών πλοήγησης ώστε να είναι κυλιόμενες σε κινητές συσκευές */
 .navigation-tabs {
     display: flex;
     background-color: rgba(0, 0, 0, 0.7);
@@ -506,27 +517,27 @@ html, body {
     left: 0;
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    overflow-x: auto; /* Enable horizontal scrolling */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* For Firefox */
+    overflow-x: auto; /* Ενεργοποίηση οριζόντιας κύλισης */
+    -webkit-overflow-scrolling: touch; /* Ομαλή κύλιση για iOS */
+    scrollbar-width: thin; /* Για Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Για Firefox */
 }
 
-/* Customize scrollbar for WebKit browsers */
-.navigation-tabs::-webkit-scrollbar {
-    height: 4px;
-}
+    /* Προσαρμογή γραμμής κύλισης για WebKit browsers */
+    .navigation-tabs::-webkit-scrollbar {
+        height: 4px;
+    }
 
-.navigation-tabs::-webkit-scrollbar-track {
-    background: transparent;
-}
+    .navigation-tabs::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-.navigation-tabs::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-}
+    .navigation-tabs::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
 
-/* Ensure nav tabs don't shrink too much on small screens */
+/* Διασφάλιση ότι οι καρτέλες πλοήγησης δεν συρρικνώνονται υπερβολικά σε μικρές οθόνες */
 .nav-tab {
     display: flex;
     align-items: center;
@@ -536,62 +547,63 @@ html, body {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    white-space: nowrap; /* Prevent text wrapping */
-    flex-shrink: 0; /* Prevent tabs from shrinking */
+    white-space: nowrap; /* Αποτροπή αναδίπλωσης κειμένου */
+    flex-shrink: 0; /* Αποτροπή συρρίκνωσης καρτελών */
 }
 
-.nav-tab:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
+    .nav-tab:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 
-.nav-tab.active {
-    background-color: rgba(255, 255, 255, 0.2);
-    font-weight: bold;
-}
+    .nav-tab.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        font-weight: bold;
+    }
 
-.nav-tab i {
-    margin-right: 8px;
-}
+    .nav-tab i {
+        margin-right: 8px;
+    }
 
-/* Responsive adjustments for mobile */
+/* Προσαρμογές για κινητά */
 @media (max-width: 768px) {
     .nav-tab {
         padding: 8px 12px;
         margin-right: 3px;
     }
-    
-    .nav-tab span {
-        font-size: 0.9rem;
-    }
-    
+
+        .nav-tab span {
+            font-size: 0.9rem;
+        }
+
     .user-profile {
         min-width: auto;
         padding: 0 8px;
-        flex-shrink: 0; /* Prevent user profile from shrinking */
+        flex-shrink: 0; /* Αποτροπή συρρίκνωσης προφίλ χρήστη */
     }
-    
-    .user-profile span {
-        max-width: 100px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+
+        .user-profile span {
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 }
 
 @media (max-width: 480px) {
     .nav-tab {
         padding: 6px 10px;
     }
-    
-    .nav-tab span {
-        font-size: 0.85rem;
-    }
-    
+
+        .nav-tab span {
+            font-size: 0.85rem;
+        }
+
     .user-profile span {
         max-width: 80px;
     }
 }
 
+/* Στυλ προφίλ χρήστη */
 .user-profile {
     display: flex;
     align-items: center;
@@ -616,6 +628,7 @@ html, body {
             background-color: rgba(255, 0, 0, 0.3);
         }
 
+/* Στυλ μηνυμάτων κατάστασης */
 .status-message {
     padding: 12px 15px;
     border-radius: 5px;
@@ -639,10 +652,18 @@ html, body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
+/* Στυλ ετικετών σημείωσης */
 .note-tags {
     display: flex;
     flex-wrap: wrap;
@@ -662,10 +683,12 @@ html, body {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.note-tag:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
+    .note-tag:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+/* Στυλ κουμπιού ονόματος χρήστη */
 .user-name-button {
     background-color: rgba(255, 255, 255, 0.15);
     border: none;

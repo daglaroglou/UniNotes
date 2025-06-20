@@ -9,13 +9,13 @@
     color: white;
 }
 
-/* Subject Management Styles - Updated to match monochrome theme */
+/* Στυλ διαχείρισης μαθημάτων - Ενημερωμένα για μονόχρωμο θέμα */
 .subjects-section {
     padding: 1rem;
     color: white;
 }
 
-/* Modified semester tabs to include delete button */
+/* Τροποποιημένες καρτέλες εξαμήνου με κουμπί διαγραφής */
 .semester-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -43,22 +43,22 @@
         border-color: rgba(255, 255, 255, 0.5);
     }
 
-/* Updated the add-semester class to be applied to both buttons */
+/* Η κλάση add-semester εφαρμόζεται και στα δύο κουμπιά */
 .add-semester, .delete-semester {
     background-color: rgba(51, 51, 51, 0.8);
     color: white;
     border-color: rgba(200, 200, 200, 0.5);
 }
 
-.add-semester:hover {
-    background-color: rgba(70, 70, 70, 0.8);
-    border-color: rgba(255, 255, 255, 0.6);
-}
+    .add-semester:hover {
+        background-color: rgba(70, 70, 70, 0.8);
+        border-color: rgba(255, 255, 255, 0.6);
+    }
 
-.delete-semester:hover {
-    background-color: rgba(70, 70, 70, 0.8);
-    border-color: rgba(255, 255, 255, 0.6);
-}
+    .delete-semester:hover {
+        background-color: rgba(70, 70, 70, 0.8);
+        border-color: rgba(255, 255, 255, 0.6);
+    }
 
 .semester-subjects-container {
     background-color: rgba(0, 0, 0, 0.5);
@@ -240,7 +240,7 @@
     }
 
 
-/* Tag input styles */
+/* Στυλ εισόδου ετικετών */
 .tags-container {
     display: flex;
     flex-direction: column;
@@ -256,7 +256,7 @@
     margin-bottom: 10px;
 }
 
-/* Updated tags list to ensure horizontal layout */
+/* Ενημέρωση λίστας ετικετών για οριζόντια διάταξη */
 .tags-list {
     display: flex;
     flex-direction: row;
@@ -267,7 +267,7 @@
     width: 100%;
 }
 
-/* Refined tag item styles for horizontal alignment */
+/* Βελτιωμένα στυλ στοιχείων ετικέτας για οριζόντια στοίχιση */
 .tag-item {
     display: inline-flex;
     align-items: center;
@@ -277,8 +277,8 @@
     border-radius: 16px;
     font-size: 14px;
     margin: 4px;
-    height: 28px; /* Fixed height for consistent appearance */
-    flex: 0 0 auto; /* Prevent stretching or shrinking */
+    height: 28px; /* Σταθερό ύψος για συνεπή εμφάνιση */
+    flex: 0 0 auto; /* Αποτροπή τεντώματος ή συμπίεσης */
 }
 
 .tag-remove-btn {
@@ -298,7 +298,7 @@
         opacity: 1;
     }
 
-/* Media queries for consistent tag appearance across devices */
+/* Media queries για συνεπή εμφάνιση ετικετών σε διάφορες συσκευές */
 @media (max-width: 768px) {
     .tag-item {
         padding: 3px 10px;
@@ -401,19 +401,19 @@
 
 #description,
 #title {
-    /* Ensure inputs are transparent to show the text behind them */
+    /* Διασφάλιση ότι οι είσοδοι είναι διαφανείς για να φαίνεται το κείμενο πίσω τους */
     background-color: transparent !important;
     position: relative;
     z-index: 2; /* Changed from 1 to 2 - inputs now on top */
 }
 
-    /* Hide the text when the inputs have content */
+    /* Απόκρυψη του κειμένου όταν οι είσοδοι έχουν περιεχόμενο */
     #description:not(:placeholder-shown) ~ .hover-text,
     #title:not(:placeholder-shown) ~ .hover-text,
-    /* Hide the text when the inputs are focused */
+    /* Απόκρυψη του κειμένου όταν οι είσοδοι έχουν εστίαση */
     #description:focus ~ .hover-text,
     #title:focus ~ .hover-text,
-    /* Hide the text when hovering over the containers */
+    /* Απόκρυψη του κειμένου όταν περνάμε τον δείκτη πάνω από τα containers */
     .description-container:hover .hover-text,
     .title-container:hover .hover-text {
         opacity: 0;
@@ -425,7 +425,7 @@
     margin: 0;
 }
 
-/* Reduced spacing and sizing for the upload container */
+/* Μειωμένος χώρος και μέγεθος για το περιέχον στοιχείο μεταφόρτωσης */
 .upload-container {
     max-width: 550px;
     margin: 1.5rem auto;
@@ -439,12 +439,12 @@
     margin-top: 1.5rem;
 }
 
-/* Reduced spacing between form groups */
+/* Μειωμένος χώρος μεταξύ των ομάδων φόρμας */
 .form-group {
     margin-bottom: 1rem;
 }
 
-/* Updated form controls to match the dark theme */
+/* Ενημερωμένα στοιχεία ελέγχου φόρμας για ταίριασμα με το σκοτεινό θέμα */
 .form-control {
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -457,7 +457,7 @@
         box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
     }
 
-/* Make sure checkboxes are visible */
+/* Διασφάλιση ότι τα πλαίσια ελέγχου είναι ορατά */
 input[type="checkbox"] {
     width: 18px;
     height: 18px;
@@ -469,7 +469,7 @@ input[type="checkbox"] {
     font-size: 0.9rem;
 }
 
-/* Improved alert styling for better visibility */
+/* Βελτιωμένη μορφοποίηση ειδοποιήσεων για καλύτερη ορατότητα */
 .alert {
     padding: 0.6rem;
     border-radius: 5px;
@@ -525,7 +525,7 @@ input[type="checkbox"] {
         background-color: rgba(255, 255, 255, 0.1);
     }
 
-/* More compact spinner */
+/* Πιο συμπαγής δείκτης φόρτωσης */
 .spinner-container {
     display: flex;
     justify-content: center;
@@ -552,7 +552,7 @@ input[type="checkbox"] {
     }
 }
 
-/* Reduced logo size */
+/* Μειωμένο μέγεθος λογότυπου */
 .welcome {
     font-family: "Roboto", sans-serif;
     font-optical-sizing: auto;
@@ -569,7 +569,7 @@ input[type="checkbox"] {
     margin-bottom: 15px;
 }
 
-/* Login form adjustments */
+/* Προσαρμογές φόρμας σύνδεσης */
 .login-form {
     display: flex;
     flex-direction: column;
@@ -596,7 +596,7 @@ input[type="checkbox"] {
     max-width: 480px;
 }
 
-/* Adjusted button size and spacing */
+/* Προσαρμοσμένο μέγεθος και απόσταση κουμπιών */
 .action-input {
     width: 100%;
     padding: 9px 14px;
@@ -643,7 +643,7 @@ input[type="checkbox"] {
         box-shadow: 0 4px 12px rgba(224, 224, 224, 0.4);
     }
 
-/* Improved error message styling to be more visible but compact */
+/* Βελτιωμένη μορφοποίηση μηνυμάτων σφάλματος - πιο ορατά αλλά συμπαγή */
 .message-container {
     display: flex;
     justify-content: center;
@@ -710,7 +710,7 @@ input[type="checkbox"] {
         pointer-events: auto;
     }
 
-/* Footer adjustments */
+/* Προσαρμογές υποσέλιδου */
 .footer {
     width: 100%;
     color: gray;
@@ -760,7 +760,7 @@ select.form-control {
         box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
     }
 
-/* Enhanced responsiveness for tablet sizes */
+/* Βελτιωμένη προσαρμοστικότητα για μεσαίες οθόνες/tablets */
 @media (max-width: 768px) {
     .upload-container {
         max-width: 95%;
@@ -803,7 +803,7 @@ select.form-control {
     }
 }
 
-/* Enhanced responsiveness for mobile sizes */
+/* Βελτιωμένη προσαρμοστικότητα για κινητά */
 @media (max-width: 480px) {
     .upload-container {
         max-width: 98%;
@@ -868,7 +868,7 @@ select.form-control {
         font-size: 0.8rem;
     }
 
-    /* Make sure the form fits in the viewport */
+    /* Διασφάλιση ότι η φόρμα χωράει στο παράθυρο προβολής */
     .upload-form {
         margin-top: 1rem;
     }
@@ -889,7 +889,7 @@ select.form-control {
     }
 }
 
-/* Extra small screens */
+/* Πολύ μικρές οθόνες */
 @media (max-width: 360px) {
     .upload-container {
         padding: 0.6rem;
@@ -929,7 +929,7 @@ select.form-control {
     }
 }
 
-/* Update the navigation tabs to be scrollable on mobile devices */
+/* Ενημέρωση των καρτελών πλοήγησης ώστε να είναι κυλιόμενες σε κινητές συσκευές */
 .navigation-tabs {
     display: flex;
     background-color: rgba(0, 0, 0, 0.7);
@@ -940,13 +940,13 @@ select.form-control {
     left: 0;
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    overflow-x: auto; /* Enable horizontal scrolling */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* For Firefox */
+    overflow-x: auto; /* Ενεργοποίηση οριζόντιας κύλισης */
+    -webkit-overflow-scrolling: touch; /* Ομαλή κύλιση για iOS */
+    scrollbar-width: thin; /* Για Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Για Firefox */
 }
 
-    /* Customize scrollbar for WebKit browsers */
+    /* Προσαρμογή της μπάρας κύλισης για WebKit browsers */
     .navigation-tabs::-webkit-scrollbar {
         height: 4px;
     }
@@ -960,7 +960,7 @@ select.form-control {
         border-radius: 4px;
     }
 
-/* Ensure nav tabs don't shrink too much on small screens */
+/* Διασφάλιση ότι οι καρτέλες πλοήγησης δεν συρρικνώνονται πολύ σε μικρές οθόνες */
 .nav-tab {
     display: flex;
     align-items: center;
@@ -970,8 +970,8 @@ select.form-control {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    white-space: nowrap; /* Prevent text wrapping */
-    flex-shrink: 0; /* Prevent tabs from shrinking */
+    white-space: nowrap; /* Αποτροπή αλλαγής γραμμής κειμένου */
+    flex-shrink: 0; /* Αποτροπή συρρίκνωσης καρτελών */
 }
 
     .nav-tab:hover {
@@ -987,7 +987,7 @@ select.form-control {
         margin-right: 8px;
     }
 
-/* Responsive adjustments for mobile */
+/* Προσαρμογές για κινητές συσκευές */
 @media (max-width: 768px) {
     .nav-tab {
         padding: 8px 12px;
@@ -1001,7 +1001,7 @@ select.form-control {
     .user-profile {
         min-width: auto;
         padding: 0 8px;
-        flex-shrink: 0; /* Prevent user profile from shrinking */
+        flex-shrink: 0; /* Αποτροπή συρρίκνωσης προφίλ χρήστη */
     }
 
         .user-profile span {

@@ -1,4 +1,5 @@
-﻿html, body {
+﻿/* Βασικές ρυθμίσεις σελίδας */
+html, body {
     width: 100vw;
     height: 100vh;
     margin: 0;
@@ -9,6 +10,7 @@
     color: white;
 }
 
+/* Καρτέλες πλοήγησης με οριζόντια κύλιση */
 .navigation-tabs {
     display: flex;
     background-color: rgba(0, 0, 0, 0.7);
@@ -19,26 +21,27 @@
     left: 0;
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    overflow-x: auto; /* Enable horizontal scrolling */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* For Firefox */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
-/* Customize scrollbar for WebKit browsers */
-.navigation-tabs::-webkit-scrollbar {
-    height: 4px;
-}
+    /* Προσαρμογή μπάρας κύλισης για WebKit browsers */
+    .navigation-tabs::-webkit-scrollbar {
+        height: 4px;
+    }
 
-.navigation-tabs::-webkit-scrollbar-track {
-    background: transparent;
-}
+    .navigation-tabs::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-.navigation-tabs::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-}
+    .navigation-tabs::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
 
+/* Στυλ καρτέλας πλοήγησης */
 .nav-tab {
     display: flex;
     align-items: center;
@@ -48,8 +51,8 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    white-space: nowrap; /* Prevent text wrapping */
-    flex-shrink: 0; /* Prevent tabs from shrinking */
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
     .nav-tab:hover {
@@ -65,6 +68,7 @@
         margin-right: 8px;
     }
 
+/* Περιοχή προφίλ χρήστη */
 .user-profile {
     display: flex;
     align-items: center;
@@ -88,6 +92,8 @@
         .user-profile .user-icon:hover {
             background-color: rgba(255, 0, 0, 0.3);
         }
+
+/* Πληροφορίες χρήστη */
 .user-info {
     padding: 10px 15px;
     display: flex;
@@ -95,19 +101,21 @@
     color: #333;
     font-weight: bold;
     background-color: #f0f0f0;
-    pointer-events: none; /* This makes it unclickable */
+    pointer-events: none;
 }
 
     .user-info i {
         margin-right: 10px;
     }
 
+/* Διαχωριστικό αναπτυσσόμενου μενού */
 .dropdown-divider {
     height: 1px;
     background-color: #e0e0e0;
     margin: 0;
 }
 
+/* Εικονίδιο χρήστη */
 .user-icon-container {
     position: fixed;
     top: 20px;
@@ -131,6 +139,7 @@
         background-color: rgba(0, 0, 0, 0.8);
     }
 
+/* Αναπτυσσόμενο μενού χρήστη */
 .user-dropdown {
     position: absolute;
     top: 50px;
@@ -153,6 +162,7 @@
         background-color: rgba(255, 255, 255, 0.1);
     }
 
+/* Δείκτης φόρτωσης */
 .spinner-container {
     display: flex;
     justify-content: center;
@@ -179,6 +189,7 @@
     }
 }
 
+/* Στυλ καλωσορίσματος και λογότυπου */
 .welcome {
     font-family: "Roboto", sans-serif;
     font-optical-sizing: auto;
@@ -195,6 +206,7 @@
     margin-bottom: 20px;
 }
 
+/* Φόρμα σύνδεσης */
 .login-form {
     display: flex;
     flex-direction: column;
@@ -221,49 +233,7 @@
     max-width: 500px;
 }
 
-@media (max-width: 768px) {
-    .input-container {
-        max-width: 400px;
-    }
-
-    .nav-tab {
-        padding: 8px 12px;
-        margin-right: 3px;
-    }
-    
-    .nav-tab span {
-        font-size: 0.9rem;
-    }
-    
-    .user-profile {
-        min-width: auto;
-        padding: 0 8px;
-    }
-    
-    .user-profile span {
-        max-width: 100px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
-
-@media (max-width: 480px) {
-    .input-container {
-        max-width: 300px;
-    }
-
-    .button-container {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .action-button {
-        padding: 10px 25px;
-        font-size: 0.9rem;
-    }
-}
-
+/* Στυλ πεδίων φόρμας και κουμπιών */
 .action-input {
     width: 100%;
     padding: 10px 15px;
@@ -310,6 +280,7 @@
         box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
     }
 
+/* Μήνυμα σφάλματος */
 .error-message {
     color: #ff5252;
     font-size: 14px;
@@ -321,6 +292,7 @@
     border-radius: 4px;
 }
 
+/* Φόντο σωματιδίων */
 #particles-js {
     position: absolute;
     top: 0;
@@ -330,6 +302,7 @@
     z-index: 0;
 }
 
+/* Πλήρες φόντο σελίδας */
 .full-page-background {
     position: relative;
     background-color: rgba(0,0,0,0);
@@ -356,6 +329,7 @@
         pointer-events: auto;
     }
 
+/* Υποσέλιδο */
 .footer {
     width: 100%;
     color: gray;
@@ -369,6 +343,7 @@
     z-index: 1;
 }
 
+/* Μορφοποίηση εικόνων */
 .styled-image {
     max-width: 100%;
     border-radius: 20px;
@@ -377,6 +352,7 @@
     pointer-events: none;
 }
 
+/* Επιπλέον στυλ περιεχομένου */
 .full-page-background h1 {
     margin-bottom: 20px;
     text-align: center;
@@ -389,6 +365,7 @@
     font-size: 1rem;
 }
 
+/* Κουμπί ονόματος χρήστη */
 .user-name-button {
     background-color: rgba(255, 255, 255, 0.15);
     border: none;
@@ -401,11 +378,55 @@
     font-family: 'Roboto', sans-serif;
 }
 
-.user-name-button:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
+    .user-name-button:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .user-name-button:active {
+        transform: translateY(0);
+    }
+
+/* Προσαρμογές για διαφορετικά μεγέθη οθόνης */
+@media (max-width: 768px) {
+    .input-container {
+        max-width: 400px;
+    }
+
+    .nav-tab {
+        padding: 8px 12px;
+        margin-right: 3px;
+    }
+
+        .nav-tab span {
+            font-size: 0.9rem;
+        }
+
+    .user-profile {
+        min-width: auto;
+        padding: 0 8px;
+    }
+
+        .user-profile span {
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 }
 
-.user-name-button:active {
-    transform: translateY(0);
+@media (max-width: 480px) {
+    .input-container {
+        max-width: 300px;
+    }
+
+    .button-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .action-button {
+        padding: 10px 25px;
+        font-size: 0.9rem;
+    }
 }

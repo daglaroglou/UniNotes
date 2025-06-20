@@ -1,4 +1,5 @@
-﻿html, body {
+﻿/* Βασικές ρυθμίσεις σελίδας */
+html, body {
     width: 100vw;
     height: 100vh;
     margin: 0;
@@ -9,12 +10,12 @@
     color: white;
 }
 
-/* CAPTCHA styling */
+/* Στυλ για το CAPTCHA */
 .captcha-container {
     margin: 20px 0;
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Adds space between image and input box */
+    gap: 15px; /* Προσθέτει χώρο μεταξύ εικόνας και πεδίου εισαγωγής */
 }
 
 .captcha-image {
@@ -54,6 +55,7 @@
         font-size: 1.2rem;
     }
 
+/* Στυλ λογότυπου */
 .logo {
     font-family: "Lobster", sans-serif;
     font-weight: 400;
@@ -63,6 +65,7 @@
     margin-bottom: 20px;
 }
 
+/* Στυλ φόρμας σύνδεσης */
 .login-form {
     display: flex;
     flex-direction: column;
@@ -73,6 +76,7 @@
     box-sizing: border-box;
 }
 
+/* Διάταξη γραμμών εισόδου */
 .input-row {
     display: flex;
     gap: 10px;
@@ -89,6 +93,7 @@
     max-width: 500px;
 }
 
+/* Προσαρμογή για διαφορετικά μεγέθη οθόνης */
 @media (max-width: 768px) {
     .input-container {
         max-width: 400px;
@@ -101,6 +106,7 @@
     }
 }
 
+/* Στυλ πεδίων εισαγωγής */
 .action-input {
     width: 100%;
     padding: 10px 15px;
@@ -118,6 +124,7 @@
         background-color: rgba(255, 255, 255, 0.95);
     }
 
+/* Περιοχή κουμπιών */
 .button-container {
     display: flex;
     gap: 20px;
@@ -147,6 +154,7 @@
         box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
     }
 
+/* Μηνύματα επιτυχίας και σφάλματος */
 .success-message {
     color: #28a745;
     background-color: #d4edda;
@@ -169,6 +177,7 @@
     border-radius: 4px;
 }
 
+/* Προσαρμογές για μικρές οθόνες */
 @media (max-width: 480px) {
     .button-container {
         flex-direction: column;
@@ -181,6 +190,7 @@
     }
 }
 
+/* Φόντο σωματιδίων */
 #particles-js {
     position: absolute;
     top: 0;
@@ -190,6 +200,7 @@
     z-index: 0;
 }
 
+/* Κύριο περιεχόμενο σελίδας */
 .full-page-background {
     position: relative;
     background-color: rgba(0,0,0,0);
@@ -215,6 +226,7 @@
         pointer-events: auto;
     }
 
+/* Υποσέλιδο */
 .footer {
     width: 100%;
     color: gray;
@@ -228,6 +240,7 @@
     z-index: 1;
 }
 
+/* Στυλ εικόνων */
 .styled-image {
     max-width: 100%;
     border-radius: 20px;
@@ -236,6 +249,7 @@
     pointer-events: none;
 }
 
+/* Στυλ επικεφαλίδων και παραγράφων */
 .full-page-background h1 {
     margin-bottom: 20px;
     text-align: center;
@@ -248,6 +262,7 @@
     font-size: 1rem;
 }
 
+/* Κουμπί επιστροφής */
 .back-button-container {
     position: fixed;
     top: 20px;

@@ -1,4 +1,5 @@
-﻿html, body {
+﻿/* Βασικές ρυθμίσεις σελίδας */
+html, body {
     width: 100vw;
     height: 100vh;
     margin: 0;
@@ -15,7 +16,7 @@
     margin: 0;
 }
 
-/* Container for settings with matching style to upload container */
+/* Περιέχον στοιχείο ρυθμίσεων με στυλ που ταιριάζει με το περιέχον στοιχείο μεταφόρτωσης */
 .settings-container {
     max-width: 550px;
     margin: 1.5rem auto;
@@ -29,7 +30,7 @@
     margin-top: 1.5rem;
 }
 
-/* Form styling consistent with upload page */
+/* Στυλ φόρμας συνεπές με τη σελίδα μεταφόρτωσης */
 .form-group {
     margin-bottom: 1rem;
 }
@@ -49,7 +50,7 @@
         box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
     }
 
-/* Alert styling */
+/* Στυλ ειδοποιήσεων */
 .alert {
     padding: 0.6rem;
     border-radius: 5px;
@@ -66,7 +67,7 @@
     border: 1px solid #f44336;
 }
 
-
+/* Εικονίδιο χρήστη */
 .user-icon {
     width: 40px;
     height: 40px;
@@ -105,7 +106,7 @@
         background-color: rgba(255, 255, 255, 0.1);
     }
 
-/* Loading spinner */
+/* Δείκτης φόρτωσης */
 .spinner-container {
     display: flex;
     justify-content: center;
@@ -132,7 +133,7 @@
     }
 }
 
-/* Typography */
+/* Τυπογραφία */
 .welcome {
     font-family: "Roboto", sans-serif;
     font-optical-sizing: auto;
@@ -140,7 +141,7 @@
     font-style: normal;
 }
 
-/* Update the existing logo class */
+/* Ενημέρωση της υπάρχουσας κλάσης logo */
 .logo {
     font-family: "Lobster", sans-serif;
     font-weight: 400;
@@ -150,7 +151,7 @@
     margin-bottom: 15px;
 }
 
-/* Add a new class specifically for settings page logo */
+/* Προσθήκη νέας κλάσης ειδικά για το λογότυπο της σελίδας ρυθμίσεων */
 .settings-logo {
     font-family: "Mynerve", cursive;
     font-weight: 400;
@@ -161,7 +162,7 @@
     white-space: nowrap;
 }
 
-/* Mobile adjustments for the settings logo */
+/* Προσαρμογές για κινητά του λογότυπου ρυθμίσεων */
 @media (max-width: 480px) {
     .settings-logo {
         font-size: min(32px, 7vw) !important;
@@ -174,14 +175,14 @@
     }
 }
 
-/* Form layout */
+/* Διάταξη φόρμας */
 .input-container {
     margin-bottom: 12px;
     width: 100%;
     max-width: 480px;
 }
 
-/* Button styling */
+/* Στυλ κουμπιών */
 .button-container {
     display: flex;
     gap: 15px;
@@ -211,27 +212,28 @@
         box-shadow: 0 4px 12px rgba(224, 224, 224, 0.4);
     }
 
-.action-button.danger {
-    border-color: #dc3545;
-    color: #dc3545;
-}
+    /* Κουμπιά κινδύνου */
+    .action-button.danger {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
 
-.action-button.danger:hover {
-    background-color: #dc3545;
-    color: white;
-}
+        .action-button.danger:hover {
+            background-color: #dc3545;
+            color: white;
+        }
 
-.action-button.danger.active {
-    background-color: #dc3545;
-    color: white;
-}
+        .action-button.danger.active {
+            background-color: #dc3545;
+            color: white;
+        }
 
-.action-button.danger:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
+        .action-button.danger:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-/* Message styling */
+/* Στυλ μηνυμάτων */
 .message-container {
     display: flex;
     justify-content: center;
@@ -263,7 +265,7 @@
     border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
-/* Background elements */
+/* Στοιχεία φόντου */
 #particles-js {
     position: absolute;
     top: 0;
@@ -299,7 +301,7 @@
         pointer-events: auto;
     }
 
-/* Footer */
+/* Υποσέλιδο */
 .footer {
     width: 100%;
     color: gray;
@@ -313,7 +315,7 @@
     z-index: 1;
 }
 
-/* Settings specific styles */
+/* Ειδικά στυλ για τη σελίδα ρυθμίσεων */
 .settings-section {
     margin-bottom: 2rem;
 }
@@ -325,7 +327,7 @@
     padding-bottom: 0.5rem;
 }
 
-/* Toggle switches for settings */
+/* Διακόπτες εναλλαγής για ρυθμίσεις */
 .toggle-switch {
     position: relative;
     display: inline-block;
@@ -375,7 +377,7 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
-/* Drop-down selects */
+/* Αναπτυσσόμενες επιλογές */
 select.form-control option {
     background-color: #333;
     color: white;
@@ -392,7 +394,7 @@ select.form-control {
         box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
     }
 
-/* Delete account section */
+/* Ενότητα διαγραφής λογαριασμού */
 .delete-account-section {
     padding: 15px 0;
 }
@@ -407,15 +409,15 @@ select.form-control {
     display: inline-block;
 }
 
-.warning-box h3 {
-    color: #ff5252;
-    margin-bottom: 15px;
-}
+    .warning-box h3 {
+        color: #ff5252;
+        margin-bottom: 15px;
+    }
 
-.warning-box p {
-    color: white;
-    font-size: 0.9rem;
-}
+    .warning-box p {
+        color: white;
+        font-size: 0.9rem;
+    }
 
 .warning-icon {
     font-size: 32px;
@@ -430,15 +432,15 @@ select.form-control {
     border: 2px solid #dc3545;
 }
 
-.danger-button:hover:not(:disabled) {
-    background-color: #dc3545;
-    color: white;
-}
+    .danger-button:hover:not(:disabled) {
+        background-color: #dc3545;
+        color: white;
+    }
 
-.danger-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
+    .danger-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 
 .form-check {
     display: flex;
@@ -462,7 +464,7 @@ select.form-control {
     font-size: 0.9rem;
 }
 
-/* Settings tab buttons */
+/* Κουμπιά καρτελών ρυθμίσεων */
 .settings-tab-buttons {
     display: flex;
     justify-content: space-between;
@@ -471,18 +473,18 @@ select.form-control {
     width: 100%;
 }
 
-.settings-tab-buttons .action-button {
-    flex: 1;
-    white-space: nowrap;
-    padding: 10px 10px;
-    font-size: 0.9rem;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+    .settings-tab-buttons .action-button {
+        flex: 1;
+        white-space: nowrap;
+        padding: 10px 10px;
+        font-size: 0.9rem;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-/* Media queries for responsiveness */
-/* Tablet sizes */
+/* Προσαρμογές για διαφορετικά μεγέθη οθόνης */
+/* Μεγέθη tablet */
 @media (max-width: 768px) {
     .settings-container {
         max-width: 95%;
@@ -521,16 +523,16 @@ select.form-control {
     .settings-tab-buttons {
         flex-wrap: wrap;
     }
-    
-    .settings-tab-buttons .action-button {
-        flex: 1 1 30%;
-        min-width: 120px;
-        font-size: 0.8rem;
-        padding: 8px 5px;
-    }
+
+        .settings-tab-buttons .action-button {
+            flex: 1 1 30%;
+            min-width: 120px;
+            font-size: 0.8rem;
+            padding: 8px 5px;
+        }
 }
 
-/* Mobile sizes */
+/* Μεγέθη κινητών */
 @media (max-width: 480px) {
     .settings-container {
         max-width: 98%;
@@ -602,20 +604,20 @@ select.form-control {
     .settings-tab-buttons {
         flex-direction: column;
     }
-    
-    .settings-tab-buttons .action-button {
-        margin-bottom: 5px;
-        width: 100%;
-        font-size: 0.85rem;
-        padding: 10px;
-    }
+
+        .settings-tab-buttons .action-button {
+            margin-bottom: 5px;
+            width: 100%;
+            font-size: 0.85rem;
+            padding: 10px;
+        }
 
     .settings-logo {
         font-size: min(32px, 7vw) !important;
     }
 }
 
-/* Extra small screens */
+/* Πολύ μικρές οθόνες */
 @media (max-width: 360px) {
     .settings-container {
         padding: 0.6rem;
@@ -654,7 +656,7 @@ select.form-control {
     }
 }
 
-/* Add these navigation tab styles from Dashboard */
+/* Προσθήκη αυτών των στυλ καρτελών πλοήγησης από το Dashboard */
 .navigation-tabs {
     display: flex;
     background-color: rgba(0, 0, 0, 0.7);
@@ -665,27 +667,27 @@ select.form-control {
     left: 0;
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    overflow-x: auto; /* Enable horizontal scrolling */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* For Firefox */
+    overflow-x: auto; /* Ενεργοποίηση οριζόντιας κύλισης */
+    -webkit-overflow-scrolling: touch; /* Ομαλή κύλιση για iOS */
+    scrollbar-width: thin; /* Για Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Για Firefox */
 }
 
-/* Customize scrollbar for WebKit browsers */
-.navigation-tabs::-webkit-scrollbar {
-    height: 4px;
-}
+    /* Προσαρμογή γραμμής κύλισης για WebKit browsers */
+    .navigation-tabs::-webkit-scrollbar {
+        height: 4px;
+    }
 
-.navigation-tabs::-webkit-scrollbar-track {
-    background: transparent;
-}
+    .navigation-tabs::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-.navigation-tabs::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-}
+    .navigation-tabs::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
 
-/* Ensure nav tabs don't shrink too much on small screens */
+/* Διασφάλιση ότι οι καρτέλες πλοήγησης δεν συρρικνώνονται πολύ σε μικρές οθόνες */
 .nav-tab {
     display: flex;
     align-items: center;
@@ -695,8 +697,8 @@ select.form-control {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    white-space: nowrap; /* Prevent text wrapping */
-    flex-shrink: 0; /* Prevent shrinking */
+    white-space: nowrap; /* Αποτροπή αναδίπλωσης κειμένου */
+    flex-shrink: 0; /* Αποτροπή συρρίκνωσης */
 }
 
     .nav-tab:hover {
@@ -710,8 +712,9 @@ select.form-control {
 
     .nav-tab i {
         margin-right: 8px;
-}
+    }
 
+/* Στυλ προφίλ χρήστη */
 .user-profile {
     display: flex;
     align-items: center;
@@ -736,6 +739,7 @@ select.form-control {
             background-color: rgba(255, 0, 0, 0.3);
         }
 
+/* Κουμπί ονόματος χρήστη */
 .user-name-button {
     background-color: rgba(255, 255, 255, 0.15);
     border: none;

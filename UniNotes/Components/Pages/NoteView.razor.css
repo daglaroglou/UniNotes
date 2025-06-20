@@ -1,4 +1,4 @@
-﻿/* Global background and particles styling */
+﻿/* Γενικές ρυθμίσεις φόντου και σωματιδίων */
 html, body {
     width: 100vw;
     height: 100vh;
@@ -19,7 +19,7 @@ html, body {
     z-index: 0;
 }
 
-/* Full screen viewer without header */
+/* Προβολή πλήρους οθόνης χωρίς επικεφαλίδα */
 .fullscreen-viewer {
     display: flex;
     flex-direction: column;
@@ -42,7 +42,7 @@ html, body {
     padding: 0;
 }
 
-/* Back button - standalone without header */
+/* Κουμπί επιστροφής - αυτόνομο χωρίς επικεφαλίδα */
 .back-button {
     position: fixed;
     top: 20px;
@@ -58,14 +58,14 @@ html, body {
     transition: all 0.3s ease;
 }
 
-.back-button:hover {
-    background-color: #e0e0e0;
-    color: black;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
-}
+    .back-button:hover {
+        background-color: #e0e0e0;
+        color: black;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
+    }
 
-/* PDF Viewer Styles */
+/* Στυλ Προβολέα PDF */
 .pdf-viewer-container .viewer-content {
     background-color: #000;
     padding: 0;
@@ -78,7 +78,7 @@ html, body {
     box-shadow: none;
 }
 
-/* Image Viewer Styles */
+/* Στυλ Προβολέα Εικόνων */
 .image-viewer-container .viewer-content {
     display: flex;
     justify-content: center;
@@ -95,14 +95,14 @@ html, body {
     align-items: center;
 }
 
-.image-viewer img {
-    max-width: 95%;
-    max-height: 95%;
-    object-fit: contain;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-}
+    .image-viewer img {
+        max-width: 95%;
+        max-height: 95%;
+        object-fit: contain;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
 
-/* Word Viewer Styles */
+/* Στυλ Προβολέα Word */
 .word-viewer-container .viewer-content {
     display: flex;
     flex-direction: column;
@@ -137,6 +137,7 @@ html, body {
     width: 100%;
 }
 
+/* Γραμμή εργαλείων προβολέα Word */
 .word-viewer-toolbar {
     display: flex;
     justify-content: space-between;
@@ -177,9 +178,9 @@ html, body {
     transition: all 0.2s ease;
 }
 
-.word-control-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
+    .word-control-button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 
 .word-viewer-container {
     flex: 1;
@@ -189,6 +190,7 @@ html, body {
     background-color: rgba(30, 30, 30, 0.9);
 }
 
+/* Περιτύλιγμα και περιέχον στοιχείο περιεχομένου Word */
 .word-content-wrapper {
     display: flex;
     justify-content: center;
@@ -200,55 +202,56 @@ html, body {
     background-color: white;
     color: black;
     padding: 40px;
-    max-width: 816px; /* Letter size width ~ 8.5in at 96dpi */
+    max-width: 816px; /* Πλάτος μεγέθους χαρτιού letter ~ 8.5in στα 96dpi */
     width: 100%;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     box-sizing: border-box;
-    min-height: 1056px; /* Letter size height ~ 11in at 96dpi */
+    min-height: 1056px; /* Ύψος μεγέθους χαρτιού letter ~ 11in στα 96dpi */
     transition: transform 0.3s ease;
 }
 
-/* Style for the rendered Word content */
-.word-content-container :deep(h1),
-.word-content-container :deep(h2),
-.word-content-container :deep(h3),
-.word-content-container :deep(h4),
-.word-content-container :deep(h5),
-.word-content-container :deep(h6) {
-    color: #333;
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
+    /* Στυλ για το αποδοτικό περιεχόμενο Word */
+    .word-content-container :deep(h1),
+    .word-content-container :deep(h2),
+    .word-content-container :deep(h3),
+    .word-content-container :deep(h4),
+    .word-content-container :deep(h5),
+    .word-content-container :deep(h6) {
+        color: #333;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
 
-.word-content-container :deep(p) {
-    margin-bottom: 10px;
-    line-height: 1.5;
-}
+    .word-content-container :deep(p) {
+        margin-bottom: 10px;
+        line-height: 1.5;
+    }
 
-.word-content-container :deep(table) {
-    border-collapse: collapse;
-    margin: 15px 0;
-    width: 100%;
-}
+    .word-content-container :deep(table) {
+        border-collapse: collapse;
+        margin: 15px 0;
+        width: 100%;
+    }
 
-.word-content-container :deep(td),
-.word-content-container :deep(th) {
-    border: 1px solid #ddd;
-    padding: 8px;
-}
+    .word-content-container :deep(td),
+    .word-content-container :deep(th) {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
 
-.word-content-container :deep(tr:nth-child(even)) {
-    background-color: #f9f9f9;
-}
+    .word-content-container :deep(tr:nth-child(even)) {
+        background-color: #f9f9f9;
+    }
 
-.word-content-container :deep(th) {
-    background-color: #f2f2f2;
-    font-weight: bold;
-    text-align: left;
-    padding-top: 12px;
-    padding-bottom: 12px;
-}
+    .word-content-container :deep(th) {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        text-align: left;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
 
+/* Σφάλματα μετατροπής και προεπισκοπήσεις */
 .word-conversion-error {
     display: flex;
     flex-direction: column;
@@ -271,26 +274,27 @@ html, body {
     text-align: center;
 }
 
-.word-preview i {
-    color: #1565c0;
-    margin-bottom: 20px;
-}
+    .word-preview i {
+        color: #1565c0;
+        margin-bottom: 20px;
+    }
 
-.word-preview p {
-    margin-bottom: 20px;
-    color: #e0e0e0;
-}
+    .word-preview p {
+        margin-bottom: 20px;
+        color: #e0e0e0;
+    }
 
-.word-preview .spinner {
-    margin: 15px auto;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top: 3px solid #1565c0;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-}
+    .word-preview .spinner {
+        margin: 15px auto;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 3px solid #1565c0;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+    }
 
+/* Κουμπί λήψης */
 .download-button {
     background-color: transparent;
     color: white;
@@ -304,13 +308,14 @@ html, body {
     letter-spacing: 1px;
 }
 
-.download-button:hover {
-    background-color: #e0e0e0;
-    color: black;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
-}
+    .download-button:hover {
+        background-color: #e0e0e0;
+        color: black;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
+    }
 
+/* Περιοχή πληροφοριών προβολέα Word */
 .word-viewer-info {
     background-color: rgba(0, 0, 0, 0.8);
     padding: 15px 20px;
@@ -339,7 +344,7 @@ html, body {
     color: white;
 }
 
-/* Loading and Error States */
+/* Καταστάσεις φόρτωσης και σφάλματος */
 .loading-container {
     display: flex;
     flex-direction: column;
@@ -361,8 +366,13 @@ html, body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .error-container {
@@ -393,28 +403,28 @@ html, body {
     transition: all 0.3s ease;
 }
 
-.return-button:hover {
-    background-color: #e0e0e0;
-    color: black;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
-}
+    .return-button:hover {
+        background-color: #e0e0e0;
+        color: black;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
+    }
 
-/* Responsive adjustments */
+/* Προσαρμογές για διαφορετικά μεγέθη οθόνης */
 @media (max-width: 768px) {
     .word-content-wrapper {
         padding: 20px 10px;
     }
-    
+
     .word-content-container {
         padding: 20px;
     }
-    
+
     .back-button {
         padding: 8px 15px;
         font-size: 0.9rem;
     }
-    
+
     .word-viewer-title {
         font-size: 1rem;
     }
@@ -424,16 +434,16 @@ html, body {
     .word-preview {
         padding: 25px;
     }
-    
+
     .word-content-container {
         padding: 15px;
     }
-    
+
     .back-button {
         top: 10px;
         left: 10px;
     }
-    
+
     .word-viewer-toolbar {
         padding: 8px 15px;
     }

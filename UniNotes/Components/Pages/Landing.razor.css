@@ -1,4 +1,5 @@
-﻿html, body {
+﻿/* Βασικές ρυθμίσεις σελίδας */
+html, body {
     width: 100vw;
     height: 100vh;
     margin: 0;
@@ -7,11 +8,13 @@
     z-index: -1;
 }
 
+/* Λογότυπο εφαρμογής */
 .app-logo {
     max-width: 150px;
     margin-bottom: 10px;
 }
 
+/* Κύριος τίτλος με γραμματοσειρά Lobster */
 .logo {
     font-family: "Lobster", sans-serif;
     font-weight: 400;
@@ -19,6 +22,7 @@
     font-size: min(120px, 15vw) !important;
 }
 
+/* Εφέ γραφομηχανής για κείμενο */
 .typewriter {
     font-family: monospace;
     font-size: min(1.5rem, 4vw);
@@ -29,6 +33,7 @@
     text-align: center;
 }
 
+/* Περιοχή κουμπιών */
 .button-container {
     display: flex;
     gap: 20px;
@@ -36,6 +41,7 @@
     justify-content: center;
 }
 
+/* Στυλ κουμπιών ενεργειών */
 .action-button {
     background-color: transparent;
     color: white;
@@ -57,6 +63,7 @@
         box-shadow: 0 5px 15px rgba(224, 224, 224, 0.4);
     }
 
+/* Προσαρμογές για κινητές συσκευές */
 @media (max-width: 480px) {
     .button-container {
         flex-direction: column;
@@ -90,6 +97,7 @@
     }
 }
 
+/* Εφέ κέρσορα για το typewriter */
 .cursor {
     display: inline-block;
     color: white;
@@ -106,6 +114,7 @@
     }
 }
 
+/* Φόντο με κινούμενα σωματίδια */
 #particles-js {
     position: absolute;
     top: 0;
@@ -115,6 +124,7 @@
     z-index: 0;
 }
 
+/* Κύριο περιεχόμενο σελίδας */
 .full-page-background {
     position: relative;
     background-color: rgba(0,0,0,0);
@@ -127,20 +137,21 @@
     padding: 20px;
     box-sizing: border-box;
     z-index: 1;
-    pointer-events: none; /* Allows clicks to pass through */
+    pointer-events: none; /* Επιτρέπει στα κλικ να περνούν μέσα */
 }
 
     .full-page-background * {
-        pointer-events: auto; /* Enables pointer events for all children */
+        pointer-events: auto; /* Ενεργοποιεί τα συμβάντα δείκτη για όλα τα παιδιά */
     }
 
-    /* Ensure links within .full-page-background are clickable */
+    /* Διασφάλιση ότι οι σύνδεσμοι μέσα στο .full-page-background είναι κλικάρσιμοι */
     .full-page-background a {
         color: #e0e0e0;
         text-decoration: none;
         pointer-events: auto;
     }
 
+/* Υποσέλιδο */
 .footer {
     width: 100%;
     color: gray;
@@ -154,6 +165,7 @@
     z-index: 1;
 }
 
+/* Στυλ εικόνων */
 .styled-image {
     max-width: 100%;
     border-radius: 20px;
@@ -162,6 +174,7 @@
     pointer-events: none;
 }
 
+/* Στυλ επικεφαλίδων και παραγράφων */
 .full-page-background h1 {
     margin-bottom: 20px;
     text-align: center;
