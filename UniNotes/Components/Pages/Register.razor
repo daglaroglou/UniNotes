@@ -13,11 +13,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<!-- Περιέχον στοιχείο για το animation σωματιδίων -->
 <div id="particles-js"></div>
 
 <script src="js/particles/particles.js"></script>
 
-<!-- Back button -->
+<!-- Κουμπί επιστροφής στην αρχική σελίδα -->
 <div class="back-button-container">
     <button class="action-button" @onclick="GoBack">
         <i class="fa-solid fa-arrow-left"></i> ΠΙΣΩ
@@ -33,7 +34,9 @@
         <h1 class="logo">Register</h1>
     </center>
 
+    <!-- Φόρμα εγγραφής -->
     <div class="login-form">
+        <!-- Πρώτη γραμμή: Όνομα και επώνυμο -->
         <div class="input-row">
             <div class="input-container">
                 <input type="text" placeholder="Όνομα" class="action-input" @bind="firstName" />
@@ -42,6 +45,7 @@
                 <input type="text" placeholder="Επώνυμο" class="action-input" @bind="lastName" />
             </div>
         </div>
+        <!-- Δεύτερη γραμμή: Username και αριθμός πάσου -->
         <div class="input-row">
             <div class="input-container">
                 <input type="text" placeholder="Username" class="action-input" @bind="username" />
@@ -50,6 +54,7 @@
                 <input type="text" placeholder="Αριθμός Ακαδημαϊκού Πάσου" class="action-input" @bind="uniIdNumber" />
             </div>
         </div>
+        <!-- Τρίτη γραμμή: Email και κωδικός πρόσβασης -->
         <div class="input-row">
             <div class="input-container">
                 <input type="email" placeholder="Email" class="action-input" @bind="email" />
@@ -58,8 +63,8 @@
                 <input type="password" placeholder="Κωδικός Πρόσβασης" class="action-input" @bind="password" />
             </div>
         </div>
+        <!-- Περιοχή CAPTCHA για προστασία από bots -->
         <div class="captcha-container">
-            <!-- C# CAPTCHA implementation -->
             <div class="captcha-image">
                 <img src="@captchaImageUrl" alt="CAPTCHA" />
                 <button class="refresh-captcha" @onclick="RefreshCaptchaAsync" title="Refresh CAPTCHA">
@@ -70,11 +75,13 @@
                 <input type="text" placeholder="Enter the code above" class="action-input" @bind="captchaInput" />
             </div>
         </div>
+        <!-- Κουμπί ολοκλήρωσης εγγραφής -->
         <div class="button-container">
             <button class="action-button" @onclick="HandleRegister"><i class="fa-solid fa-user-plus"></i> Register</button>
         </div>
         <br>
     </div>
+    <!-- Εμφάνιση μηνύματος επιτυχίας ή σφάλματος -->
     @if (!string.IsNullOrEmpty(successMessage))
     {
         <div class="success-message">@((MarkupString)successMessage)</div>
@@ -86,54 +93,63 @@
 </div>
 
 @code {
+    // Δεδομένα φόρμας
     private string firstName = string.Empty;
     private string lastName = string.Empty;
     private string username = string.Empty;
     private string email = string.Empty;
     private string password = string.Empty;
     private string uniIdNumber = string.Empty;
+
+    // Μηνύματα κατάστασης
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
     private bool isRedirecting = false;
+
+    // Μεταβλητές για το CAPTCHA
     private string captchaImageUrl = string.Empty;
     private string captchaInput = string.Empty;
     private string captchaId = string.Empty;
 
+    // Αρχικοποίηση με δημιουργία νέου CAPTCHA
     protected override async Task OnInitializedAsync()
     {
-        // Generate a new CAPTCHA
         await GenerateCaptchaAsync();
     }
 
+    // Δημιουργία νέου CAPTCHA από την υπηρεσία
     private async Task GenerateCaptchaAsync()
     {
         var captchaResult = await CaptchaService.GenerateCaptchaAsync();
         captchaId = captchaResult.CaptchaId;
         captchaImageUrl = captchaResult.ImageUrl;
-        captchaInput = string.Empty; // Clear previous input
+        captchaInput = string.Empty; // Καθαρισμός προηγούμενης εισόδου
     }
 
+    // Ανανέωση του CAPTCHA με κουμπί
     private async Task RefreshCaptchaAsync()
     {
         await GenerateCaptchaAsync();
     }
 
+    // Χειρισμός της υποβολής φόρμας εγγραφής
     private async Task HandleRegister()
     {
-        // Prevent duplicate registration attempts
+        // Αποτροπή διπλών προσπαθειών εγγραφής
         if (isRedirecting) return;
 
-        // Clear previous messages
+        // Καθαρισμός προηγούμενων μηνυμάτων
         errorMessage = string.Empty;
         successMessage = string.Empty;
 
-        // Check if captcha input is provided
+        // Έλεγχος αν εισήχθη ο κωδικός CAPTCHA
         if (string.IsNullOrEmpty(captchaInput))
         {
             errorMessage = "Please enter the CAPTCHA code";
             return;
         }
 
+        // Έλεγχος εγκυρότητας όλων των πεδίων
         if (!string.IsNullOrEmpty(firstName) &&
             !string.IsNullOrEmpty(lastName) &&
             !string.IsNullOrEmpty(username) &&
@@ -146,17 +162,17 @@
         {
             try
             {
-                // Validate the captcha
+                // Επικύρωση του CAPTCHA
                 bool captchaValid = await CaptchaService.ValidateCaptchaAsync(captchaId, captchaInput);
 
                 if (!captchaValid)
                 {
                     errorMessage = "CAPTCHA validation failed. Please try again.";
-                    await GenerateCaptchaAsync(); // Generate new captcha
+                    await GenerateCaptchaAsync(); // Δημιουργία νέου captcha
                     return;
                 }
 
-                // Create new user
+                // Δημιουργία νέου χρήστη
                 var newUser = new User
                 {
                     FirstName = firstName,
@@ -166,15 +182,16 @@
                     UniIdNumber = uniIdNumber
                 };
 
-                // Save to MongoDB
+                // Αποθήκευση στη βάση δεδομένων MongoDB
                 bool result = await UserService.CreateAsync(newUser, password);
 
                 if (result)
                 {
+                    // Επιτυχής εγγραφή, εμφάνιση μηνύματος και ανακατεύθυνση
                     successMessage = "Registration successful! Redirecting to login...";
                     StateHasChanged();
 
-                    // Prevent duplicate redirections
+                    // Αποτροπή διπλών ανακατευθύνσεων
                     isRedirecting = true;
 
                     await Task.Delay(2000);
@@ -182,18 +199,21 @@
                 }
                 else
                 {
+                    // Αποτυχία εγγραφής (πιθανώς λόγω διπλού ονόματος χρήστη ή email)
                     errorMessage = "Registration failed. Username or email already be in use.";
-                    await GenerateCaptchaAsync(); // Generate new captcha
+                    await GenerateCaptchaAsync(); // Δημιουργία νέου CAPTCHA
                 }
             }
             catch (Exception ex)
             {
+                // Χειρισμός σφαλμάτων
                 errorMessage = $"An error occurred: {ex.Message}";
-                await GenerateCaptchaAsync(); // Generate new captcha
+                await GenerateCaptchaAsync(); // Δημιουργία νέου CAPTCHA
             }
         }
         else
         {
+            // Αναλυτικός έλεγχος εγκυρότητας και συλλογή μηνυμάτων σφάλματος
             var errors = new List<string>();
 
             if (string.IsNullOrEmpty(firstName))
@@ -238,18 +258,21 @@
                 errors.Add("Please enter a valid university ID (12 digits)");
             }
 
+            // Συνένωση όλων των μηνυμάτων σφάλματος
             errorMessage = string.Join("<br>", errors);
-            await GenerateCaptchaAsync(); // Generate new captcha
+            await GenerateCaptchaAsync(); // Δημιουργία νέου CAPTCHA
         }
     }
 
+    // Επιστροφή στην αρχική σελίδα
     private void GoBack()
     {
         Navigation.NavigateTo("/", forceLoad: false);
     }
 
+    // Απελευθέρωση πόρων κατά την απόρριψη του component
     public void Dispose()
     {
-        // Clean up any resources
+        // Καθαρισμός τυχόν πόρων
     }
 }

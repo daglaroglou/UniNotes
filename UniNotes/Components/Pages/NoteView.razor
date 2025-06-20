@@ -12,9 +12,11 @@
     particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
 </script>
 
+<!-- Προβολή πλήρους οθόνης με δυναμική κλάση ανάλογα με τον τύπο του αρχείου -->
 <div class="fullscreen-viewer @GetViewerClass()">
     @if (isLoading)
     {
+        <!-- Ένδειξη φόρτωσης -->
         <div class="loading-container">
             <div class="spinner"></div>
             <p style="font-family: 'Mynerve', cursive;">Φόρτωση σημείωσης...</p>
@@ -22,6 +24,7 @@
     }
     else if (note == null)
     {
+        <!-- Εμφάνιση μηνύματος σφάλματος αν η σημείωση δεν βρέθηκε -->
         <div class="error-container">
             <div class="error-message">Note not found or could not be loaded.</div>
             <button class="return-button" @onclick="GoBack">Return to Notes</button>
@@ -29,23 +32,26 @@
     }
     else
     {
+        <!-- Προβολή περιεχομένου ανάλογα με τον τύπο αρχείου -->
         <div class="viewer-content">
             @if (IsPdfFile())
             {
+                <!-- Εμφάνιση του PDF με το ενσωματωμένο πρόγραμμα προβολής του περιηγητή -->
                 <object class="pdf-viewer" data="@pdfDataUrl" type="application/pdf">
                     <p>Your browser doesn't support PDF viewing. <a href="@pdfDataUrl" target="_blank">Download PDF</a></p>
                 </object>
             }
             else if (IsImageFile())
             {
+                <!-- Εμφάνιση εικόνας -->
                 <div class="image-viewer">
                     <img src="@imageDataUrl" alt="@note.Title" />
                 </div>
             }
             else if (IsWordFile())
             {
+                <!-- Περιοχή προβολής για αρχεία Word (χρειάζεται επιπλέον υλοποίηση) -->
                 <div class="word-viewer">
-
                 </div>
             }
         </div>
@@ -53,28 +59,36 @@
 </div>
 
 @code {
+    // Παράμετρος από το URL για το αναγνωριστικό της σημείωσης
     [Parameter]
     public string noteId { get; set; } = string.Empty;
-    
+
+    // Μεταβλητές για τη σημείωση και την κατάσταση φόρτωσης
     private Note? note;
     private bool isLoading = true;
+
+    // URLs δεδομένων για διαφορετικούς τύπους αρχείων
     private string pdfDataUrl = string.Empty;
     private string imageDataUrl = string.Empty;
     private string wordDocumentUrl = string.Empty;
-    
+
+    // Φόρτωση της σημείωσης κατά την αρχικοποίηση της σελίδας
     protected override async Task OnInitializedAsync()
     {
         await LoadNote();
     }
-    
+
+    // Φόρτωση σημείωσης από τη βάση δεδομένων
     private async Task LoadNote()
     {
         try
         {
+            // Ανάκτηση της σημείωσης από τη βάση δεδομένων
             note = await NoteService.GetNoteByIdAsync(noteId);
-            
+
             if (note != null && note.Content != null)
             {
+                // Δημιουργία του κατάλληλου URL δεδομένων ανάλογα με τον τύπο αρχείου
                 if (IsPdfFile())
                 {
                     string base64Data = Convert.ToBase64String(note.Content);
@@ -96,88 +110,102 @@
         }
         catch (Exception)
         {
+            // Σε περίπτωση σφάλματος, θέτουμε τη σημείωση σε null για εμφάνιση μηνύματος σφάλματος
             note = null;
         }
         finally
         {
+            // Τερματισμός φόρτωσης ανεξάρτητα από το αποτέλεσμα
             isLoading = false;
         }
     }
-    
+
+    // Έλεγχος αν το αρχείο είναι PDF βάσει της υπογραφής του
     private bool IsPdfFile()
     {
         if (note?.Content == null || note.Content.Length < 5)
             return false;
-            
-        byte[] pdfSignature = new byte[] { 0x25, 0x50, 0x44, 0x46 }; // %PDF
+
+        // Έλεγχος για την υπογραφή αρχείων PDF: %PDF
+        byte[] pdfSignature = new byte[] { 0x25, 0x50, 0x44, 0x46 };
         return note.Content.Take(4).SequenceEqual(pdfSignature);
     }
-    
+
+    // Έλεγχος αν το αρχείο είναι εικόνα (JPEG ή PNG) βάσει της υπογραφής του
     private bool IsImageFile()
     {
         if (note?.Content == null || note.Content.Length < 10)
             return false;
-            
+
+        // Έλεγχος για τις υπογραφές JPEG και PNG
         byte[] jpegSignature = new byte[] { 0xFF, 0xD8, 0xFF };
         byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
-        
-        return note.Content.Take(3).SequenceEqual(jpegSignature) || 
+
+        return note.Content.Take(3).SequenceEqual(jpegSignature) ||
                note.Content.Take(4).SequenceEqual(pngSignature);
     }
-    
+
+    // Έλεγχος αν το αρχείο είναι Word βάσει της υπογραφής του
     private bool IsWordFile()
     {
         if (note?.Content == null || note.Content.Length < 10)
             return false;
-            
-        byte[] oleSignature = new byte[] { 0xD0, 0xCF, 0x11, 0xE0 }; // Old Word format
-        byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 }; // DOCX (Office Open XML)
-        
-        return note.Content.Take(4).SequenceEqual(oleSignature) || 
+
+        // Έλεγχος για τις υπογραφές των διαφορετικών μορφών αρχείων Word
+        byte[] oleSignature = new byte[] { 0xD0, 0xCF, 0x11, 0xE0 }; // Παλιά μορφή Word (DOC)
+        byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 }; // Νέα μορφή Word (DOCX)
+
+        return note.Content.Take(4).SequenceEqual(oleSignature) ||
                note.Content.Take(4).SequenceEqual(zipSignature);
     }
-    
+
+    // Προσδιορισμός του τύπου MIME για εικόνες
     private string GetImageMimeType()
     {
         if (note?.Content == null || note.Content.Length < 4)
-            return "image/jpeg"; // Default
-            
+            return "image/jpeg"; // Προεπιλογή
+
         byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
-        
+
+        // Αν είναι PNG, επιστρέφουμε τον αντίστοιχο MIME type
         if (note.Content.Take(4).SequenceEqual(pngSignature))
             return "image/png";
-            
-        return "image/jpeg"; // Default to JPEG
+
+        return "image/jpeg"; // Προεπιλογή σε JPEG
     }
-    
+
+    // Προσδιορισμός του τύπου MIME για αρχεία Word
     private string GetWordMimeType()
     {
         if (note?.Content == null || note.Content.Length < 4)
-            return "application/octet-stream"; // Generic binary
-            
-        byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 }; // DOCX
-        
+            return "application/octet-stream"; // Γενικός δυαδικός τύπος
+
+        byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 }; // Υπογραφή DOCX
+
+        // Αν είναι DOCX, επιστρέφουμε τον αντίστοιχο MIME type
         if (note.Content.Take(4).SequenceEqual(zipSignature))
             return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-            
-        return "application/msword"; // Default to older DOC format
+
+        return "application/msword"; // Προεπιλογή σε DOC
     }
-    
+
+    // Επιστροφή της κατάλληλης CSS κλάσης ανάλογα με τον τύπο του αρχείου
     private string GetViewerClass()
     {
         if (note == null)
             return "empty-viewer";
-            
+
         if (IsPdfFile())
             return "pdf-viewer-container";
         else if (IsImageFile())
             return "image-viewer-container";
         else if (IsWordFile())
             return "word-viewer-container";
-            
+
         return "default-viewer";
     }
-    
+
+    // Επιστροφή στη σελίδα σημειώσεων
     private void GoBack()
     {
         NavigationManager.NavigateTo("/notes");

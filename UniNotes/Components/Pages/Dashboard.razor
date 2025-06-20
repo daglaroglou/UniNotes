@@ -16,7 +16,7 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <!-- Navigation tabs -->
+            <!-- Καρτέλες πλοήγησης -->
             <div class="navigation-tabs">
                 <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                     <i class="fa-solid fa-gauge-high"></i>
@@ -88,61 +88,79 @@
 </CascadingAuthenticationState>
 
 @code {
+    // Βασικές μεταβλητές για την κατάσταση της σελίδας
     private User? user;
     private bool isLoading = true;
     private bool initialized = false;
 
+    // Φόρτωση δεδομένων χρήστη και έλεγχος αυθεντικοποίησης μετά την αρχική απόδοση
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !initialized)
         {
             initialized = true;
 
+            // Ανάκτηση της τρέχουσας κατάστασης αυθεντικοποίησης
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
             var userClaims = authState.User;
 
+            // Έλεγχος αν ο χρήστης είναι συνδεδεμένος
             if (!userClaims.Identity?.IsAuthenticated ?? true)
             {
+                // Ανακατεύθυνση στη σελίδα σύνδεσης αν δεν είναι συνδεδεμένος
                 NavigationManager.NavigateTo("/login", forceLoad: true);
                 return;
             }
 
+            // Ανάκτηση του αναγνωριστικού χρήστη από τα claims
             var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrWhiteSpace(userId))
             {
+                // Ανακατεύθυνση στη σύνδεση αν δεν υπάρχει έγκυρο αναγνωριστικό
                 NavigationManager.NavigateTo("/login", forceLoad: true);
                 return;
             }
 
+            // Φόρτωση πλήρους προφίλ χρήστη από τη βάση δεδομένων
             user = await UserService.GetUserByIdAsync(userId);
 
+            // Έλεγχος εγκυρότητας του χρήστη
             if (user is null)
             {
+                // Αν ο χρήστης δεν βρέθηκε, καθαρισμός της κατάστασης αυθεντικοποίησης
                 var authProvider = (BlazorAuthStateProvider)AuthStateProvider;
                 await authProvider.UpdateAuthenticationState(null);
                 NavigationManager.NavigateTo("/login", forceLoad: true);
                 return;
             }
 
+            // Ολοκλήρωση φόρτωσης και ανανέωση της διεπαφής
             isLoading = false;
-            StateHasChanged(); // Force re-render now that data is loaded
+            StateHasChanged(); // Εξαναγκασμός επαναφόρτωσης του UI με τα νέα δεδομένα
         }
     }
 
+    // Διαχείριση αποσύνδεσης χρήστη
     private async Task HandleLogout()
     {
+        // Καθαρισμός της κατάστασης αυθεντικοποίησης
         var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
         await authStateProvider.UpdateAuthenticationState(null);
+
+        // Ανακατεύθυνση στην αρχική σελίδα
         NavigationManager.NavigateTo("/", forceLoad: true);
     }
 
+    // Ανακατεύθυνση στη σελίδα σύνδεσης
     private void RedirectToLogin()
     {
         NavigationManager.NavigateTo("/login");
     }
 
+    // Έλεγχος αν η τρέχουσα σελίδα είναι η καθορισμένη διαδρομή
     private bool IsCurrentPage(string path)
     {
+        // Σύγκριση του τέλους του URL με τη διαδρομή για να εντοπίσουμε την ενεργή καρτέλα
         return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
     }
 }

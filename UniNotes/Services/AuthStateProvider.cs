@@ -5,9 +5,11 @@ using UniNotes.Models;
 
 namespace UniNotes.Services
 {
+    // Παροχέας κατάστασης αυθεντικοποίησης για την εφαρμογή Blazor
+    // Διαχειρίζεται τη συνεδρία χρήστη και διατηρεί την κατάσταση σύνδεσης
     public class BlazorAuthStateProvider : AuthenticationStateProvider
     {
-        private readonly ProtectedLocalStorage _localStorage; // Use ProtectedLocalStorage to persist across restarts
+        private readonly ProtectedLocalStorage _localStorage; // Χρήση ProtectedLocalStorage για διατήρηση μεταξύ επανεκκινήσεων
         private readonly UserService _userService;
         private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
 
@@ -19,6 +21,8 @@ namespace UniNotes.Services
             _userService = userService;
         }
 
+        // Επιστρέφει την τρέχουσα κατάσταση αυθεντικοποίησης του χρήστη
+        // Ανακτά τη συνεδρία από το προστατευμένο τοπικό αποθηκευτήριο αν υπάρχει
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
@@ -46,6 +50,8 @@ namespace UniNotes.Services
             }
         }
 
+        // Ενημερώνει την κατάσταση αυθεντικοποίησης με νέα δεδομένα χρήστη
+        // Καλείται κατά τη σύνδεση ή αποσύνδεση του χρήστη
         public async Task UpdateAuthenticationState(User? user)
         {
             ClaimsPrincipal claimsPrincipal;
@@ -65,6 +71,7 @@ namespace UniNotes.Services
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
         }
 
+        // Δημιουργεί ένα ClaimsPrincipal με τα στοιχεία του χρήστη για αυθεντικοποίηση
         private ClaimsPrincipal CreateClaimsPrincipal(User user)
         {
             var claims = new List<Claim>
@@ -81,6 +88,7 @@ namespace UniNotes.Services
         }
     }
 
+    // Κλάση που αντιπροσωπεύει μια συνεδρία χρήστη που αποθηκεύεται στο τοπικό αποθηκευτήριο
     public class UserSession
     {
         public string UserId { get; set; }

@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<!-- Περιοχή για το animation σωματιδίων -->
 <div id="particles-js"></div>
 <script src="js/particles/particles.js"></script>
 <script>
@@ -18,7 +19,7 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <!-- Navigation tabs -->
+            <!-- Καρτέλες πλοήγησης -->
             <div class="navigation-tabs">
                 <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                     <i class="fa-solid fa-gauge-high"></i>
@@ -69,9 +70,11 @@
             </div>
 
             <div class="full-page-background">
+                <!-- Περιέχον στοιχείο για τις ρυθμίσεις χρήστη -->
                 <div class="settings-container">
                     <h1 class="settings-logo">Ρυθμίσεις Λογαριασμού</h1>
 
+                    <!-- Εμφάνιση μηνυμάτων επιτυχίας ή σφάλματος -->
                     @if (!string.IsNullOrEmpty(successMessage))
                     {
                         <div class="message-container">
@@ -85,6 +88,7 @@
                         </div>
                     }
 
+                    <!-- Ένδειξη φόρτωσης δεδομένων χρήστη -->
                     @if (isLoading)
                     {
                         <div class="spinner-container">
@@ -98,7 +102,7 @@
                     }
                     else
                     {
-                        <!-- Replace tabs with buttons -->
+                        <!-- Κουμπιά επιλογής καρτέλας ρυθμίσεων -->
                         <div class="settings-tab-buttons">
                             <button class="action-button @(activeTab == "profile" ? "active" : "")" @onclick='() => SetActiveTab("profile")'>
                                 <i class="fa-solid fa-user"></i> Προφιλ
@@ -111,9 +115,11 @@
                             </button>
                         </div>
 
+                        <!-- Περιεχόμενο ενεργής καρτέλας -->
                         <div class="tab-content">
                             @if (activeTab == "profile")
                             {
+                                <!-- Καρτέλα επεξεργασίας προφίλ -->
                                 <div class="profile-section">
                                     <div class="form-group">
                                         <label for="username">Username</label>
@@ -149,6 +155,7 @@
                             }
                             else if (activeTab == "password")
                             {
+                                <!-- Καρτέλα αλλαγής κωδικού πρόσβασης -->
                                 <div class="password-section">
                                     <div class="form-group">
                                         <label for="currentPassword">Τρέχον κωδικός πρόσβασης</label>
@@ -171,6 +178,7 @@
                             }
                             else if (activeTab == "delete")
                             {
+                                <!-- Καρτέλα διαγραφής λογαριασμού -->
                                 <div class="delete-account-section">
                                     <div class="warning-box">
                                         <i class="fa-solid fa-triangle-exclamation warning-icon"></i><h3><strong>ΠΡΟΣΟΧΗ</strong></h3>
@@ -207,47 +215,53 @@
 </CascadingAuthenticationState>
 
 @code {
-    private User? user;
-    private User updatedUser = new User();
-    private bool isUserMenuOpen = false;
-    private string? userId;
-    private string activeTab = "profile";
-    private bool isLoading = true;
+    // Βασικές μεταβλητές χρήστη και κατάστασης σελίδας
+    private User? user;           
+    private User updatedUser = new User();     
+    private bool isUserMenuOpen = false;       
+    private string? userId;                    
+    private string activeTab = "profile";      
+    private bool isLoading = true;             
 
-    // Password change fields
-    private string currentPassword = "";
-    private string newPassword = "";
-    private string confirmPassword = "";
+    // Μεταβλητές για αλλαγή κωδικού πρόσβασης
+    private string currentPassword = "";       
+    private string newPassword = "";           
+    private string confirmPassword = "";       
     
-    // Delete account fields
-    private string deletePassword = "";
-    private bool confirmDelete = false;
-    private bool deleteInProgress = false;
+    // Μεταβλητές για διαγραφή λογαριασμού
+    private string deletePassword = "";        
+    private bool confirmDelete = false;        
+    private bool deleteInProgress = false;     
 
-    // Messages
-    private string errorMessage = "";
-    private string successMessage = "";
-    private string usernameMessage = "";
-    private string usernameMessageClass = "text-muted";
+    // Μηνύματα και ειδοποιήσεις
+    private string errorMessage = "";          
+    private string successMessage = "";        
+    private string usernameMessage = "";       
+    private string usernameMessageClass = "text-muted";  
 
+    // Αρχικοποίηση σελίδας και φόρτωση δεδομένων χρήστη
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            // Ανάκτηση της τρέχουσας κατάστασης αυθεντικοποίησης
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
             var userClaims = authState.User;
 
+            // Έλεγχος αν ο χρήστης είναι συνδεδεμένος
             if (userClaims.Identity?.IsAuthenticated == true)
             {
+                // Ανάκτηση του αναγνωριστικού χρήστη από τα claims
                 userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 
                 if (!string.IsNullOrEmpty(userId))
                 {
+                    // Φόρτωση πλήρους προφίλ χρήστη από τη βάση δεδομένων
                     user = await UserService.GetUserByIdAsync(userId);
                     
                     if (user != null)
                     {
-                        // Create a copy of the user for editing
+                        // Δημιουργία αντιγράφου του χρήστη για επεξεργασία
                         updatedUser = new User
                         {
                             Id = user.Id,
@@ -256,7 +270,7 @@
                             LastName = user.LastName,
                             Email = user.Email,
                             UniIdNumber = user.UniIdNumber,
-                            PasswordHash = user.PasswordHash, // Keep the same hash
+                            PasswordHash = user.PasswordHash, // Διατήρηση του ίδιου hash
                             CreatedAt = user.CreatedAt,
                             IsAdmin = user.IsAdmin,
                             NoteIds = new List<string>(user.NoteIds ?? new List<string>())
@@ -274,6 +288,7 @@
             }
             else
             {
+                // Ανακατεύθυνση στην αρχική σελίδα αν ο χρήστης δεν είναι συνδεδεμένος
                 NavigationManager.NavigateTo("/");
             }
         }
@@ -283,21 +298,23 @@
         }
         finally
         {
+            // Ολοκλήρωση φόρτωσης και ανανέωση της διεπαφής
             isLoading = false;
             StateHasChanged();
         }
     }
 
+    // Αλλαγή ενεργής καρτέλας ρυθμίσεων
     private void SetActiveTab(string tab)
     {
         activeTab = tab;
         
-        // Clear messages when switching tabs
+        // Καθαρισμός μηνυμάτων κατά την εναλλαγή καρτελών
         errorMessage = "";
         successMessage = "";
         usernameMessage = "";
         
-        // Clear fields when switching to delete tab
+        // Καθαρισμός πεδίων όταν μεταβαίνουμε στην καρτέλα διαγραφής
         if (tab == "delete")
         {
             deletePassword = "";
@@ -305,16 +322,19 @@
         }
     }
 
+    // Έλεγχος αν βρισκόμαστε στην τρέχουσα σελίδα
     private bool IsCurrentPage(string path)
     {
         return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
     }
 
+    // Εναλλαγή εμφάνισης μενού χρήστη
     private void ToggleUserMenu()
     {
         isUserMenuOpen = !isUserMenuOpen;
     }
 
+    // Διαχείριση αποσύνδεσης χρήστη
     private async Task HandleLogout()
     {
         if (AuthStateProvider is BlazorAuthStateProvider authProvider)
@@ -324,12 +344,14 @@
         }
     }
 
-    // Check username as the user types
+    // Έλεγχος διαθεσιμότητας ονόματος χρήστη κατά την πληκτρολόγηση
     private async Task CheckUsername(ChangeEventArgs e)
     {
+        // Ανάκτηση νέας τιμής από το πεδίο εισαγωγής
         string newUsername = e.Value?.ToString() ?? "";
         updatedUser.Username = newUsername;
 
+        // Έλεγχος αν το όνομα χρήστη είναι κενό
         if (string.IsNullOrWhiteSpace(newUsername))
         {
             usernameMessage = "Username cannot be empty";
@@ -337,6 +359,7 @@
             return;
         }
 
+        // Έλεγχος αν το όνομα χρήστη δεν έχει αλλάξει
         if (newUsername == user?.Username)
         {
             usernameMessage = "This is your current username";
@@ -344,7 +367,7 @@
             return;
         }
 
-        // Check if username exists in database
+        // Έλεγχος αν το όνομα χρήστη υπάρχει στη βάση δεδομένων
         var existingUser = await UserService.GetByUsernameAsync(newUsername);
         if (existingUser != null && existingUser.Id != user?.Id)
         {
@@ -358,26 +381,28 @@
         }
     }
 
+    // Ενημέρωση προφίλ χρήστη
     private async Task UpdateProfile()
     {
+        // Καθαρισμός προηγούμενων μηνυμάτων
         errorMessage = "";
         successMessage = "";
 
-        // Basic validation
+        // Βασική επικύρωση στοιχείων
         if (string.IsNullOrWhiteSpace(updatedUser.Username))
         {
             errorMessage = "Username cannot be empty.";
             return;
         }
 
-        // Check if username hasn't changed
+        // Έλεγχος αν το όνομα χρήστη δεν έχει αλλάξει
         if (user?.Username == updatedUser.Username)
         {
-            // Username unchanged, continue with other fields
+            // Το όνομα χρήστη παραμένει αμετάβλητο, συνέχεια με άλλα πεδία
         }
         else
         {
-            // Check if username is taken
+            // Έλεγχος αν το νέο όνομα χρήστη υπάρχει ήδη
             var existingUser = await UserService.GetByUsernameAsync(updatedUser.Username);
             if (existingUser != null && existingUser.Id != user?.Id)
             {
@@ -386,6 +411,7 @@
             }
         }
 
+        // Έλεγχος για κενά πεδία ονόματος
         if (string.IsNullOrWhiteSpace(updatedUser.FirstName) || string.IsNullOrWhiteSpace(updatedUser.LastName))
         {
             errorMessage = "Το όνομα και το επώνυμο δεν μπορεί να είναι κενό.";
@@ -394,12 +420,13 @@
 
         try
         {
-            // Update the user profile
+            // Αποστολή ενημερωμένων στοιχείων στη βάση δεδομένων
             bool updated = await UserService.UpdateUserAsync(updatedUser);
             
             if (updated)
             {
-                user = updatedUser; // Update the local user object
+                // Ενημέρωση τοπικού αντικειμένου χρήστη
+                user = updatedUser;
                 successMessage = "Το προφίλ ενημερώθηκε με επιτυχία!";
             }
             else
@@ -413,24 +440,28 @@
         }
     }
 
+    // Αλλαγή κωδικού πρόσβασης χρήστη
     private async Task ChangePassword()
     {
+        // Καθαρισμός προηγούμενων μηνυμάτων
         errorMessage = "";
         successMessage = "";
 
-        // Validation
+        // Επικύρωση εισόδου
         if (string.IsNullOrWhiteSpace(currentPassword))
         {
             errorMessage = "Απαιτείται ο τρέχων κωδικός πρόσβασης.";
             return;
         }
 
+        // Έλεγχος αν ο νέος κωδικός είναι αποδεκτός
         if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
         {
             errorMessage = "Ο νέος κωδικός πρόσβασης πρέπει να αποτελείται από τουλάχιστον 6 χαρακτήρες.";
             return;
         }
 
+        // Έλεγχος αν οι κωδικοί ταιριάζουν
         if (newPassword != confirmPassword)
         {
             errorMessage = "Οι νέοι κωδικοί πρόσβασης δεν ταιριάζουν.";
@@ -439,7 +470,7 @@
 
         try
         {
-            // Verify current password
+            // Επαλήθευση τρέχοντος κωδικού πρόσβασης
             var validUser = await UserService.ValidateUserAsync(user!.Email, currentPassword);
             if (validUser == null)
             {
@@ -447,12 +478,12 @@
                 return;
             }
 
-            // Change the user password
+            // Αλλαγή κωδικού πρόσβασης
             bool updated = await UserService.ChangePasswordAsync(userId!, newPassword);
             
             if (updated)
             {
-                // Clear password fields
+                // Καθαρισμός πεδίων κωδικού πρόσβασης
                 currentPassword = "";
                 newPassword = "";
                 confirmPassword = "";
@@ -470,17 +501,21 @@
         }
     }
     
+    // Διαγραφή λογαριασμού χρήστη
     private async Task DeleteAccount()
     {
+        // Καθαρισμός προηγούμενων μηνυμάτων
         errorMessage = "";
         successMessage = "";
         
+        // Έλεγχος αν η διαγραφή έχει επιβεβαιωθεί με το πλαίσιο επιλογής
         if (!confirmDelete)
         {
             errorMessage = "Πρέπει να επιβεβαιώσετε τη διαγραφή λογαριασμού επιλέγοντας το πλαίσιο επιβεβαίωσης.";
             return;
         }
         
+        // Έλεγχος αν έχει εισαχθεί ο κωδικός πρόσβασης
         if (string.IsNullOrWhiteSpace(deletePassword))
         {
             errorMessage = "Πρέπει να εισαγάγετε τον κωδικό πρόσβασής σας για να διαγράψετε τον λογαριασμό σας.";
@@ -489,24 +524,25 @@
         
         try
         {
-            // Make sure we're not already processing a delete
+            // Βεβαίωση ότι δεν επεξεργαζόμαστε ήδη μια διαγραφή
             if (deleteInProgress)
                 return;
                 
             deleteInProgress = true;
             
-            // Double-confirm with a JavaScript dialog
+            // Διπλή επιβεβαίωση με διάλογο JavaScript
             bool confirmResult = await JSRuntime.InvokeAsync<bool>(
                 "confirm", "ΠΡΟΣΟΧΗ: Αυτή η ενέργεια θα διαγράψει οριστικά τον λογαριασμό σας και όλα τα δεδομένα σας. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί. Είστε απολύτως σίγουρος;"
             );
             
+            // Αν ο χρήστης ακύρωσε τη διαγραφή μέσω του διαλόγου επιβεβαίωσης
             if (!confirmResult)
             {
                 deleteInProgress = false;
                 return;
             }
             
-            // Verify the password
+            // Επαλήθευση του κωδικού πρόσβασης
             var validUser = await UserService.ValidateUserAsync(user!.Email, deletePassword);
             if (validUser == null)
             {
@@ -515,17 +551,17 @@
                 return;
             }
             
-            // Delete the user account
+            // Διαγραφή του λογαριασμού χρήστη
             bool deleted = await UserService.DeleteUserAsync(userId!);
             
             if (deleted)
             {
-                // Successfully deleted, log the user out
+                // Επιτυχής διαγραφή, αποσύνδεση του χρήστη
                 if (AuthStateProvider is BlazorAuthStateProvider authProvider)
                 {
                     await authProvider.UpdateAuthenticationState(null);
                     
-                    // Use JS alert to show a final message and then redirect
+                    // Εμφάνιση τελικού μηνύματος με Javascript και ανακατεύθυνση
                     await JSRuntime.InvokeVoidAsync("alert", "Ο λογαριασμός σας διαγράφηκε επιτυχώς.");
                     NavigationManager.NavigateTo("/", forceLoad: true);
                 }

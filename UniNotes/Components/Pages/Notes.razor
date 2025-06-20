@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<!-- Φόντο με κινούμενα σωματίδια -->
 <div id="particles-js"></div>
 <script src="js/particles/particles.js"></script>
 <script>
@@ -19,6 +20,7 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
+            <!-- Καρτέλες πλοήγησης -->
             <div class="navigation-tabs">
                 <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                     <i class="fa-solid fa-gauge-high"></i>
@@ -69,9 +71,11 @@
             </div>
 
             <div class="full-page-background">
+                <!-- Κύριο περιεχόμενο - Προβολή όλων των διαθέσιμων σημειώσεων -->
                 <div class="notes-container">
                     <h1 class="logo">Φόρουμ Σημειώσεων</h1>
 
+                    <!-- Ένδειξη φόρτωσης -->
                     @if (isLoading)
                     {
                         <div class="spinner-container">
@@ -81,140 +85,148 @@
                     }
                     else if (errorMessage != null)
                     {
-                        <div class="message-container">
-                            <div class="error-message">@errorMessage</div>
-                        </div>
+                    <div class="message-container">
+                        <div class="error-message">@errorMessage</div>
+                    </div>
                     }
                     else if (allNotes == null || !allNotes.Any())
                     {
-                        <div class="empty-state">
-                            <i class="fa-solid fa-folder-open fa-3x mb-3"></i>
-                            <h3>Δεν υπάρχουν διαθέσιμες σημειώσεις.</h3>
-                            <p>Δεν υπάρχουν ανεβασμένες σημειώσεις ακόμα.</p>
-                        </div>
+                    <div class="empty-state">
+                        <i class="fa-solid fa-folder-open fa-3x mb-3"></i>
+                        <h3>Δεν υπάρχουν διαθέσιμες σημειώσεις.</h3>
+                        <p>Δεν υπάρχουν ανεβασμένες σημειώσεις ακόμα.</p>
+                    </div>
                     }
                     else
                     {
-                        <div class="filter-container">
-                            <div class="filter-group">
-                                <label for="subjectFilter">Φιλτράρισμα ανα Μάθημα:</label>
-                                <select id="subjectFilter" class="form-control" @bind="selectedSubject">
-                                    <option value="">Όλα τα μαθήματα</option>
-                                    @foreach (var subject in subjectList)
-                                    {
-                                        <option value="@subject">@subject</option>
-                                    }
-                                </select>
-                            </div>
-                            
-                            <div class="filter-group">
-                                <label for="semesterFilter">Φιλτραρισμα ανα Εξάμηνο:</label>
-                                <select id="semesterFilter" class="form-control" @bind="selectedSemester" @bind:after="OnSemesterChanged">
-                                    <option value="0">Όλα τα Εξάμηνα</option>
-                                    @for (int i = 1; i <= 8; i++)
-                                    {
-                                        <option value="@i">Εξάμηνο @i</option>
-                                    }
-                                </select>
-                            </div>
+                    <!-- Φίλτρα αναζήτησης και ταξινόμησης -->
+                    <div class="filter-container">
+                        <div class="filter-group">
+                            <label for="subjectFilter">Φιλτράρισμα ανα Μάθημα:</label>
+                            <select id="subjectFilter" class="form-control" @bind="selectedSubject">
+                                <option value="">Όλα τα μαθήματα</option>
+                                @foreach (var subject in subjectList)
+                                {
+                                    <option value="@subject">@subject</option>
+                                }
+                            </select>
                         </div>
 
-                        <div class="notes-grid">
-                            @foreach (var note in filteredNotes)
-                            {
-                                <div class="note-card">
-                                    <div class="note-header">
-                                        <h3 class="note-title">@note.Title</h3>
-                                        <span class="note-date">@note.CreatedAt.ToString("MMM dd, yyyy")</span>
+                        <div class="filter-group">
+                            <label for="semesterFilter">Φιλτραρισμα ανα Εξάμηνο:</label>
+                            <select id="semesterFilter" class="form-control" @bind="selectedSemester" @bind:after="OnSemesterChanged">
+                                <option value="0">Όλα τα Εξάμηνα</option>
+                                @for (int i = 1; i <= 8; i++)
+                                {
+                                    <option value="@i">Εξάμηνο @i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Πλέγμα σημειώσεων -->
+                    <div class="notes-grid">
+                        @foreach (var note in filteredNotes)
+                        {
+                            <div class="note-card">
+                                <!-- Επικεφαλίδα κάρτας -->
+                                <div class="note-header">
+                                    <h3 class="note-title">@note.Title</h3>
+                                    <span class="note-date">@note.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                </div>
+
+                                <!-- Προεπισκόπηση περιεχομένου -->
+                                <div class="note-preview">
+                                    @if (IsPdfFile(note))
+                                    {
+                                        <div class="file-preview pdf-preview">
+                                            <i class="fa-solid fa-file-pdf fa-2x"></i>
+                                            <span>PDF Αρχείο</span>
+                                        </div>
+                                    }
+                                    else if (IsImageFile(note))
+                                    {
+                                        <div class="file-preview image-preview">
+                                            <img src="@GetImageDataUrl(note)" alt="@note.Title" />
+                                        </div>
+                                    }
+                                    else if (IsWordFile(note))
+                                    {
+                                        <div class="file-preview word-preview">
+                                            <i class="fa-solid fa-file-word fa-2x"></i>
+                                            <span>Word Αρχείο</span>
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Κύριο μέρος κάρτας σημείωσης -->
+                                <div class="note-body">
+                                    <p class="note-description">@(GetDescriptionPreview(note.Description))</p>
+                                    <div class="note-metadata">
+                                        <span><i class="fa-solid fa-book"></i> @note.Subject</span>
+                                        <span><i class="fa-solid fa-graduation-cap"></i> Εξάμηνο @note.Semester</span>
+                                        <span>
+                                            <i class="fa-solid fa-user"></i>
+                                            <a class="username-link" @onclick="() => NavigateToUserProfile(note.Username)">@note.Username</a>
+                                        </span>
                                     </div>
-                                    
-                                    <div class="note-preview">
-                                        @if (IsPdfFile(note))
-                                        {
-                                            <div class="file-preview pdf-preview">
-                                                <i class="fa-solid fa-file-pdf fa-2x"></i>
-                                                <span>PDF Αρχείο</span>
-                                            </div>
-                                        }
-                                        else if (IsImageFile(note))
-                                        {
-                                            <div class="file-preview image-preview">
-                                                <img src="@GetImageDataUrl(note)" alt="@note.Title" />
-                                            </div>
-                                        }
-                                        else if (IsWordFile(note))
-                                        {
-                                            <div class="file-preview word-preview">
-                                                <i class="fa-solid fa-file-word fa-2x"></i>
-                                                <span>Word Αρχείο</span>
-                                            </div>
-                                        }
-                                    </div>
-                                    
-                                    <div class="note-body">
-                                        <p class="note-description">@(GetDescriptionPreview(note.Description))</p>
-                                        <div class="note-metadata">
-                                            <span><i class="fa-solid fa-book"></i> @note.Subject</span>
-                                            <span><i class="fa-solid fa-graduation-cap"></i> Εξάμηνο @note.Semester</span>
-                                            <span>
-                                                <i class="fa-solid fa-user"></i> 
-                                                <a class="username-link" @onclick="() => NavigateToUserProfile(note.Username)">@note.Username</a>
-                                            </span>
+
+                                    <!-- Περιοχή αξιολόγησης σημείωσης -->
+                                    <div class="rating-container">
+                                        <div class="average-rating">
+                                            <span><i class="fa-solid fa-star"></i> @(note.AverageRating > 0 ? note.AverageRating.ToString("F1") : "Καμία Αξιολόγηση")</span>
+                                            <span class="rating-count">(@(note.Ratings?.Count ?? 0))</span>
                                         </div>
 
-                                        <div class="rating-container">
-                                            <div class="average-rating">
-                                                <span><i class="fa-solid fa-star"></i> @(note.AverageRating > 0 ? note.AverageRating.ToString("F1") : "Καμία Αξιολόγηση")</span>
-                                                <span class="rating-count">(@(note.Ratings?.Count ?? 0))</span>
-                                            </div>
-                                            
-                                            <div class="user-rating-container">
-                                                <div class="user-rating">
-                                                    @for (int i = 1; i <= 5; i++)
-                                                    {
-                                                        var starValue = i;
-                                                        var isRated = userRatings.ContainsKey(note.Id ?? "") && userRatings[note.Id ?? ""] >= starValue;
-                                                        <span class="star @(isRated ? "rated" : "")" @onclick="@(async () => await RateNote(note.Id ?? "", starValue))">
-                                                            <i class="@(isRated ? "fa-solid" : "fa-regular") fa-star"></i>
-                                                        </span>
-                                                    }
-                                                </div>
-                                                
-                                                @if (userRatings.ContainsKey(note.Id ?? ""))
+                                        <div class="user-rating-container">
+                                            <div class="user-rating">
+                                                @for (int i = 1; i <= 5; i++)
                                                 {
-                                                    <button class="remove-rating-btn" @onclick="@(async () => await RemoveRating(note.Id ?? ""))">
-                                                        <i class="fa-solid fa-times"></i>
-                                                    </button>
+                                                    var starValue = i;
+                                                    var isRated = userRatings.ContainsKey(note.Id ?? "") && userRatings[note.Id ?? ""] >= starValue;
+                                                    <span class="star @(isRated ? "rated" : "")" @onclick="@(async () => await RateNote(note.Id ?? "", starValue))">
+                                                        <i class="@(isRated ? "fa-solid" : "fa-regular") fa-star"></i>
+                                                    </span>
                                                 }
                                             </div>
-                                        </div>
 
-                                        <div class="note-tags">
-                                            @if (note.Tags != null && note.Tags.Any())
+                                            @if (userRatings.ContainsKey(note.Id ?? ""))
                                             {
-                                                @foreach (var tag in note.Tags)
-                                                {
-                                                    <span class="note-tag"><i class="fa-solid fa-tag"></i> @tag</span>
-                                                }
+                                                <button class="remove-rating-btn" @onclick="@(async () => await RemoveRating(note.Id ?? ""))">
+                                                    <i class="fa-solid fa-times"></i>
+                                                </button>
                                             }
                                         </div>
                                     </div>
-                                    
-                                    <div class="note-actions">
-                                        <button class="action-button view-button" @onclick="() => ViewNote(note)">
-                                            @if (IsWordFile(note))
+
+                                    <!-- Ετικέτες σημείωσης -->
+                                    <div class="note-tags">
+                                        @if (note.Tags != null && note.Tags.Any())
+                                        {
+                                            @foreach (var tag in note.Tags)
                                             {
-                                                <span><i class="fa-solid fa-download"></i> Κατεβάστε</span>
+                                                <span class="note-tag"><i class="fa-solid fa-tag"></i> @tag</span>
                                             }
-                                            else
-                                            {
-                                                <span><i class="fa-solid fa-eye"></i> Προβολή</span>
-                                            }
-                                        </button>
+                                        }
                                     </div>
                                 </div>
-                            }
-                        </div>
+
+                                <!-- Ενέργειες για τη σημείωση -->
+                                <div class="note-actions">
+                                    <button class="action-button view-button" @onclick="() => ViewNote(note)">
+                                        @if (IsWordFile(note))
+                                        {
+                                            <span><i class="fa-solid fa-download"></i> Κατεβάστε</span>
+                                        }
+                                        else
+                                        {
+                                            <span><i class="fa-solid fa-eye"></i> Προβολή</span>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
                     }
                 </div>
             </div>
@@ -225,6 +237,7 @@
 </CascadingAuthenticationState>
 
 @code {
+    // Βασικές μεταβλητές για τη λίστα σημειώσεων και τις καταστάσεις
     private List<Note>? allNotes;
     private bool isLoading = true;
     private string? errorMessage;
@@ -234,16 +247,17 @@
     private Dictionary<string, string> imageCache = new Dictionary<string, string>();
     private Dictionary<string, int> userRatings = new Dictionary<string, int>();
 
-    // User-related properties for the dropdown menu
+    // Μεταβλητές σχετικές με το χρήστη για το μενού αναπτυσσόμενων επιλογών
     private bool isUserMenuOpen = false;
     private User? user;
     private string? userId;
 
+    // Αρχικοποίηση της σελίδας
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            // Get user data for the dropdown menu
+            // Λήψη δεδομένων χρήστη για το μενού αναπτυσσόμενων επιλογών
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
             var userClaims = authState.User;
 
@@ -261,10 +275,10 @@
                 return;
             }
 
-            // Load all notes with user ratings
+            // Φόρτωση όλων των σημειώσεων μαζί με τις αξιολογήσεις του χρήστη
             allNotes = await NoteService.GetNotesWithUserRatingsAsync();
 
-            // Extract unique subjects for the filter
+            // Εξαγωγή μοναδικών μαθημάτων για το φίλτρο
             if (allNotes != null && allNotes.Any())
             {
                 subjectList = allNotes
@@ -275,7 +289,7 @@
                     .ToList();
             }
 
-            // Load user ratings into the local dictionary
+            // Φόρτωση των αξιολογήσεων του χρήστη στο τοπικό λεξικό
             if (allNotes != null)
             {
                 foreach (var note in allNotes)
@@ -297,6 +311,7 @@
         }
     }
 
+    // Ορισμός του βοηθητικού JavaScript που θα χρησιμοποιηθεί για λήψη αρχείων
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -313,22 +328,26 @@
         }
     }
 
+    // Υπολογισμένη ιδιότητα που επιστρέφει τις φιλτραρισμένες σημειώσεις
     private List<Note> filteredNotes => allNotes?
         .Where(n => string.IsNullOrEmpty(selectedSubject) || n.Subject == selectedSubject)
         .Where(n => selectedSemester == 0 || n.Semester == selectedSemester)
         .OrderByDescending(n => n.CreatedAt)
         .ToList() ?? new List<Note>();
 
+    // Έλεγχος αν η τρέχουσα σελίδα ταιριάζει με τη διαδρομή
     private bool IsCurrentPage(string route)
     {
         return NavigationManager.Uri.EndsWith(route, StringComparison.OrdinalIgnoreCase);
     }
 
+    // Εναλλαγή κατάστασης μενού χρήστη
     private void ToggleUserMenu()
     {
         isUserMenuOpen = !isUserMenuOpen;
     }
 
+    // Διαδικασία αποσύνδεσης
     private async Task Logout()
     {
         if (AuthStateProvider is BlazorAuthStateProvider blazorAuthStateProvider)
@@ -338,6 +357,7 @@
         }
     }
 
+    // Δημιουργία προεπισκόπησης περιγραφής με περιορισμένο μήκος
     private string GetDescriptionPreview(string description)
     {
         if (string.IsNullOrEmpty(description))
@@ -346,6 +366,7 @@
         return description.Length > 100 ? description[..100] + "..." : description;
     }
 
+    // Έλεγχος αν η σημείωση είναι αρχείο PDF
     private bool IsPdfFile(Note note)
     {
         if (note.Content == null || note.Content.Length < 5)
@@ -355,6 +376,7 @@
         return note.Content.Take(4).SequenceEqual(pdfSignature);
     }
 
+    // Έλεγχος αν η σημείωση είναι αρχείο εικόνας
     private bool IsImageFile(Note note)
     {
         if (note.Content == null || note.Content.Length < 10)
@@ -366,6 +388,7 @@
         return note.Content.Take(3).SequenceEqual(jpegSignature) || note.Content.Take(4).SequenceEqual(pngSignature);
     }
 
+    // Έλεγχος αν η σημείωση είναι αρχείο Word
     private bool IsWordFile(Note note)
     {
         if (note.Content == null || note.Content.Length < 10)
@@ -374,24 +397,28 @@
         byte[] oleSignature = new byte[] { 0xD0, 0xCF, 0x11, 0xE0 };
         byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 };
 
-        return note.Content.Take(4).SequenceEqual(oleSignature) || 
+        return note.Content.Take(4).SequenceEqual(oleSignature) ||
                note.Content.Take(4).SequenceEqual(zipSignature);
     }
 
+    // Μετατροπή του περιεχομένου εικόνας σε URL δεδομένων για προεπισκόπηση
     private string GetImageDataUrl(Note note)
     {
+        // Έλεγχος αν έχουμε ήδη αποθηκεύσει προσωρινά αυτή την εικόνα
         if (note.Id != null && imageCache.ContainsKey(note.Id))
         {
             return imageCache[note.Id];
         }
 
+        // Αν η σημείωση δεν έχει περιεχόμενο ή ID, επιστροφή κενής συμβολοσειράς
         if (note.Id == null || note.Content == null || note.Content.Length == 0)
         {
             return string.Empty;
         }
 
-        string mimeType = "image/jpeg";
+        string mimeType = "image/jpeg"; // Προεπιλογή σε JPEG
 
+        // Προσπάθεια καθορισμού του τύπου εικόνας από τα πρώτα bytes
         if (note.Content.Length > 4)
         {
             byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
@@ -401,45 +428,47 @@
             }
         }
 
+        // Μετατροπή του πίνακα byte σε συμβολοσειρά Base64
         string base64Data = Convert.ToBase64String(note.Content);
         string dataUrl = $"data:{mimeType};base64,{base64Data}";
 
+        // Αποθήκευση του αποτελέσματος στην προσωρινή μνήμη για αποφυγή επανυπολογισμού
         imageCache[note.Id] = dataUrl;
 
         return dataUrl;
     }
 
+    // Προβολή ή λήψη σημείωσης ανάλογα με τον τύπο της
     private async Task ViewNote(Note note)
     {
         if (note?.Id == null) return;
 
         if (IsWordFile(note))
         {
-            // For Word documents, trigger a download
+            // Για έγγραφα Word, προκαλείται λήψη
             string base64Data = Convert.ToBase64String(note.Content ?? Array.Empty<byte>());
             string mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"; // .docx
 
-            // Use a safe filename based on the note title
-            string fileName = string.IsNullOrEmpty(note.Title) 
-                ? "document.docx" 
+            // Χρήση ασφαλούς ονόματος αρχείου βάσει του τίτλου της σημείωσης
+            string fileName = string.IsNullOrEmpty(note.Title)
+                ? "document.docx"
                 : $"{note.Title.Replace(" ", "_")}.docx";
 
             await JSRuntime.InvokeVoidAsync("downloadFile", base64Data, mimeType, fileName);
         }
         else if (IsImageFile(note) || IsPdfFile(note))
         {
-            // string base64Data = Convert.ToBase64String(note.Content ?? Array.Empty<byte>());
-            // string dataUrl = $"data:application/pdf;base64,{base64Data}";
-            // await JSRuntime.InvokeVoidAsync("window.open", dataUrl, "_blank");
-
+            // Πλοήγηση στη σελίδα προβολής σημείωσης
             NavigationManager.NavigateTo($"/note/{note.Id}");
         }
         else
         {
+            // Πλοήγηση στη σελίδα προβολής σημείωσης για άλλους τύπους αρχείων
             NavigationManager.NavigateTo($"/note/{note.Id}");
         }
     }
 
+    // Αξιολόγηση σημείωσης από το χρήστη
     private async Task RateNote(string noteId, int rating)
     {
         if (string.IsNullOrEmpty(noteId)) return;
@@ -450,10 +479,10 @@
 
             if (success)
             {
-                // Update local rating
+                // Ενημέρωση της τοπικής αξιολόγησης
                 userRatings[noteId] = rating;
 
-                // Update the note's average rating and ratings count in the local list
+                // Ενημέρωση του μέσου όρου αξιολόγησης της σημείωσης στην τοπική λίστα
                 var note = allNotes?.FirstOrDefault(n => n.Id == noteId);
                 if (note != null)
                 {
@@ -471,6 +500,7 @@
         }
     }
 
+    // Αφαίρεση αξιολόγησης
     private async Task RemoveRating(string noteId)
     {
         if (string.IsNullOrEmpty(noteId)) return;
@@ -481,10 +511,10 @@
 
             if (success)
             {
-                // Remove the local rating
+                // Αφαίρεση της τοπικής αξιολόγησης
                 userRatings.Remove(noteId);
 
-                // Update the note's average rating and ratings count in the local list
+                // Ενημέρωση του μέσου όρου αξιολόγησης της σημείωσης στην τοπική λίστα
                 var note = allNotes?.FirstOrDefault(n => n.Id == noteId);
                 if (note != null)
                 {
@@ -502,34 +532,37 @@
         }
     }
 
+    // Επιστροφή στην αρχική σελίδα
     private void GoBack()
     {
         NavigationManager.NavigateTo("/");
     }
 
+    // Ενημέρωση της λίστας μαθημάτων όταν αλλάζει το εξάμηνο
     private void OnSemesterChanged()
     {
-        // Check if there are any notes for the selected semester
+        // Έλεγχος αν υπάρχουν σημειώσεις για το επιλεγμένο εξάμηνο
         bool hasNotesForSemester = allNotes?.Any(n => selectedSemester == 0 || n.Semester == selectedSemester) ?? false;
 
-        // If no notes exist for this semester, or if we have notes but no subjects match the current selection
-        if (!hasNotesForSemester || 
-            (hasNotesForSemester && !string.IsNullOrEmpty(selectedSubject) && 
+        // Αν δεν υπάρχουν σημειώσεις για το εξάμηνο ή υπάρχουν αλλά δεν ταιριάζουν με το τρέχον μάθημα
+        if (!hasNotesForSemester ||
+            (hasNotesForSemester && !string.IsNullOrEmpty(selectedSubject) &&
              !allNotes!.Any(n => n.Semester == selectedSemester && n.Subject == selectedSubject)))
         {
-            // Reset to "Όλα τα μαθήματα"
+            // Επαναφορά σε "Όλα τα μαθήματα"
             selectedSubject = "";
         }
 
-        // Update the subject list to only show relevant subjects for the selected semester
+        // Ενημέρωση της λίστας μαθημάτων για να εμφανίζονται μόνο τα σχετικά για το επιλεγμένο εξάμηνο
         UpdateSubjectList();
     }
 
+    // Ενημέρωση της λίστας διαθέσιμων μαθημάτων με βάση το επιλεγμένο εξάμηνο
     private void UpdateSubjectList()
     {
         if (allNotes != null && allNotes.Any())
         {
-            // If a semester is selected, filter the subject list to only include subjects from that semester
+            // Αν έχει επιλεγεί συγκεκριμένο εξάμηνο, φιλτράρισμα των μαθημάτων μόνο για αυτό το εξάμηνο
             if (selectedSemester > 0)
             {
                 subjectList = allNotes
@@ -542,7 +575,7 @@
             }
             else
             {
-                // If "All Semesters" is selected, show all subjects
+                // Αν έχει επιλεγεί "Όλα τα Εξάμηνα", εμφάνιση όλων των μαθημάτων
                 subjectList = allNotes
                     .Select(n => n.Subject)
                     .Where(s => !string.IsNullOrEmpty(s))
@@ -556,11 +589,14 @@
             subjectList = new List<string>();
         }
     }
+
+    // Χειρισμός αποσύνδεσης χρήστη
     private void HandleLogout(MouseEventArgs args)
     {
         throw new NotImplementedException();
     }
 
+    // Πλοήγηση στο προφίλ χρήστη
     private void NavigateToUserProfile(string username)
     {
         if (!string.IsNullOrEmpty(username))

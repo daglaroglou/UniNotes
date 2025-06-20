@@ -7,13 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<!-- Περιοχή για το animation σωματιδίων -->
 <div id="particles-js"></div>
 <script src="js/particles/particles.js"></script>
 <script>
     particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
 </script>
 
-<!-- Back button -->
+<!-- Κουμπί επιστροφής στην αρχική σελίδα -->
 <div class="back-button-container">
     <button class="action-button" @onclick="GoBack">
         <i class="fa-solid fa-arrow-left"></i> ΠΙΣΩ
@@ -23,7 +24,8 @@
 <div class="full-page-background">
     <div class="credits-container">
         <h1 class="logo">Εύσημα</h1>
-        
+
+        <!-- Ένδειξη φόρτωσης για τη λίστα των συνεισφερόντων -->
         @if (isLoading)
         {
             <div class="spinner-container">
@@ -31,63 +33,70 @@
                 <p style="color: white;">Loading contributors...</p>
             </div>
         }
+        <!-- Εμφάνιση σφάλματος αν υπάρχει -->
         else if (errorMessage != null)
         {
-            <div class="message-container">
-                <div class="error-message">@errorMessage</div>
-            </div>
+        <div class="message-container">
+            <div class="error-message">@errorMessage</div>
+        </div>
         }
         else
         {
-            <div class="contributors-grid">
-                @foreach (var contributor in contributors)
-                {
-                    <div class="contributor-card">
-                        <img src="@contributor.avatar_url" alt="@contributor.login" class="contributor-avatar" />
-                        <div class="contributor-info">
-                            <h3>@contributor.login</h3>
-                            <p>@contributor.contributions contributions</p>
-                            <a href="https://github.com/@contributor.login" target="_blank" class="profile-link">
-                                <i class="fa-brands fa-github"></i> View Profile
-                            </a>
-                        </div>
+        <!-- Πλέγμα συνεισφερόντων από το GitHub -->
+        <div class="contributors-grid">
+            @foreach (var contributor in contributors)
+            {
+                <div class="contributor-card">
+                    <img src="@contributor.avatar_url" alt="@contributor.login" class="contributor-avatar" />
+                    <div class="contributor-info">
+                        <h3>@contributor.login</h3>
+                        <p>@contributor.contributions contributions</p>
+                        <a href="https://github.com/@contributor.login" target="_blank" class="profile-link">
+                            <i class="fa-brands fa-github"></i> View Profile
+                        </a>
                     </div>
-                }
-            </div>
-            
-            <div class="github-repo-link">
-                <a href="https://github.com/daglaroglou/UniNotes" target="_blank" class="action-button">
-                    <i class="fa-brands fa-github"></i> View Repository
-                </a>
-            </div>
+                </div>
+            }
+        </div>
+
+        <!-- Σύνδεσμος προς το GitHub repository -->
+        <div class="github-repo-link">
+            <a href="https://github.com/daglaroglou/UniNotes" target="_blank" class="action-button">
+                <i class="fa-brands fa-github"></i> View Repository
+            </a>
+        </div>
         }
     </div>
 </div>
 
+<!-- Υπογραφή στο κάτω μέρος της σελίδας -->
 <div class="footer" style="font-family: 'Mynerve', cursive;">
     Δημιουργήθηκε με ❤️ από φοιτητές για φοιτητές
 </div>
 
 @code {
+    // Λίστα συνεισφερόντων από το GitHub API
     private List<Contributor> contributors = new();
     private bool isLoading = true;
     private string? errorMessage;
 
+    // Φόρτωση των συνεισφερόντων κατά την αρχικοποίηση της σελίδας
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            // Create a new HttpClient instance instead of using dependency injection
+            // Δημιουργία νέου HttpClient αντί για εισαγωγή εξάρτησης
             using var httpClient = new HttpClient();
 
+            // Προσθήκη User-Agent header που απαιτείται από το GitHub API
             httpClient.DefaultRequestHeaders.Add("User-Agent", "UniNotes");
 
-            // Fetch contributors from GitHub API
+            // Ανάκτηση συνεισφερόντων από το GitHub API
             var response = await httpClient.GetFromJsonAsync<List<Contributor>>("https://api.github.com/repos/daglaroglou/UniNotes/contributors");
 
             if (response != null)
             {
-                contributors = response.Take(12).ToList(); // Limit to 12 contributors
+                contributors = response.Take(12).ToList(); // Περιορισμός σε 12 συνεισφέροντες
             }
             else
             {
@@ -104,6 +113,7 @@
         }
     }
 
+    // Επιστροφή στην αρχική σελίδα
     private void GoBack()
     {
         NavigationManager.NavigateTo("/");

@@ -437,6 +437,7 @@
 </CascadingAuthenticationState>
 
 @code {
+    // Βασικά αντικείμενα και μεταβλητές
     private User? currentUser;
     private List<User>? allUsers;
     private List<Note>? allNotes;
@@ -445,22 +446,24 @@
     private List<User> topContributors = new List<User>();
     private double averageSystemRating = 0;
     
+    // Μεταβλητές διεπαφής χρήστη
     private string activeTab = "users";
     private bool isLoading = true;
     private string? userSearchTerm;
     private string? noteSearchTerm;
     
-    // Subject management
+    // Διαχείριση μαθημάτων
     private SubjectsData? subjectsData;
     private int selectedSemesterId = 0;
     private string? newSubjectName;
     private string? editingSubjectId;
     private string? editingSubjectValue;
     
-    // Messages
+    // Μηνύματα συστήματος
     private string errorMessage = "";
     private string successMessage = "";
 
+    // Αρχικοποίηση της σελίδας και έλεγχος δικαιωμάτων
     protected override async Task OnInitializedAsync()
     {
         try
@@ -482,14 +485,14 @@
                         return;
                     }
                     
-                    // Only allow admin users
+                    // Επιτρέπεται η είσοδος μόνο σε διαχειριστές
                     if (!currentUser.IsAdmin)
                     {
                         NavigationManager.NavigateTo("/dashboard");
                         return;
                     }
                     
-                    // Load all data
+                    // Φόρτωση όλων των δεδομένων
                     await LoadAllData();
                 }
                 else
@@ -513,24 +516,25 @@
         }
     }
 
+    // Φόρτωση όλων των δεδομένων για τον πίνακα διαχείρισης
     private async Task LoadAllData()
     {
-        // Load all users
+        // Φόρτωση όλων των χρηστών
         allUsers = await UserService.GetAsync();
         
-        // Load all notes
+        // Φόρτωση όλων των σημειώσεων
         allNotes = await NoteService.GetAllNotesAsync();
         
-        // Load subjects data
+        // Φόρτωση δεδομένων μαθημάτων
         subjectsData = await SubjectService.GetSubjectsDataAsync();
         
-        // Set default selected semester to the first one if it exists
+        // Ορισμός προεπιλεγμένου εξαμήνου στο πρώτο εάν υπάρχει
         if (subjectsData?.Semesters.Any() == true)
         {
             selectedSemesterId = subjectsData.Semesters.Min(s => s.Id);
         }
         
-        // Calculate top contributors (users with most notes)
+        // Υπολογισμός κορυφαίων συνεισφερόντων (χρήστες με τις περισσότερες σημειώσεις)
         if (allUsers != null)
         {
             topContributors = allUsers
@@ -539,7 +543,7 @@
                 .ToList();
         }
         
-        // Calculate average system rating
+        // Υπολογισμός μέσης βαθμολογίας συστήματος
         if (allNotes != null && allNotes.Any())
         {
             var notesWithRatings = allNotes.Where(n => n.AverageRating > 0);
@@ -549,6 +553,7 @@
         }
     }
 
+    // Φιλτράρισμα χρηστών με βάση τον όρο αναζήτησης
     private List<User>? FilterUsers()
     {
         if (allUsers == null)
@@ -559,6 +564,7 @@
             
         var term = userSearchTerm.ToLower();
         
+        // Αναζήτηση σε πολλαπλά πεδία για κάθε χρήστη
         return allUsers.Where(u => 
             u.Username.ToLower().Contains(term) ||
             u.FirstName.ToLower().Contains(term) ||
@@ -568,6 +574,7 @@
         ).ToList();
     }
 
+    // Φιλτράρισμα σημειώσεων με βάση τον όρο αναζήτησης
     private List<Note>? FilterNotes()
     {
         if (allNotes == null)
@@ -578,6 +585,7 @@
             
         var term = noteSearchTerm.ToLower();
         
+        // Αναζήτηση σε όλα τα σχετικά πεδία των σημειώσεων
         return allNotes.Where(n => 
             n.Title.ToLower().Contains(term) ||
             n.Description.ToLower().Contains(term) ||
@@ -587,15 +595,16 @@
         ).ToList();
     }
 
+    // Αλλαγή ενεργής καρτέλας και καθαρισμός μηνυμάτων
     private void SetActiveTab(string tab)
     {
         activeTab = tab;
         
-        // Clear messages when switching tabs
+        // Καθαρισμός μηνυμάτων κατά την εναλλαγή καρτελών
         errorMessage = "";
         successMessage = "";
         
-        // Reset editing state when switching away from subjects tab
+        // Επαναφορά κατάστασης επεξεργασίας όταν φεύγουμε από την καρτέλα μαθημάτων
         if (tab != "subjects")
         {
             editingSubjectId = null;
@@ -603,11 +612,13 @@
         }
     }
 
+    // Έλεγχος αν βρισκόμαστε στην τρέχουσα σελίδα
     private bool IsCurrentPage(string path)
     {
         return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
     }
 
+    // Χειρισμός αποσύνδεσης χρήστη
     private async Task HandleLogout()
     {
         if (AuthStateProvider is BlazorAuthStateProvider authProvider)
@@ -617,17 +628,18 @@
         }
     }
 
+    // Αλλαγή δικαιωμάτων διαχειριστή για χρήστη
     private async Task HandleAdminStatusChange(User user, bool isAdmin)
     {
         if (user.Id == currentUser?.Id)
         {
-            // Prevent removing admin status from self
+            // Αποτροπή αφαίρεσης δικαιωμάτων διαχειριστή από τον ίδιο το χρήστη
             return;
         }
         
         try
         {
-            // Clone the user to avoid modifying the list item directly
+            // Αντιγραφή του χρήστη για να αποφευχθεί η απευθείας τροποποίηση του αντικειμένου στη λίστα
             var updatedUser = new User
             {
                 Id = user.Id,
@@ -646,7 +658,7 @@
             
             if (success)
             {
-                // Update user in the list to reflect changes
+                // Ενημέρωση του χρήστη στη λίστα για να αντικατοπτρίζει τις αλλαγές
                 if (allUsers != null)
                 {
                     var index = allUsers.FindIndex(u => u.Id == user.Id);
@@ -655,7 +667,7 @@
                         allUsers[index].IsAdmin = isAdmin;
                     }
                     
-                    // Also update in topContributors if present
+                    // Επίσης ενημέρωση στους κορυφαίους συνεισφέροντες αν υπάρχει
                     var contributorIndex = topContributors.FindIndex(u => u.Id == user.Id);
                     if (contributorIndex >= 0)
                     {
@@ -664,7 +676,7 @@
                 }
                 
                 successMessage = $"Admin status for {user.Username} updated successfully.";
-                StateHasChanged(); // Force UI refresh
+                StateHasChanged(); // Εξαναγκασμός ανανέωσης του UI
             }
             else
             {
@@ -677,16 +689,18 @@
         }
     }
 
+    // Προβολή του προφίλ χρήστη
     private void ViewUserProfile(User user)
     {
         NavigationManager.NavigateTo($"/profile/{user.Username}");
     }
 
+    // Επιβεβαίωση διαγραφής χρήστη με προτροπή
     private async Task ConfirmDeleteUser(User user)
     {
         if (user.Id == currentUser?.Id)
         {
-            // Prevent deleting self
+            // Αποτροπή διαγραφής του εαυτού σας
             errorMessage = "You cannot delete your own account from here.";
             return;
         }
@@ -702,13 +716,13 @@
                 bool deleted = await UserService.DeleteUserAsync(user.Id);
                 if (deleted)
                 {
-                    // Remove from the list
+                    // Αφαίρεση από τη λίστα
                     if (allUsers != null)
                     {
                         allUsers.RemoveAll(u => u.Id == user.Id);
                     }
                     
-                    // Refresh notes list as well
+                    // Ανανέωση της λίστας σημειώσεων επίσης
                     await LoadAllData();
                     
                     successMessage = $"User {user.Username} was deleted successfully.";
@@ -725,12 +739,14 @@
         }
     }
 
+    // Προβολή σημείωσης
     private void ViewNote(Note note)
     {
-        // Assuming there's a note detail page
+        // Μετάβαση στη σελίδα λεπτομερειών σημείωσης
         NavigationManager.NavigateTo($"/notes/{note.Id}");
     }
 
+    // Επιβεβαίωση διαγραφής σημείωσης με προτροπή
     private async Task ConfirmDeleteNote(Note note)
     {
         bool confirmed = await JSRuntime.InvokeAsync<bool>(
@@ -744,7 +760,7 @@
                 bool deleted = await NoteService.DeleteNoteAsync(note.Id);
                 if (deleted)
                 {
-                    // Remove from the list
+                    // Αφαίρεση από τη λίστα
                     if (allNotes != null)
                     {
                         allNotes.RemoveAll(n => n.Id == note.Id);
@@ -764,6 +780,7 @@
         }
     }
 
+    // Επαναϋπολογισμός όλων των βαθμολογιών χρηστών
     private async Task RecalculateAllRatings()
     {
         try
@@ -782,7 +799,7 @@
             
             if (success)
             {
-                // Refresh data
+                // Ανανέωση δεδομένων
                 await LoadAllData();
                 successMessage = "All user ratings have been recalculated successfully.";
             }
@@ -802,6 +819,7 @@
         }
     }
 
+    // Εκκίνηση διαδικασίας αντιγράφου ασφαλείας
     private async Task TriggerBackup()
     {
         try
@@ -813,11 +831,11 @@
             if (!confirmed)
                 return;
                 
-            // Just a placeholder - in a real system, you would call a database backup service
+            // Προσομοίωση διαδικασίας αντιγράφου ασφαλείας
             isLoading = true;
             StateHasChanged();
             
-            // Simulate a backup process
+            // Προσομοίωση μιας διαδικασίας αντιγράφου ασφαλείας
             await Task.Delay(3000);
             
             successMessage = "System backup completed successfully.";
@@ -833,25 +851,30 @@
         }
     }
     
-    // Subject Management Methods
+    // Μέθοδοι διαχείρισης μαθημάτων
+    
+    // Επιλογή εξαμήνου για επεξεργασία
     private void SelectSemester(int semesterId)
     {
         selectedSemesterId = semesterId;
         ClearSubjectEditState();
     }
     
+    // Έναρξη επεξεργασίας μαθήματος
     private void EditSubject(string subject)
     {
         editingSubjectId = subject;
         editingSubjectValue = subject;
     }
     
+    // Ακύρωση επεξεργασίας μαθήματος
     private void CancelSubjectEdit()
     {
         editingSubjectId = null;
         editingSubjectValue = null;
     }
     
+    // Αποθήκευση επεξεργασμένου μαθήματος
     private async Task SaveSubjectEdit()
     {
         if (string.IsNullOrWhiteSpace(editingSubjectValue) || subjectsData == null || selectedSemesterId <= 0)
@@ -866,13 +889,13 @@
             int index = semester.Subjects.IndexOf(editingSubjectId);
             if (index >= 0)
             {
-                // Update the subject name
+                // Ενημέρωση του ονόματος του μαθήματος
                 semester.Subjects[index] = editingSubjectValue.Trim();
                 
-                // Save changes
+                // Αποθήκευση αλλαγών
                 await SaveSubjectsChanges();
                 
-                // Update notes that use this subject (this would require additional implementation)
+                // Ενημέρωση σημειώσεων που χρησιμοποιούν αυτό το μάθημα (θα απαιτούσε επιπρόσθετη υλοποίηση)
                 // await UpdateNotesWithSubject(editingSubjectId, editingSubjectValue.Trim());
             }
         }
@@ -880,6 +903,7 @@
         CancelSubjectEdit();
     }
     
+    // Καθαρισμός κατάστασης επεξεργασίας μαθήματος
     private void ClearSubjectEditState()
     {
         editingSubjectId = null;
@@ -887,6 +911,7 @@
         newSubjectName = null;
     }
     
+    // Προσθήκη νέου μαθήματος στο επιλεγμένο εξάμηνο
     private async Task AddNewSubject()
     {
         if (string.IsNullOrWhiteSpace(newSubjectName) || subjectsData == null || selectedSemesterId <= 0)
@@ -897,24 +922,25 @@
         var semester = subjectsData.Semesters.FirstOrDefault(s => s.Id == selectedSemesterId);
         if (semester != null)
         {
-            // Check if subject already exists
+            // Έλεγχος αν το μάθημα υπάρχει ήδη
             if (semester.Subjects.Any(s => s.Equals(newSubjectName.Trim(), StringComparison.OrdinalIgnoreCase)))
             {
                 errorMessage = $"Subject '{newSubjectName}' already exists in this semester.";
                 return;
             }
             
-            // Add the new subject
+            // Προσθήκη του νέου μαθήματος
             semester.Subjects.Add(newSubjectName.Trim());
             
-            // Save changes
+            // Αποθήκευση αλλαγών
             await SaveSubjectsChanges();
             
-            // Clear the input
+            // Καθαρισμός της εισόδου
             newSubjectName = null;
         }
     }
     
+    // Επιβεβαίωση διαγραφής μαθήματος
     private async Task ConfirmDeleteSubject(string subject)
     {
         if (subjectsData == null || selectedSemesterId <= 0)
@@ -931,18 +957,19 @@
             var semester = subjectsData.Semesters.FirstOrDefault(s => s.Id == selectedSemesterId);
             if (semester != null)
             {
-                // Remove the subject
+                // Αφαίρεση του μαθήματος
                 semester.Subjects.Remove(subject);
                 
-                // Save changes
+                // Αποθήκευση αλλαγών
                 await SaveSubjectsChanges();
             }
         }
     }
     
+    // Επιβεβαίωση διαγραφής εξαμήνου
     private async Task ConfirmDeleteSemester(int semesterId)
     {
-        if (subjectsData == null || semesterId <= 0 || semesterId == 1) // Don't allow deleting semester 1
+        if (subjectsData == null || semesterId <= 0 || semesterId == 1) // Δεν επιτρέπεται η διαγραφή του 1ου εξαμήνου
         {
             return;
         }
@@ -953,13 +980,13 @@
         
         if (confirmed)
         {
-            // Remove the semester
+            // Αφαίρεση του εξαμήνου
             subjectsData.Semesters.RemoveAll(s => s.Id == semesterId);
             
-            // Save changes
+            // Αποθήκευση αλλαγών
             await SaveSubjectsChanges();
             
-            // Select the first available semester
+            // Επιλογή του πρώτου διαθέσιμου εξαμήνου
             if (subjectsData.Semesters.Any())
             {
                 selectedSemesterId = subjectsData.Semesters.Min(s => s.Id);
@@ -971,6 +998,7 @@
         }
     }
     
+    // Αποθήκευση αλλαγών στα μαθήματα
     private async Task SaveSubjectsChanges()
     {
         if (subjectsData == null)
@@ -980,7 +1008,7 @@
         
         try
         {
-            // Save the changes
+            // Αποθήκευση των αλλαγών
             bool success = await SubjectService.SaveSubjectsDataAsync(subjectsData);
             
             if (success)
@@ -998,7 +1026,9 @@
         }
     }
     
-    // Keyboard event handlers
+    // Χειριστές συμβάντων πληκτρολογίου
+    
+    // Χειρισμός πλήκτρων κατά την προσθήκη νέου μαθήματος
     private async Task HandleNewSubjectKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(newSubjectName))
@@ -1007,6 +1037,7 @@
         }
     }
     
+    // Χειρισμός πλήκτρων κατά την επεξεργασία μαθήματος
     private async Task HandleSubjectEditKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(editingSubjectValue))

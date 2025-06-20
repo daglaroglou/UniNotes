@@ -18,7 +18,7 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <!-- Navigation tabs -->
+            <!-- Καρτέλες πλοήγησης -->
             <div class="navigation-tabs">
                 <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                     <i class="fa-solid fa-gauge-high"></i>
@@ -69,9 +69,11 @@
             </div>
 
             <div class="full-page-background">
+                <!-- Κύριο περιεχόμενο - Προβολή προσωπικών σημειώσεων χρήστη -->
                 <div class="notes-container">
                     <h1 class="logo">Οι σημειώσεις μου</h1>
                     
+                    <!-- Εμφάνιση μηνύματος κατάστασης -->
                     @if (!string.IsNullOrEmpty(statusMessage))
                     {
                         <div class="status-message @(isStatusError ? "status-error" : "status-success")">
@@ -80,6 +82,7 @@
                         </div>
                     }
                     
+                    <!-- Ένδειξη φόρτωσης -->
                     @if (isLoading)
                     {
                         <div class="loading-spinner">
@@ -188,18 +191,20 @@
 </CascadingAuthenticationState>
 
 @code {
+    // Βασικές πληροφορίες χρήστη και σημειώσεων
     private User? user;
     private string? userId;
-    private List<Note>? userNotes;
+    private List<Note>? userNotes = new List<UniNotes.Models.Note>();
     private bool isLoading = true;
     private Dictionary<string, string> imageCache = new Dictionary<string, string>();
 
-    // Add these properties
+    // Προσθήκη ιδιοτήτων για τη διαχείριση διαγραφής και μηνυμάτων κατάστασης
     private bool isDeletingNote = false;
     private string? deletingNoteId;
     private string? statusMessage;
     private bool isStatusError = false;
 
+    // Αρχικοποίηση της σελίδας - φόρτωση χρήστη και των σημειώσεών του
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -221,17 +226,19 @@
         isLoading = false;
     }
 
+    // Φόρτωση των σημειώσεων του χρήστη από τη βάση δεδομένων
     private async Task LoadUserNotes()
     {
         if (user != null)
         {
             userNotes = await NoteService.GetNotesByUsernameAsync(user.Username);
 
-            // Clear the image cache when loading new notes
+            // Καθαρισμός της προσωρινής μνήμης εικόνων κατά τη φόρτωση νέων σημειώσεων
             imageCache.Clear();
         }
     }
 
+    // Διαδικασία αποσύνδεσης του χρήστη
     private async Task Logout()
     {
         if (AuthStateProvider is BlazorAuthStateProvider blazorAuthStateProvider)
@@ -241,6 +248,7 @@
         }
     }
 
+    // Δημιουργία προεπισκόπησης περιγραφής με περιορισμένο μήκος
     private string GetDescriptionPreview(string description)
     {
         if (string.IsNullOrEmpty(description))
@@ -249,9 +257,10 @@
         return description.Length > 100 ? description[..100] + "..." : description;
     }
 
+    // Έλεγχος αν η σημείωση είναι αρχείο PDF
     private bool IsPdfFile(Note note)
     {
-        // Simple check for PDF files - a more robust solution would check MIME types
+        // Απλός έλεγχος για αρχεία PDF - μια πιο στιβαρή λύση θα έλεγχε τύπους MIME
         if (note.Content == null || note.Content.Length < 5)
             return false;
 
@@ -259,9 +268,10 @@
         return note.Content.Take(4).SequenceEqual(pdfSignature);
     }
 
+    // Έλεγχος αν η σημείωση είναι αρχείο εικόνας
     private bool IsImageFile(Note note)
     {
-        // Very basic image detection - this would ideally be based on MIME types
+        // Πολύ βασική ανίχνευση εικόνας - ιδανικά θα βασιζόταν σε τύπους MIME
         if (note.Content == null || note.Content.Length < 10)
             return false;
 
@@ -271,41 +281,43 @@
         return note.Content.Take(3).SequenceEqual(jpegSignature) || note.Content.Take(4).SequenceEqual(pngSignature);
     }
 
+    // Έλεγχος αν η σημείωση είναι αρχείο Word
     private bool IsWordFile(Note note)
     {
-        // Check if content exists and has minimum length
+        // Έλεγχος αν το περιεχόμενο υπάρχει και έχει ελάχιστο μήκος
         if (note.Content == null || note.Content.Length < 10)
             return false;
 
-        // Check for binary Office file signature (doc, xls, ppt)
+        // Έλεγχος για υπογραφή δυαδικών αρχείων Office (doc, xls, ppt)
         // D0 CF 11 E0 A1 B1 1A E1 (OLE2 Compound Document)
         byte[] oleSignature = new byte[] { 0xD0, 0xCF, 0x11, 0xE0 };
 
-        // Check for Office Open XML formats (docx, xlsx, pptx)
-        // They are ZIP files with signature: 50 4B 03 04
+        // Έλεγχος για μορφές Office Open XML (docx, xlsx, pptx)
+        // Έλεγχος για μορφές Office Open XML (docx, xlsx, pptx)
         byte[] zipSignature = new byte[] { 0x50, 0x4B, 0x03, 0x04 };
 
         return note.Content.Take(4).SequenceEqual(oleSignature) || 
                note.Content.Take(4).SequenceEqual(zipSignature);
     }
 
+    // Μετατροπή του περιεχομένου εικόνας σε URL δεδομένων για προεπισκόπηση
     private string GetImageDataUrl(Note note)
     {
-        // Check if we've already cached this image
+        // Έλεγχος αν έχουμε ήδη αποθηκεύσει προσωρινά αυτήν την εικόνα
         if (note.Id != null && imageCache.ContainsKey(note.Id))
         {
             return imageCache[note.Id];
         }
 
-        // If the note has no content or ID, return an empty string
+        // Αν η σημείωση δεν έχει περιεχόμενο ή ID, επιστροφή κενής συμβολοσειράς
         if (note.Id == null || note.Content == null || note.Content.Length == 0)
         {
             return string.Empty;
         }
 
-        string mimeType = "image/jpeg"; // Default to JPEG
+        string mimeType = "image/jpeg"; // Προεπιλογή σε JPEG
 
-        // Try to determine the image type from the first few bytes
+        // Προσπάθεια καθορισμού του τύπου εικόνας από τα πρώτα bytes
         if (note.Content.Length > 4)
         {
             byte[] pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
@@ -315,24 +327,24 @@
             }
         }
 
-        // Convert the byte array to a Base64 string
+        // Μετατροπή του πίνακα byte σε συμβολοσειρά Base64
         string base64Data = Convert.ToBase64String(note.Content);
         string dataUrl = $"data:{mimeType};base64,{base64Data}";
 
-        // Cache the result to avoid recomputing it
+        // Αποθήκευση του αποτελέσματος στην προσωρινή μνήμη για αποφυγή επανυπολογισμού
         imageCache[note.Id] = dataUrl;
 
         return dataUrl;
     }
-
+    
     private void ViewNote(Note note)
     {
         if (note?.Id == null) return;
 
-        // Navigate to the note details page for all file types
         NavigationManager.NavigateTo($"/note/{note.Id}");
     }
 
+    // Εμφάνιση διαλόγου επιβεβαίωσης για διαγραφή σημείωσης
     private async Task DeleteNotePrompt(string? noteId)
     {
         if (!string.IsNullOrEmpty(noteId))
@@ -345,6 +357,7 @@
         }
     }
 
+    // Διαγραφή σημείωσης και διαχείριση κατάστασης
     private async Task DeleteNote(string noteId)
     {
         try
@@ -355,7 +368,7 @@
             bool result = await NoteService.DeleteNoteAsync(noteId);
             if (result)
             {
-                // Clear the image from cache if it exists
+                // Καθαρισμός της εικόνας από την προσωρινή μνήμη αν υπάρχει
                 if (imageCache.ContainsKey(noteId))
                 {
                     imageCache.Remove(noteId);
@@ -382,17 +395,20 @@
             deletingNoteId = null;
             StateHasChanged();
 
-            // Clear status message after 5 seconds
+            // Καθαρισμός μηνύματος κατάστασης μετά από 5 δευτερόλεπτα
             await Task.Delay(5000);
             statusMessage = null;
             StateHasChanged();
         }
     }
 
+    // Έλεγχος αν η τρέχουσα σελίδα ταιριάζει με τη διαδρομή
     private bool IsCurrentPage(string path)
     {
         return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
     }
+
+    // Διαχείριση αποσύνδεσης χρήστη
     private void HandleLogout(MouseEventArgs args)
     {
         throw new NotImplementedException();

@@ -3,9 +3,11 @@
 
 <PageTitle>Error</PageTitle>
 
+<!-- Τίτλοι σφάλματος -->
 <h1 class="text-danger">Error.</h1>
 <h2 class="text-danger">An error occurred while processing your request.</h2>
 
+<!-- Προβολή αναγνωριστικού αιτήματος για διαγνωστικούς σκοπούς -->
 @if (ShowRequestId)
 {
     <p>
@@ -13,6 +15,7 @@
     </p>
 }
 
+<!-- Πληροφορίες για το περιβάλλον ανάπτυξης -->
 <h3>Development Mode</h3>
 <p>
     Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
@@ -24,13 +27,18 @@
     and restarting the app.
 </p>
 
-@code{
+@code {
+    // Cascade παράμετρος για πρόσβαση στο τρέχον HTTP context
     [CascadingParameter]
     private HttpContext? HttpContext { get; set; }
 
+    // Αναγνωριστικό αιτήματος για διαγνωστικούς σκοπούς και εντοπισμό σφαλμάτων
     private string? RequestId { get; set; }
+
+    // Εμφάνιση του RequestId μόνο αν έχει τιμή
     private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
+    // Αρχικοποίηση - λήψη αναγνωριστικού από το τρέχον Activity ή το HttpContext
     protected override void OnInitialized() =>
         RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
 }

@@ -5,9 +5,11 @@
 
 <PageTitle>UniNotes</PageTitle>
 
+<!-- Φόρτωση γραμματοσειρών και εικονιδίων -->
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<!-- Περιέχον στοιχείο για το animation σωματιδίων -->
 <div id="particles-js"></div>
 
 <script src="js/particles/particles.js"></script>
@@ -16,15 +18,18 @@
 	particlesJS.load('particles-js', 'js/particles/particles.json', function () {});
 </script>
 
+<!-- Κύριο περιεχόμενο της αρχικής σελίδας -->
 <div class="full-page-background">
 	<center>
 		<img src="logo.png" alt="UniNotes Logo" class="app-logo" />
 		<h1 class="logo">UniNotes</h1>
 		<h2>2025</h2>
 	</center>
+	<!-- Στοιχείο για το εφέ γραφομηχανής -->
 	<div class="typewriter">
 		<span id="text"></span><span class="cursor">|</span>
 	</div>
+	<!-- Κουμπιά πλοήγησης για σύνδεση, εγγραφή και credits -->
 	<div class="button-container">
 		<button class="action-button" @onclick='() => Navigation.NavigateTo("login")'><i class="fa-solid fa-right-to-bracket"></i> ΣΥΝΔΕΣΗ</button>
 		<button class="action-button" @onclick='() => Navigation.NavigateTo("register")'><i class="fa-solid fa-user-plus"></i> ΕΓΓΡΑΦΗ</button>
@@ -34,10 +39,12 @@
 <script src="js/typewriter.js"></script>
 
 @code {
+	// Εκκίνηση του εφέ γραφομηχανής μετά την αρχική απόδοση της σελίδας
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
+			// Κλήση της JavaScript συνάρτησης για έναρξη του εφέ γραφομηχανής
 			await JSRuntime.InvokeVoidAsync("startTypewriter");
 		}
 	}

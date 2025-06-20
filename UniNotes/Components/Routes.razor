@@ -1,8 +1,19 @@
-﻿<Router AppAssembly="typeof(Program).Assembly">
+﻿<!--
+    Κύριο στοιχείο δρομολόγησης της εφαρμογής Blazor
+    Καθορίζει πώς θα αντιστοιχίζονται τα URL με τα components
+-->
+<Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
+        <!--
+            Όταν βρεθεί αντιστοίχιση URL, εμφανίζεται το κατάλληλο component
+            με προεπιλεγμένο layout το MainLayout
+        -->
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+
+        <!-- Εστίαση στο πρώτο στοιχείο h1 μετά από κάθε πλοήγηση -->
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>
 
+<!-- Outlet για δυναμική διαχείριση των στοιχείων στην επικεφαλίδα της σελίδας -->
 <HeadOutlet />

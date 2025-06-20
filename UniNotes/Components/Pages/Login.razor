@@ -14,7 +14,7 @@
 <div id="particles-js"></div>
 <script src="js/particles/particles.js"></script>
 
-<!-- Back button -->
+<!-- Κουμπί επιστροφής στην αρχική σελίδα -->
 <div class="back-button-container">
     <button class="action-button" @onclick="GoBack">
         <i class="fa-solid fa-arrow-left"></i> ΠΙΣΩ
@@ -45,7 +45,7 @@ else
                 <input type="password" placeholder="Κωδικός Πρόσβασης" class="action-input" @bind="password" />
             </div>
             <div class="captcha-container">
-                <!-- C# CAPTCHA implementation -->
+                <!-- Υλοποίηση CAPTCHA για προστασία από bots -->
                 <div class="captcha-image">
                     <img src="@captchaImageUrl" alt="CAPTCHA" />
                     <button class="refresh-captcha" @onclick="RefreshCaptchaAsync" title="Refresh CAPTCHA">
@@ -75,18 +75,23 @@ else
 }
 
 @code {
+    // Μεταβλητές για τη φόρμα σύνδεσης
     private string email = string.Empty;
     private string password = string.Empty;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
     private bool isRedirecting = false;
     private bool isCheckingAuth = true;
+    
+    // Μεταβλητές για το CAPTCHA
     private string captchaImageUrl = string.Empty;
     private string captchaInput = string.Empty;
     private string captchaId = string.Empty;
 
+    // Έλεγχος αυθεντικοποίησης και αρχικοποίηση CAPTCHA κατά την εκκίνηση
     protected override async Task OnInitializedAsync()
     {
+        // Έλεγχος αν ο χρήστης είναι ήδη συνδεδεμένος
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
 
         if (authState.User.Identity?.IsAuthenticated == true)
@@ -97,96 +102,108 @@ else
                 var user = await UserService.GetUserByIdAsync(userId);
                 if (user != null)
                 {
+                    // Αν ο χρήστης είναι ήδη συνδεδεμένος, ανακατεύθυνση στο dashboard
                     Navigation.NavigateTo("/dashboard", forceLoad: false);
-                    return; // Don't let anything else run
+                    return; // Τερματισμός της εκτέλεσης
                 }
                 else
                 {
+                    // Καθαρισμός κατάστασης αυθεντικοποίησης αν δεν βρεθεί ο χρήστης
                     var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
                     await authStateProvider.UpdateAuthenticationState(null);
                 }
             }
         }
 
-        isCheckingAuth = false; // Done checking, now show login UI
+        isCheckingAuth = false; // Ολοκλήρωση ελέγχου, εμφάνιση φόρμας σύνδεσης
         
-        // Generate a new CAPTCHA
+        // Δημιουργία νέου CAPTCHA για ασφάλεια
         await GenerateCaptchaAsync();
     }
     
+    // Δημιουργία νέου CAPTCHA
     private async Task GenerateCaptchaAsync()
     {
+        // Κλήση της υπηρεσίας για δημιουργία νέου CAPTCHA
         var captchaResult = await CaptchaService.GenerateCaptchaAsync();
         captchaId = captchaResult.CaptchaId;
         captchaImageUrl = captchaResult.ImageUrl;
-        captchaInput = string.Empty; // Clear previous input
+        captchaInput = string.Empty; // Καθαρισμός προηγούμενης εισόδου
     }
 
+    // Ανανέωση του CAPTCHA με κουμπί
     private async Task RefreshCaptchaAsync()
     {
+        // Δημιουργία νέου CAPTCHA χωρίς να επαναφορτωθεί η σελίδα
         await GenerateCaptchaAsync();
     }
 
+    // Διαχείριση σύνδεσης χρήστη
     private async Task HandleLogin()
     {
-        // Prevent duplicate login attempts
+        // Αποτροπή διπλών προσπαθειών σύνδεσης
         if (isRedirecting) return;
 
-        // Clear previous errors
+        // Καθαρισμός προηγούμενων σφαλμάτων
         errorMessage = string.Empty;
 
-        // Check if captcha input is provided
+        // Έλεγχος εισαγωγής CAPTCHA
         if (string.IsNullOrEmpty(captchaInput))
         {
             errorMessage = "Please enter the CAPTCHA code";
             return;
         }
 
+        // Βασικός έλεγχος εγκυρότητας για email και κωδικό
         if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password) && Funcs.Misc.IsValidEmail(email) && password.Length >= 8)
         {
             try
             {
-                // Validate the captcha
+                // Επικύρωση του CAPTCHA
                 bool captchaValid = await CaptchaService.ValidateCaptchaAsync(captchaId, captchaInput);
 
                 if (!captchaValid)
                 {
                     errorMessage = "CAPTCHA validation failed. Please try again.";
-                    await GenerateCaptchaAsync(); // Generate new captcha
+                    await GenerateCaptchaAsync(); // Δημιουργία νέου CAPTCHA
                     return;
                 }
 
-                // Authenticate user
+                // Αυθεντικοποίηση χρήστη με τα στοιχεία της φόρμας
                 var user = await UserService.ValidateUserAsync(email, password);
                 if (user != null)
                 {
-                    // Update authentication state
+                    // Ενημέρωση κατάστασης αυθεντικοποίησης
                     var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
                     await authStateProvider.UpdateAuthenticationState(user);
                     successMessage = "Login successful! Redirecting to dashboard...";
                     StateHasChanged();
 
-                    // Prevent duplicate redirections
+                    // Αποτροπή διπλών ανακατευθύνσεων
                     isRedirecting = true;
 
-                    // Add a slight delay to ensure authentication state is updated
+                    // Μικρή καθυστέρηση για να διασφαλιστεί η ενημέρωση της κατάστασης αυθεντικοποίησης
+                    // και για να δει ο χρήστης το μήνυμα επιτυχίας
                     await Task.Delay(2000);
                     Navigation.NavigateTo("/dashboard", forceLoad: false);
                 }
                 else
                 {
+                    // Μήνυμα σφάλματος για μη έγκυρα στοιχεία σύνδεσης
                     errorMessage = "Invalid email or password";
-                    await GenerateCaptchaAsync(); // Generate new captcha
+                    await GenerateCaptchaAsync(); // Δημιουργία νέου CAPTCHA
                 }
             }
             catch (Exception ex)
             {
+                // Διαχείριση απρόσμενων σφαλμάτων
                 errorMessage = $"An error occurred: {ex.Message}";
-                await GenerateCaptchaAsync(); // Generate new captcha
+                await GenerateCaptchaAsync(); // Δημιουργία νέου CAPTCHA
             }
         }
         else
         {
+            // Λεπτομερής έλεγχος εγκυρότητας και παροχή συγκεκριμένων μηνυμάτων σφάλματος
             if (string.IsNullOrEmpty(email) && string.IsNullOrEmpty(password))
             {
                 errorMessage = "Please enter both email and password";
@@ -212,17 +229,19 @@ else
                 }
                 errorMessage = string.Join("<br>", errors);
             }
-            await GenerateCaptchaAsync(); // Generate new captcha
+            await GenerateCaptchaAsync(); // Δημιουργία νέου CAPTCHA μετά από αποτυχία
         }
     }
 
+    // Επιστροφή στην αρχική σελίδα
     private void GoBack()
     {
         NavigationManager.NavigateTo("/", forceLoad: false);
     }
 
+    // Απελευθέρωση πόρων κατά την απόρριψη του component
     public void Dispose()
     {
-        // Clean up any resources
+        // Καθαρισμός τυχόν πόρων που χρειάζεται να απελευθερωθούν
     }
 }

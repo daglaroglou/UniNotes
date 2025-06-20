@@ -2,13 +2,18 @@
 <html lang="en">
 
 <head>
+    <!-- Μετα-δεδομένα για εμφάνιση σε μέσα κοινωνικής δικτύωσης -->
     <meta name="og:image" content="@Assets["logo.png"]" />
     <meta property="og:title" content="UniNotes" />
     <meta property="og:description" content="WebApp for sharing hand-written notes across University of Macedonia lectures." />
     <meta property="author" content="DaG" />
+
+    <!-- Βασικά μετα-δεδομένα για σωστή εμφάνιση -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
+
+    <!-- Εικονίδιο και φύλλα στυλ -->
     <link rel="icon" type="image/x-icon" href="@Assets["logo.ico"]" />
     <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
@@ -17,7 +22,13 @@
 </head>
 
 <body>
+    <!--
+        Το κύριο στοιχείο Routes που περιέχει όλα τα components της εφαρμογής
+        Ρυθμίζεται σε InteractiveServer για διαδραστική λειτουργία στον εξυπηρετητή
+    -->
     <Routes @rendermode=RenderMode.InteractiveServer />
+
+    <!-- Βασικά JavaScript -->
     <script src="_framework/blazor.web.js"></script>
     <script src="js/downloadHelper.js"></script>
 </body>

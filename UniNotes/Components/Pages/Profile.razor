@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<!-- Περιοχή για το animation σωματιδίων -->
 <div id="particles-js"></div>
 <script src="js/particles/particles.js"></script>
 <script>
@@ -17,7 +18,7 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <!-- Navigation tabs - EXACTLY like Dashboard (no inline styles) -->
+            <!-- Καρτέλες πλοήγησης -->
             <div class="navigation-tabs">
                 <a class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                     <i class="fa-solid fa-gauge-high"></i>
@@ -67,14 +68,14 @@
                 </div>
             </div>
 
-
-            <!-- Content area -->
+            <!-- Περιοχή περιεχομένου με το προφίλ χρήστη -->
             <div style="padding-top: 80px; padding-bottom: 40px; min-height: 100vh; width: 100%;">
                 <div style="max-width: 800px; margin: 0 auto; text-align: center;">
                     <h1 style="font-family: 'Lobster', cursive; font-size: 3.5rem; margin-bottom: 30px; color: white;">
                         @(IsCurrentUserProfile ? "My Profile" : $"{user?.Username}'s Profile")
                     </h1>
 
+                    <!-- Ένδειξη φόρτωσης -->
                     @if (isLoading)
                     {
                         <div style="display: flex; justify-content: center; margin: 50px 0;">
@@ -83,26 +84,29 @@
                     }
                     else if (user != null)
                     {
-                        <!-- Profile card -->
+                        <!-- Κάρτα προφίλ με τα στοιχεία του χρήστη -->
                         <div style="background: rgba(0,0,0,0.6); border-radius: 15px; padding: 30px; margin: 20px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: white; text-align: center;">
-                            <!-- User avatar and name -->
+                            <!-- Εικόνα προφίλ και όνομα χρήστη -->
                             <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
                                 <img src="@GetAvatarUrl(user.Username)" alt="User Avatar" style="width: 80px; height: 80px; border-radius: 50%; margin-right: 20px; background-color: #add8e6;" />
                                 <div style="text-align: left;">
                                     <h2 style="font-size: 2rem; margin: 0 0 5px 0;">
                                         @user.FirstName @user.LastName
+                                        <!-- Εμφάνιση σήματος διαχειριστή αν ο χρήστης είναι admin -->
                                         @if (user.IsAdmin)
                                         {
                                             <span class="admin-badge" title="Administrator">
                                                 <i class="fa-solid fa-shield-halved"></i> ADMIN
                                             </span>
                                         }
+                                        <!-- Εμφάνιση σήματος γραμματέα αν ο χρήστης είναι γραμματέας -->
                                         @if (user.IsSecretary)
                                         {
                                             <span class="secretary-badge" title="Secretary">
                                                 <i class="fa-solid fa-user-tie"></i> SECRETARY
                                             </span>
                                         }
+                                        <!-- Εμφάνιση σήματος αξιόπιστου χρήστη αν η βαθμολογία είναι υψηλή -->
                                         @if (user.AverageNotesRating > 4.5)
                                         {
                                             <span class="verified-badge" title="Verified User">
@@ -114,7 +118,7 @@
                                 </div>
                             </div>
 
-                            <!-- User details -->
+                            <!-- Λεπτομέρειες χρήστη -->
                             <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin-bottom: 30px; text-align: left;">
                                 <div style="display: flex; align-items: center; margin-bottom: 15px;">
                                     <i class="fa-solid fa-envelope" style="width: 30px; color: #add8e6;"></i>
@@ -126,21 +130,24 @@
                                 </div>
                             </div>
 
-                            <!-- Stats section -->
+                            <!-- Τμήμα στατιστικών -->
                             <h3 style="font-size: 1.5rem; margin: 0 0 20px 0;">Notes Statistics</h3>
                             <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+                                <!-- Μέση βαθμολογία σημειώσεων -->
                                 <div style="flex: 1; min-width: 150px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 0 5px 10px 5px;">
                                     <i class="fa-solid fa-star" style="font-size: 2rem; color: gold;"></i>
                                     <div style="font-size: 1.8rem; font-weight: bold; margin-top: 10px;">@user.AverageNotesRating.ToString("0.00")</div>
                                     <div style="opacity: 0.7;">Average Rating</div>
                                 </div>
 
+                                <!-- Συνολικός αριθμός σημειώσεων -->
                                 <div style="flex: 1; min-width: 150px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 0 5px 10px 5px;">
                                     <i class="fa-solid fa-file-alt" style="font-size: 2rem; color: #add8e6;"></i>
                                     <div style="font-size: 1.8rem; font-weight: bold; margin-top: 10px;">@user.NoteIds.Count</div>
                                     <div style="opacity: 0.7;">Total Notes</div>
                                 </div>
 
+                                <!-- Συνολικές αξιολογήσεις που έχει λάβει -->
                                 <div style="flex: 1; min-width: 150px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 0 5px 10px 5px;">
                                     <i class="fa-solid fa-thumbs-up" style="font-size: 2rem; color: lightgreen;"></i>
                                     <div style="font-size: 1.8rem; font-weight: bold; margin-top: 10px;">@user.TotalRatingsReceived</div>
@@ -158,6 +165,7 @@
 </CascadingAuthenticationState>
 
 @code {
+    // Μεταβλητές για τον χρήστη του προφίλ και τον συνδεδεμένο χρήστη
     private User? user;
     private bool isLoading = true;
     private bool initialized = false;
@@ -165,44 +173,51 @@
     private User? currentUser;
     private string? previousUsername;
 
+    // Παράμετρος από το URL για το όνομα χρήστη του προφίλ
     [Parameter]
     public string? Username { get; set; }
 
+    // Μήνυμα σφάλματος
     private string? errorMessage;
 
+    // Έλεγχος αν το προφίλ ανήκει στον συνδεδεμένο χρήστη
     private bool IsCurrentUserProfile => string.IsNullOrEmpty(Username) ||
                                        (currentUser != null && Username == currentUser.Username);
 
-    // Get avatar URL from DiceBear
+    // Δημιουργία URL εικόνας προφίλ από το DiceBear API
     private string GetAvatarUrl(string GUID)
     {
-        // Use username as seed to generate random avatar every time
+        // Χρήση μοναδικού αναγνωριστικού για τη δημιουργία τυχαίου avatar
         return $"https://api.dicebear.com/9.x/notionists-neutral/svg?seed={Guid.NewGuid().ToString()}";
     }
 
-    // Use OnInitializedAsync for data loading
+    // Αρχικοποίηση και φόρτωση δεδομένων συνδεδεμένου χρήστη
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            // Έλεγχος αυθεντικοποίησης
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
             var userClaims = authState.User;
 
             if (!userClaims.Identity?.IsAuthenticated ?? true)
             {
+                // Ανακατεύθυνση στη σύνδεση αν ο χρήστης δεν είναι συνδεδεμένος
                 NavigationManager.NavigateTo("/login", forceLoad: true);
                 return;
             }
 
+            // Ανάκτηση του ID του συνδεδεμένου χρήστη
             currentUserId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrWhiteSpace(currentUserId))
             {
+                // Ανακατεύθυνση στη σύνδεση αν δεν υπάρχει ID
                 NavigationManager.NavigateTo("/login", forceLoad: true);
                 return;
             }
 
-            // Get current user information
+            // Ανάκτηση πληροφοριών συνδεδεμένου χρήστη
             currentUser = await UserService.GetUserByIdAsync(currentUserId);
         }
         catch (Exception ex)
@@ -211,6 +226,7 @@
         }
     }
 
+    // Επανεξέταση παραμέτρων και φόρτωση δεδομένων όταν αλλάζει το όνομα χρήστη
     protected override async Task OnParametersSetAsync()
     {
         if (!initialized || previousUsername != Username)
@@ -221,28 +237,30 @@
         }
     }
 
+    // Φόρτωση δεδομένων χρήστη από το όνομα χρήστη στο URL
     private async Task LoadUserData()
     {
         isLoading = true;
         try
         {
-            // If a username parameter is provided, load that user's profile
+            // Αν παρέχεται όνομα χρήστη στις παραμέτρους, φόρτωση του αντίστοιχου προφίλ
             if (!string.IsNullOrEmpty(Username))
             {
                 user = await UserService.GetUserByUsernameAsync(Username);
                 if (user == null)
                 {
                     errorMessage = "User not found";
-                    // Fall back to current user profile if the requested one is not found
+                    // Αν ο χρήστης δεν βρέθηκε, χρήση του τρέχοντος χρήστη ως εναλλακτική
                     user = currentUser;
                 }
             }
             else
             {
-                // If no username parameter, load current user's profile
+                // Αν δεν παρέχεται όνομα χρήστη, φόρτωση του προφίλ του συνδεδεμένου χρήστη
                 user = currentUser;
             }
 
+            // Αν δεν βρέθηκε χρήστης, αποσύνδεση και ανακατεύθυνση
             if (user is null)
             {
                 var authProvider = (BlazorAuthStateProvider)AuthStateProvider;
@@ -261,6 +279,7 @@
         }
     }
 
+    // Χειρισμός αποσύνδεσης
     private async Task HandleLogout()
     {
         var authStateProvider = (BlazorAuthStateProvider)AuthStateProvider;
@@ -268,11 +287,13 @@
         NavigationManager.NavigateTo("/", forceLoad: true);
     }
 
+    // Ανακατεύθυνση στη σελίδα σύνδεσης
     private void RedirectToLogin()
     {
         NavigationManager.NavigateTo("/login");
     }
 
+    // Έλεγχος αν η τρέχουσα σελίδα ταιριάζει με τη δοθείσα διαδρομή
     private bool IsCurrentPage(string path)
     {
         return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);

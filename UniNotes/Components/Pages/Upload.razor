@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<!-- Περιοχή για το animation σωματιδίων -->
 <div id="particles-js"></div>
 <script src="js/particles/particles.js"></script>
 <script>
@@ -20,7 +21,7 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <!-- Navigation tabs -->
+            <!-- Καρτέλες πλοήγησης -->
             <div class="navigation-tabs">
                 <div class="nav-tab @(IsCurrentPage("/dashboard") ? "active" : "")" @onclick='() => NavigationManager.NavigateTo("/dashboard")'>
                     <i class="fa-solid fa-gauge-high"></i>
@@ -71,9 +72,11 @@
             </div>
 
             <div class="full-page-background">
+                <!-- Φόρμα μεταφόρτωσης σημειώσεων -->
                 <div class="upload-container">
                     <h1 class="logo">Ανάρτηση Σημείωσης</h1>
 
+                    <!-- Εμφάνιση μηνυμάτων επιτυχίας ή σφάλματος -->
                     @if (!string.IsNullOrEmpty(successMessage))
                     {
                         <div class="message-container">
@@ -87,7 +90,7 @@
                         </div>
                     }
 
-
+                    <!-- Πεδίο τίτλου σημείωσης -->
                     <div class="form-group">
                         <label for="title">Τίτλος</label>
                         <div class="title-container">
@@ -99,6 +102,7 @@
                         </div>
                     </div>
 
+                    <!-- Πεδίο περιγραφής -->
                     <div class="form-group">
                         <label for="description">Περιγραφή</label>
                         <div class="description-container">
@@ -110,6 +114,7 @@
                         </div>
                     </div>
 
+                    <!-- Επιλογή εξαμήνου -->
                     <div class="form-group">
                         <label for="semester">Εξάμηνο</label>
                         <select id="semester" class="form-control" value="@note.Semester" @onchange="OnSemesterChanged">
@@ -121,6 +126,7 @@
                         </select>
                     </div>
 
+                    <!-- Επιλογή μαθήματος (εξαρτάται από το επιλεγμένο εξάμηνο) -->
                     <div class="form-group">
                         <label for="subject">Μάθημα</label>
                         <select id="subject" class="form-control" @bind="note.Subject">
@@ -139,8 +145,10 @@
                         </select>
                     </div>
 
+                    <!-- Περιοχή επιλογής ετικετών (tags) -->
                     <div class="form-group">
                         <div class="tags-container">
+                            <!-- Εμφάνιση επιλεγμένων ετικετών -->
                             <div class="tags-list">
                                 @foreach (var tag in tags)
                                 {
@@ -152,6 +160,7 @@
                                     </div>
                                 }
                             </div>
+                            <!-- Επιλογή από προτεινόμενες ετικέτες -->
                             <div class="tag-selection">
                                 <p class="tag-instruction">Επιλέξτε tags για τις σημειώσεις σας:</p>
                                 <div class="tag-options">
@@ -167,6 +176,7 @@
                             </div>
                         </div>
 
+                        <!-- Επιλογή αρχείου για μεταφόρτωση -->
                         <label>Ανάρτηση Αρχείου</label>
                         <InputFile OnChange="OnFileChange" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png" />
                         @if (!string.IsNullOrEmpty(fileName))
@@ -176,13 +186,14 @@
                             </div>
                         }
                     </div>
+                    <!-- Κουμπί μεταφόρτωσης -->
                     <div class="form-group mt-4">
                         <button class="action-button w-100" @onclick="() => ValidateAndUpload()">
                             <i class="fa-solid fa-upload"></i> ΑΝΑΡΤΗΣΗ ΣΗΜΕΙΩΣΗΣ
                         </button>
                     </div>
                 </div>
-        </div>
+            </div>
         </Authorized>
         <NotAuthorized>
         </NotAuthorized>
@@ -190,95 +201,118 @@
 </CascadingAuthenticationState>
 
 @code {
-    private User? user;
-    private string? userId;
-    private Note note = new Note();
-    private IBrowserFile? selectedFile;
-    private string fileName = "";
-    private bool isFileSelected = false;
-    private string errorMessage = "";
-    private string successMessage = "";
-    private bool isRedirecting = false;
-    private List<string> tags = new List<string>();
-    private List<string> semesterSubjects = new List<string>();
+    // Βασικές μεταβλητές για τη σελίδα μεταφόρτωσης
+    private User? user;                    
+    private string? userId;                
+    private Note note = new Note();        
+    private IBrowserFile? selectedFile;    
+    private string fileName = "";          
+    private bool isFileSelected = false;   
+    private string errorMessage = "";      
+    private string successMessage = "";    
+    private bool isRedirecting = false;    
+
+    // Διαχείριση ετικετών (tags)
+    private List<string> tags = new List<string>();              
+    private List<string> semesterSubjects = new List<string>();  
+
+    // Προκαθορισμένες προτάσεις ετικετών
     private readonly List<string> tagSuggestions = new List<string> {
         "Εξετάσεις", "Ασκήσεις", "Διάλεξη"
     };
 
+    // Αρχικοποίηση και φόρτωση δεδομένων χρήστη
     protected override async Task OnInitializedAsync()
     {
+        // Ανάκτηση της κατάστασης αυθεντικοποίησης
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var userClaims = authState.User;
 
+        // Έλεγχος αν ο χρήστης είναι συνδεδεμένος
         if (userClaims.Identity?.IsAuthenticated == true)
         {
+            // Ανάκτηση του αναγνωριστικού χρήστη
             userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!string.IsNullOrEmpty(userId))
             {
+                // Φόρτωση πλήρους προφίλ χρήστη
                 user = await UserService.GetUserByIdAsync(userId);
                 if (user != null)
                 {
+                    // Αρχικοποίηση του πεδίου username στο αντικείμενο σημείωσης
                     note.Username = user.Username;
                 }
             }
         }
     }
 
+    // Χειρισμός αλλαγής εξαμήνου και φόρτωση των αντίστοιχων μαθημάτων
     private async Task OnSemesterChanged(ChangeEventArgs e)
     {
+        // Μετατροπή της επιλεγμένης τιμής σε αριθμό εξαμήνου
         if (int.TryParse(e.Value?.ToString(), out int semesterId))
         {
+            // Ενημέρωση του εξαμήνου στο αντικείμενο σημείωσης
             note.Semester = semesterId;
+            // Φόρτωση των μαθημάτων για το επιλεγμένο εξάμηνο
             semesterSubjects = await SubjectService.GetSubjectsForSemesterAsync(semesterId);
 
-            // Force UI update
+            // Εξαναγκασμός ανανέωσης του UI
             StateHasChanged();
         }
         else
         {
+            // Αν η τιμή δεν είναι έγκυρη, επαναφορά του εξαμήνου και καθαρισμός της λίστας μαθημάτων
             note.Semester = 0;
             semesterSubjects.Clear();
         }
     }
 
+    // Εναλλαγή κατάστασης ετικέτας (προσθήκη/αφαίρεση)
     private void ToggleTag(string tag)
     {
+        // Αν η ετικέτα υπάρχει ήδη στη λίστα, την αφαιρούμε
         if (tags.Contains(tag))
         {
             tags.Remove(tag);
         }
+        // Διαφορετικά, την προσθέτουμε
         else
         {
             tags.Add(tag);
         }
+        // Ενημέρωση του UI
         StateHasChanged();
     }
 
+    // Αφαίρεση συγκεκριμένης ετικέτας από τη λίστα
     private void RemoveTag(string tag)
     {
         tags.Remove(tag);
         StateHasChanged();
     }
 
+    // Επικύρωση δεδομένων και μεταφόρτωση της σημείωσης
     private async Task ValidateAndUpload()
     {
-        // Prevent duplicate upload attempts
+        // Αποτροπή διπλών προσπαθειών μεταφόρτωσης
         if (isRedirecting) return;
 
-        // Clear previous messages
+        // Καθαρισμός προηγούμενων μηνυμάτων
         errorMessage = string.Empty;
         successMessage = string.Empty;
 
-        // Collect validation errors
+        // Συλλογή σφαλμάτων επικύρωσης
         var errors = new List<string>();
 
+        // Έλεγχος αν έχει επιλεχθεί αρχείο
         if (selectedFile == null)
         {
             errors.Add("Please select a file to upload.");
         }
         else
         {
-            // Limit file size check before sending
+            // Έλεγχος μεγέθους αρχείου πριν την αποστολή
             const long maxFileSize = 10 * 1024 * 1024; // 10 MB
             if (selectedFile.Size > maxFileSize)
             {
@@ -286,41 +320,45 @@
             }
         }
 
+        // Έλεγχος τίτλου
         if (string.IsNullOrWhiteSpace(note.Title))
         {
             errors.Add("Title is required.");
         }
 
+        // Έλεγχος εξαμήνου
         if (note.Semester <= 0)
         {
             errors.Add("Please select a semester.");
         }
 
+        // Έλεγχος μαθήματος
         if (string.IsNullOrWhiteSpace(note.Subject))
         {
             errors.Add("Please select a subject.");
         }
 
-        // Add validation for tags
+        // Έλεγχος ετικετών
         if (tags == null || tags.Count == 0)
         {
             errors.Add("Επιλέξτε τουλάχιστον ένα tag για τις σημειώσεις σας.");
         }
 
-        // If we have validation errors, display them and return
+        // Αν υπάρχουν σφάλματα επικύρωσης, εμφάνισή τους και τερματισμός
         if (errors.Count > 0)
         {
             errorMessage = string.Join("<br>", errors);
             return;
         }
 
-        // Add tags to the note before uploading
+        // Προσθήκη ετικετών στο αντικείμενο σημείωσης πριν τη μεταφόρτωση
         note.Tags = tags;
 
-        // If validation passes, proceed with upload
+        // Αν η επικύρωση είναι επιτυχής, συνέχεια με τη μεταφόρτωση
         await UploadNote();
     }
 
+    // Αποσύνδεση χρήστη
     private async Task Logout()
     {
         if (AuthStateProvider is BlazorAuthStateProvider blazorAuthStateProvider)
@@ -330,22 +368,23 @@
         }
     }
 
+    // Χειρισμός αλλαγής επιλεγμένου αρχείου
     private async Task OnFileChange(InputFileChangeEventArgs e)
     {
         try
         {
-            // Clear previous messages
+            // Καθαρισμός προηγούμενων μηνυμάτων
             errorMessage = string.Empty;
             successMessage = string.Empty;
 
-            // Check if file is null
+            // Έλεγχος αν το αρχείο είναι κενό
             if (e.File == null)
             {
                 errorMessage = "Invalid file selection.";
                 return;
             }
 
-            // Add size validation here to prevent large files from crashing the app
+            // Έλεγχος μεγέθους αρχείου για αποφυγή κατάρρευσης της εφαρμογής
             const long maxFileSize = 10 * 1024 * 1024; // 10 MB
             if (e.File.Size > maxFileSize)
             {
@@ -353,7 +392,7 @@
                 return;
             }
 
-            // Check file type to ensure it's supported
+            // Έλεγχος τύπου αρχείου για διασφάλιση συμβατότητας
             string extension = "";
             try
             {
@@ -366,13 +405,14 @@
                 return;
             }
 
+            // Έλεγχος για υποστηριζόμενους τύπους αρχείων
             if (!new[] { ".pdf", ".doc", ".docx", ".jpg", ".png" }.Contains(extension))
             {
                 errorMessage = "File type not supported. Please upload PDF, Word, JPG or PNG files.";
                 return;
             }
 
-            // Now set the file
+            // Αποθήκευση του αρχείου στις μεταβλητές
             selectedFile = e.File;
             fileName = e.File.Name;
             isFileSelected = true;
@@ -382,33 +422,36 @@
             Console.WriteLine($"File selection error: {ex}");
             errorMessage = $"Error selecting file: {ex.Message}";
 
-            // Reset file selection state
+            // Επαναφορά κατάστασης επιλογής αρχείου
             selectedFile = null;
             fileName = string.Empty;
             isFileSelected = false;
         }
     }
 
+    // Μεταφόρτωση της σημείωσης στο διακομιστή
     private async Task UploadNote()
     {
         try
         {
+            // Κλήση της υπηρεσίας για μεταφόρτωση της σημείωσης
             bool result = await NoteService.UploadNoteAsync(note, selectedFile);
 
             if (result)
             {
+                // Εμφάνιση μηνύματος επιτυχίας
                 successMessage = "Note uploaded successfully! Redirecting to dashboard...";
 
-                // Reset the form
+                // Επαναφορά της φόρμας
                 note = new Note { Username = user?.Username ?? "" };
                 selectedFile = null;
                 fileName = "";
                 isFileSelected = false;
 
-                // Prevent duplicate redirections
+                // Αποτροπή διπλών ανακατευθύνσεων
                 isRedirecting = true;
 
-                // Redirect to panel after 2 seconds
+                // Ανακατεύθυνση στο dashboard μετά από 2 δευτερόλεπτα
                 StateHasChanged();
                 await Task.Delay(2000);
                 NavigationManager.NavigateTo("/dashboard");
@@ -424,22 +467,26 @@
         }
     }
 
+    // Αναγκασμός εστίασης σε στοιχείο της φόρμας με JavaScript
     private async Task FocusElement(MouseEventArgs args)
     {
-        // Use JavaScript to get the currently focused element
+        // Χρήση JavaScript για λήψη του τρέχοντος εστιασμένου στοιχείου
         var elementId = await JSRuntime.InvokeAsync<string>("eval", "document.activeElement.id");
 
         if (!string.IsNullOrEmpty(elementId))
         {
-            // Force focus on the element
+            // Εξαναγκασμός εστίασης στο στοιχείο
             await JSRuntime.InvokeVoidAsync("document.getElementById", elementId, "focus");
         }
     }
 
+    // Έλεγχος αν βρισκόμαστε στην τρέχουσα σελίδα
     private bool IsCurrentPage(string path)
     {
         return NavigationManager.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
     }
+
+    // Χειρισμός αποσύνδεσης χρήστη
     private void HandleLogout(MouseEventArgs args)
     {
         throw new NotImplementedException();
