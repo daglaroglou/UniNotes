@@ -32,7 +32,10 @@ namespace UniNotes.Services
 
         public Task<bool> ValidateCaptchaAsync(string captchaId, string userInput)
         {
-            if (_cache.TryGetValue(captchaId, out string expectedText))
+            if (string.IsNullOrEmpty(captchaId)) return Task.FromResult(false);
+            if (string.IsNullOrEmpty(userInput)) return Task.FromResult(false);
+
+            if (_cache.TryGetValue(captchaId, out string? expectedText) && !string.IsNullOrEmpty(expectedText))
             {
                 _cache.Remove(captchaId);
                 return Task.FromResult(
@@ -111,48 +114,52 @@ namespace UniNotes.Services
                 }
 
                 // Draw text
-                using (var textPaint = new SKPaint())
+                using (var font = new SKFont())
                 {
-                    textPaint.Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
-                    textPaint.TextSize = 26;
-                    textPaint.IsAntialias = true;
-                    textPaint.SubpixelText = true;
+                    font.Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
+                    font.Size = 26;
+                    font.Subpixel = true;
 
-                    // Measure total text width
-                    float totalWidth = 0;
-                    float[] charWidths = new float[captchaText.Length];
-                    for (int i = 0; i < captchaText.Length; i++)
+                    using (var textPaint = new SKPaint())
                     {
-                        charWidths[i] = textPaint.MeasureText(captchaText[i].ToString());
-                        totalWidth += charWidths[i] - 2; // Adjust for kerning
-                    }
-                    totalWidth += 2 * (captchaText.Length - 1); // Add spacing
+                        textPaint.IsAntialias = true;
 
-                    float startX = (width - totalWidth) / 2;
-                    float centerY = height / 2f;
+                        // Measure total text width
+                        float totalWidth = 0;
+                        float[] charWidths = new float[captchaText.Length];
+                        for (int i = 0; i < captchaText.Length; i++)
+                        {
+                            charWidths[i] = font.MeasureText(captchaText[i].ToString());
+                            totalWidth += charWidths[i] - 2; // Adjust for kerning
+                        }
+                        totalWidth += 2 * (captchaText.Length - 1); // Add spacing
 
-                    for (int i = 0; i < captchaText.Length; i++)
-                    {
-                        string ch = captchaText[i].ToString();
-                        float charWidth = charWidths[i] - 2;
+                        float startX = (width - totalWidth) / 2;
+                        float centerY = height / 2f;
 
-                        // Get character metrics
-                        SKRect bounds = new SKRect();
-                        textPaint.MeasureText(ch, ref bounds);
-                        float baseline = centerY - (bounds.Top + bounds.Bottom) / 2;
-                        float posY = baseline + _random.Next(-3, 3);
+                        for (int i = 0; i < captchaText.Length; i++)
+                        {
+                            string ch = captchaText[i].ToString();
+                            float charWidth = charWidths[i] - 2;
 
-                        // Set random bright color
-                        textPaint.Color = GetRandomBrightColor();
+                            // Get character metrics
+                            SKRect bounds = new SKRect();
+                            font.MeasureText(ch, out bounds);
+                            float baseline = centerY - (bounds.Top + bounds.Bottom) / 2;
+                            float posY = baseline + _random.Next(-3, 3);
 
-                        // Draw character with rotation
-                        canvas.Save();
-                        canvas.Translate(startX, posY);
-                        canvas.RotateDegrees(_random.Next(-8, 8));
-                        canvas.DrawText(ch, 0, 0, textPaint);
-                        canvas.Restore();
+                            // Set random bright color
+                            textPaint.Color = GetRandomBrightColor();
 
-                        startX += charWidth + 2;
+                            // Draw character with rotation
+                            canvas.Save();
+                            canvas.Translate(startX, posY);
+                            canvas.RotateDegrees(_random.Next(-8, 8));
+                            canvas.DrawText(ch, 0, 0, SKTextAlign.Left, font, textPaint);
+                            canvas.Restore();
+
+                            startX += charWidth + 2;
+                        }
                     }
                 }
 

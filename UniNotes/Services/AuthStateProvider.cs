@@ -91,6 +91,6 @@ namespace UniNotes.Services
     // Κλάση που αντιπροσωπεύει μια συνεδρία χρήστη που αποθηκεύεται στο τοπικό αποθηκευτήριο
     public class UserSession
     {
-        public string UserId { get; set; }
+        public required string UserId { get; set; }
     }
 }
