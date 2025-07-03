@@ -10,7 +10,7 @@ namespace UniNotes.Services
     {
         private readonly IMemoryCache _cache;
         private readonly Random _random = new Random();
-        private const string Chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        private const string Chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789";
 
         public CaptchaService(IMemoryCache cache)
         {
@@ -39,7 +39,7 @@ namespace UniNotes.Services
             {
                 _cache.Remove(captchaId);
                 return Task.FromResult(
-                    string.Equals(userInput, expectedText, StringComparison.OrdinalIgnoreCase)
+                    string.Equals(userInput, expectedText)
                 );
             }
             return Task.FromResult(false);
