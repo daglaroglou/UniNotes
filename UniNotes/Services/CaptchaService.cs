@@ -1,41 +1,28 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using SkiaSharp;
 
 namespace UniNotes.Services
 {
-    // Υπηρεσία που διαχειρίζεται τη δημιουργία και επικύρωση CAPTCHA
-    // Χρησιμοποιείται στη φόρμα εγγραφής για προστασία από bots
     public class CaptchaService : ICaptchaService
     {
         private readonly IMemoryCache _cache;
         private readonly Random _random = new Random();
-        private const string Chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Χαρακτήρες για το CAPTCHA (εξαιρούνται εύκολα συγχεόμενοι χαρακτήρες)
+        private const string Chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
         public CaptchaService(IMemoryCache cache)
         {
             _cache = cache;
         }
 
-        // Δημιουργεί ένα νέο CAPTCHA με τυχαίο κείμενο και εικόνα
         public Task<CaptchaResult> GenerateCaptchaAsync()
         {
-            // Δημιουργία τυχαίου κωδικού CAPTCHA 6 χαρακτήρων
             var captchaText = GenerateCaptchaText(6);
-
-            // Δημιουργία μοναδικού αναγνωριστικού για αυτό το CAPTCHA
             var captchaId = Guid.NewGuid().ToString();
-
-            // Αποθήκευση του κειμένου CAPTCHA στην cache με το ID ως κλειδί (λήξη μετά από 10 λεπτά)
             _cache.Set(captchaId, captchaText, TimeSpan.FromMinutes(10));
-
-            // Δημιουργία εικόνας απευθείας ως συμβολοσειρά base64
             string imageDataUrl = GenerateCaptchaImageAsDataUrl(captchaText);
-
             return Task.FromResult(new CaptchaResult
             {
                 CaptchaId = captchaId,
@@ -43,170 +30,150 @@ namespace UniNotes.Services
             });
         }
 
-        // Επικυρώνει την είσοδο του χρήστη για ένα συγκεκριμένο CAPTCHA
         public Task<bool> ValidateCaptchaAsync(string captchaId, string userInput)
         {
-            // Προσπάθεια λήψης του αναμενόμενου κειμένου CAPTCHA από την cache
             if (_cache.TryGetValue(captchaId, out string expectedText))
             {
-                // Αφαίρεση του CAPTCHA από την cache για αποτροπή επαναχρησιμοποίησης
                 _cache.Remove(captchaId);
-
-                // Σύγκριση της εισόδου χρήστη με το αναμενόμενο κείμενο (χωρίς διάκριση πεζών-κεφαλαίων)
-                return Task.FromResult(string.Equals(userInput, expectedText, StringComparison.OrdinalIgnoreCase));
+                return Task.FromResult(
+                    string.Equals(userInput, expectedText, StringComparison.OrdinalIgnoreCase)
+                );
             }
-
-            // Αν το captchaId δεν βρέθηκε στην cache ή έχει λήξει
             return Task.FromResult(false);
         }
 
-        // Δημιουργεί τυχαίο κείμενο για το CAPTCHA με το καθορισμένο μήκος
         private string GenerateCaptchaText(int length)
         {
             char[] result = new char[length];
-
             for (int i = 0; i < length; i++)
-            {
                 result[i] = Chars[_random.Next(Chars.Length)];
-            }
-
             return new string(result);
         }
 
-        // Δημιουργεί την εικόνα του CAPTCHA ως URL δεδομένων (data URL) με βάση το παρεχόμενο κείμενο
         private string GenerateCaptchaImageAsDataUrl(string captchaText)
         {
-            // Διαστάσεις για την εικόνα CAPTCHA
-            int width = 220;
-            int height = 60;
+            const int width = 220;
+            const int height = 60;
 
-            using (Bitmap bitmap = new Bitmap(width, height))
-            using (Graphics g = Graphics.FromImage(bitmap))
+            using (var bitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Premul))
+            using (var canvas = new SKCanvas(bitmap))
             {
-                // Ρύθμιση για απόδοση υψηλής ποιότητας
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                // Fill background
+                canvas.Clear(new SKColor(35, 35, 35));
 
-                // Γέμισμα φόντου με σκούρο χρώμα που ταιριάζει με το θέμα του ιστότοπου
-                using (var bgBrush = new SolidBrush(Color.FromArgb(35, 35, 35)))
+                // Draw border
+                using (var borderPaint = new SKPaint())
                 {
-                    g.FillRectangle(bgBrush, 0, 0, width, height);
+                    borderPaint.Color = new SKColor(60, 60, 60);
+                    borderPaint.StrokeWidth = 2;
+                    borderPaint.Style = SKPaintStyle.Stroke;
+                    borderPaint.IsAntialias = true;
+                    canvas.DrawRect(new SKRect(1, 1, width - 1, height - 1), borderPaint);
                 }
 
-                // Προσθήκη διακριτικού περιγράμματος
-                using (var borderPen = new Pen(Color.FromArgb(60, 60, 60), 2))
+                // Draw noise (dots)
+                using (var noisePaint = new SKPaint())
                 {
-                    g.DrawRectangle(borderPen, 1, 1, width - 3, height - 3);
-                }
-
-                // Προσθήκη θορύβου (κουκίδες)
-                for (int i = 0; i < 40; i++)
-                {
-                    int x = _random.Next(width);
-                    int y = _random.Next(height);
-                    int size = _random.Next(1, 3);
-                    using (var noiseBrush = new SolidBrush(Color.FromArgb(80, 200, 200, 200)))
+                    noisePaint.Color = new SKColor(200, 200, 200, 80);
+                    noisePaint.Style = SKPaintStyle.Fill;
+                    for (int i = 0; i < 40; i++)
                     {
-                        g.FillEllipse(noiseBrush, x, y, size, size);
+                        float x = _random.Next(width);
+                        float y = _random.Next(height);
+                        float radius = _random.Next(1, 3) / 2f;
+                        canvas.DrawCircle(x, y, radius, noisePaint);
                     }
                 }
 
-                // Προσθήκη διακριτικών κυματιστών γραμμών
-                for (int i = 0; i < 2; i++)
+                // Draw wavy lines --- using quadratic Beziers
+                using (var wavePaint = new SKPaint())
                 {
-                    Point[] points = new Point[width / 10];
-                    for (int x = 0; x < points.Length; x++)
+                    wavePaint.Color = new SKColor(180, 180, 180, 180);
+                    wavePaint.StrokeWidth = 1;
+                    wavePaint.Style = SKPaintStyle.Stroke;
+                    wavePaint.IsAntialias = true;
+
+                    for (int i = 0; i < 2; i++)
                     {
-                        points[x] = new Point(
-                            x * 10,
-                            height / 2 + _random.Next(-height / 6, height / 6)
-                        );
-                    }
+                        var path = new SKPath();
+                        int startY = _random.Next(height / 3, 2 * height / 3);
+                        path.MoveTo(0, startY);
 
-                    using (Pen pen = new Pen(Color.FromArgb(60, 180, 180, 180), 1))
-                    {
-                        g.DrawCurve(pen, points, 0.5f);
-                    }
-                }
-
-                // Ρυθμίσεις γραμματοσειράς
-                using (Font font = new Font("Arial", 26, FontStyle.Bold))
-                {
-                    // Προϋπολογισμός πλατών χαρακτήρων για πιο ακριβή διαστήματα
-                    float[] charWidths = new float[captchaText.Length];
-                    float totalWidth = 0;
-
-                    for (int i = 0; i < captchaText.Length; i++)
-                    {
-                        SizeF charSize = g.MeasureString(captchaText[i].ToString(), font);
-                        charWidths[i] = charSize.Width;
-                        totalWidth += charSize.Width - 2; // Υπολογισμός για επικάλυψη
-                    }
-
-                    // Προσθήκη διαστήματος μεταξύ χαρακτήρων στο τέλος
-                    totalWidth += (captchaText.Length - 1) * 2;
-
-                    // Υπολογισμός αρχικής θέσης για κεντράρισμα του κειμένου
-                    float startX = (width - totalWidth) / 2;
-                    float centerY = height / 2;
-
-                    // Σχεδίαση χαρακτήρων - ΚΕΝΤΡΑΡΙΣΜΕΝΟΙ στην εικόνα
-                    float currentX = startX;
-
-                    for (int i = 0; i < captchaText.Length; i++)
-                    {
-                        // Υπολογισμός θέσης με ελάχιστη τυχαιότητα για διατήρηση κεντραρίσματος
-                        float posX = currentX;
-                        float posY = centerY - (font.Height / 2) + _random.Next(-3, 3);
-
-                        // Αποθήκευση κατάστασης
-                        Matrix originalTransform = g.Transform.Clone();
-
-                        // Εφαρμογή μετασχηματισμών
-                        g.TranslateTransform(posX, posY);
-                        g.RotateTransform(_random.Next(-8, 8)); // Λιγότερη περιστροφή για καλύτερη αναγνωσιμότητα
-
-                        // Σχεδίαση με φωτεινό χρώμα
-                        using (Brush brush = new SolidBrush(GetRandomBrightColor()))
+                        for (int x = 10; x < width; x += 10)
                         {
-                            g.DrawString(captchaText[i].ToString(), font, brush, 0, 0);
+                            int endY = _random.Next(height / 3, 2 * height / 3);
+                            int ctrlY = (startY + endY) / 2 + _random.Next(-5, 5);
+                            path.QuadTo(x - 5, ctrlY, x, endY);
+                            startY = endY;
                         }
-
-                        // Επαναφορά αρχικού μετασχηματισμού
-                        g.Transform = originalTransform;
-
-                        // Μετακίνηση θέσης για επόμενο χαρακτήρα με συνεπή διαστήματα
-                        currentX += charWidths[i] - 2 + 2; // Πλάτος χαρακτήρα μείον επικάλυψη συν διάστημα
+                        canvas.DrawPath(path, wavePaint);
                     }
                 }
 
-                // Μετατροπή του bitmap σε συμβολοσειρά Base64
-                using (MemoryStream memoryStream = new MemoryStream())
+                // Draw text
+                using (var textPaint = new SKPaint())
                 {
-                    bitmap.Save(memoryStream, ImageFormat.Png);
-                    byte[] imageBytes = memoryStream.ToArray();
-                    string base64String = Convert.ToBase64String(imageBytes);
+                    textPaint.Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
+                    textPaint.TextSize = 26;
+                    textPaint.IsAntialias = true;
+                    textPaint.SubpixelText = true;
 
-                    // Επιστροφή ως data URL που μπορεί να χρησιμοποιηθεί απευθείας στο χαρακτηριστικό src ενός στοιχείου <img>
-                    return $"data:image/png;base64,{base64String}";
+                    // Measure total text width
+                    float totalWidth = 0;
+                    float[] charWidths = new float[captchaText.Length];
+                    for (int i = 0; i < captchaText.Length; i++)
+                    {
+                        charWidths[i] = textPaint.MeasureText(captchaText[i].ToString());
+                        totalWidth += charWidths[i] - 2; // Adjust for kerning
+                    }
+                    totalWidth += 2 * (captchaText.Length - 1); // Add spacing
+
+                    float startX = (width - totalWidth) / 2;
+                    float centerY = height / 2f;
+
+                    for (int i = 0; i < captchaText.Length; i++)
+                    {
+                        string ch = captchaText[i].ToString();
+                        float charWidth = charWidths[i] - 2;
+
+                        // Get character metrics
+                        SKRect bounds = new SKRect();
+                        textPaint.MeasureText(ch, ref bounds);
+                        float baseline = centerY - (bounds.Top + bounds.Bottom) / 2;
+                        float posY = baseline + _random.Next(-3, 3);
+
+                        // Set random bright color
+                        textPaint.Color = GetRandomBrightColor();
+
+                        // Draw character with rotation
+                        canvas.Save();
+                        canvas.Translate(startX, posY);
+                        canvas.RotateDegrees(_random.Next(-8, 8));
+                        canvas.DrawText(ch, 0, 0, textPaint);
+                        canvas.Restore();
+
+                        startX += charWidth + 2;
+                    }
+                }
+
+                // Convert to base64 data URL
+                using (var image = SKImage.FromBitmap(bitmap))
+                using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                {
+                    return $"data:image/png;base64,{Convert.ToBase64String(data.ToArray())}";
                 }
             }
         }
 
-        // Βοηθητική μέθοδος για δημιουργία χρωμάτων που ταιριάζουν με το θέμα του ιστότοπου
-        private Color GetRandomBrightColor()
+        private SKColor GetRandomBrightColor()
         {
-            // Επιλογή από ένα σύνολο χρωμάτων που ταιριάζουν με το θέμα του ιστότοπου και είναι εύκολα αναγνώσιμα
-            Color[] colors = new Color[]
-            {
-                Color.FromArgb(255, 255, 255),    // Λευκό
-                Color.FromArgb(180, 180, 255),    // Ανοιχτό Μπλε
-                Color.FromArgb(255, 180, 180),    // Ανοιχτό Κόκκινο
-                Color.FromArgb(180, 255, 180),    // Ανοιχτό Πράσινο
-                Color.FromArgb(255, 255, 180),    // Ανοιχτό Κίτρινο
+            SKColor[] colors = {
+                new SKColor(255, 255, 255),    // White
+                new SKColor(180, 180, 255),    // Light Blue
+                new SKColor(255, 180, 180),    // Light Red
+                new SKColor(180, 255, 180),    // Light Green
+                new SKColor(255, 255, 180),    // Light Yellow
             };
-
             return colors[_random.Next(colors.Length)];
         }
     }
