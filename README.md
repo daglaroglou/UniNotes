@@ -1,154 +1,179 @@
-![UniNotes Logo](https://i.imgur.com/jMGS9uL.gif)
-
-## Περιγραφή Έργου
-
-Το UniNotes είναι μια διαδικτυακή πλατφόρμα διαμοιρασμού και διαχείρισης σημειώσεων για φοιτητές. Επιτρέπει στους χρήστες να ανεβάζουν, να αναζητούν και να μοιράζονται ακαδημαϊκές σημειώσεις οργανωμένες ανά εξάμηνο και μάθημα.
-
-## Τεχνολογίες
-
-- .NET 9.0
-- Blazor
-- MongoDB
-- HTML/CSS/JavaScript
-
-## Οδηγίες Εγκατάστασης και Εκτέλεσης
-
-### Προαπαιτούμενα
-- .NET 9.0 SDK
-- MongoDB (τοπικά ή σε cloud service)
-
-### Βήματα Εγκατάστασης
-
-1. **Κλωνοποιήστε το αποθετήριο**
-   ```
-   git clone https://github.com/yourusername/UniNotes.git
-   cd UniNotes
-   ```
-
-2. **Ρύθμιση MongoDB**
-   - Δημιουργήστε ένα λογαριασμό στο MongoDB Atlas ή εγκαταστήστε τοπικά το MongoDB
-   - Δημιουργήστε μια νέα βάση δεδομένων για το UniNotes
-
-3. **Ρύθμιση AppSettings**
-   - Δημιουργήστε ένα αρχείο `appsettings.json` ή μεταονομάστε το `appsettings.template.json` σε `appsettings.json`, στον κύριο φάκελο του project (UniNotes/)
-   - Χρησιμοποιήστε το παρακάτω πρότυπο, αντικαθιστώντας το `<CONNECTION_STRING>` με το connection string της MongoDB βάσης σας και τα `<WEBHOOK_URL>` με τα URL απο τα Discord Webhooks:
-
-   ```json
-    {
-    "ConnectionStrings": {
-        "MongoDb": "<CONNECTION_STRING>"
-    },
-    "Logging": {
-        "LogLevel": {
-        "Default": "Information",
-        "Microsoft.AspNetCore": "Warning"
-        }
-    },
-    "AllowedHosts": "*",
-    "DiscordWebhook": {
-        "ReportUrl": "<WEBHOOK_URL>",
-        "SecretaryUrl": "<WEBHOOK_URL>"
-        }
-    }
-   ```
-   
-   **Σημείωση**: Κάποιες εκδόσεις του Visual Studio δημιουργούν αυτόματα αυτό το αρχείο, αλλά για χρήστες εκτός Windows ή άλλων IDE, είναι απαραίτητο να το δημιουργήσετε χειροκίνητα. Το αρχείο αυτό δεν περιλαμβάνεται στο αποθετήριο για λόγους ασφαλείας.
-
-4. **Εγκατάσταση Εξαρτήσεων και Εκτέλεση**
-   ```
-   dotnet restore
-   dotnet run
-   ```
-
-5. **Πρόσβαση στην Εφαρμογή**
-   - Ανοίξτε τον περιηγητή σας και πλοηγηθείτε στη διεύθυνση `http://localhost:5073` ή `https://localhost:7073`
-
-## Δομή Εφαρμογής και Σελίδες
-
-### Κύριες Σελίδες
-- **Login.razor**: Σελίδα σύνδεσης χρηστών
-- **Register.razor**: Σελίδα εγγραφής νέων χρηστών
-- **Dashboard.razor**: Κεντρική σελίδα χρήστη μετά τη σύνδεση
-- **Notes.razor**: Προβολή και αναζήτηση σημειώσεων από όλους τους χρήστες
-- **MyNotes.razor**: Διαχείριση προσωπικών σημειώσεων του χρήστη
-- **Upload.razor**: Σελίδα ανεβάσματος νέων σημειώσεων
-- **Settings.razor**: Ρυθμίσεις προφίλ χρήστη
-- **Credits.razor**: Πληροφορίες σχετικά με τους δημιουργούς
-
-## Λειτουργικότητα
-
-#### Διαχείριση Χρηστών
-- Εγγραφή και σύνδεση χρηστών
-- Διαχείριση προφίλ και ρυθμίσεων χρήστη
-- Διαφορετικά επίπεδα πρόσβασης (απλοί χρήστες, moderators, γραμματεία)
-
-#### Διαχείριση Σημειώσεων
-- Ανέβασμα σημειώσεων σε διάφορες μορφές (PDF, Word, εικόνες)
-- Κατηγοριοποίηση ανά εξάμηνο και μάθημα
-- Αναζήτηση και φιλτράρισμα σημειώσεων
-- Προβολή σημειώσεων με ενσωματωμένο viewer
-
-#### Επικοινωνία Χρηστών
-- Αξιολόγηση σημειώσεων (μελλοντική λειτουργία)
-- Αναφορά προβληματικών σημειώσεων (μελλοντική λειτουργία)
-- Αποθήκευση αγαπημένων σημειώσεων (μελλοντική λειτουργία)
-
-## Λίστα Εκκρεμών Εργασιών (Todo List)
-
-### 1) QOL και απαραίτητα updates:
-- [x] 1.1) Άμα πας στο /dashboard και κάνεις refresh, να μένεις logged in (όποια σελίδα και να πας, άμα κάνεις refresh να σε πετάει στο dashboard ή landing)
-- [x] 1.2) Να αλλάξουμε τον τρόπο αλλαγής από page σε page
-- [x] 1.3) Σε κάθε page να υπάρχει επιλογή να πας σε όλα τα άλλα
-- [x] 1.4) Back function σε register και login
-- [x] 1.5) Να μεταφράσουμε όλο το site στα ελληνικά
-- [x] 1.6) Να φτιάξουμε ένα README.MD
-- [x] 1.7) Nα κανουμε να δουλευει το view file σε κάθε note
-- [x] 1.8) Να κανουμε scrollable το "Φορουμ Σημειώσεων" για mobile devices
-
-### 2) User functions που απομένουν:
-- [x] 2.1) Να βάλουμε ratings στα notes
-- [x] 2.2) Να βάλουμε report bug function
-- [x] 2.3) Να βάλουμε report note function
-- [x] 2.4) Να βάλουμε favorites για τα notes
-- [x] 2.5) Να βάλουμε view profile για κάθε user και average rating από τα notes του
-- [x] 2.6) Να βάλουμε tags στα notes
-- [x] 2.7) Να βαλουμε download function για τα notes
-
-### 3) !!! Να φτιάξουμε moderators που να έχουν τα βασικά των users και:
-- [x] 3.1) Να κάνουν check notes
-- [x] 3.3) Check courses
-- [x] 3.4) Update courses
-
-### 4) Να βάλουμε τη γραμματεία |---> Να τη βγάλουμε μετά το τέλος του εξαμήνου!!
-- [x] 4.1) Υλοποίηση λειτουργιών γραμματείας
-- [x] 4.2) Διαχείριση χρηστών και δικαιωμάτων
-
-## Πρόκληση Ανάπτυξης
-
-Το UniNotes αναπτύσσεται με σκοπό να προσφέρει μια ολοκληρωμένη λύση για τους φοιτητές ώστε να μοιράζονται και να έχουν πρόσβαση σε ποιοτικές σημειώσεις. Οι κύριες προκλήσεις ανάπτυξης περιλαμβάνουν:
-
-1. Εξασφάλιση της ασφάλειας των δεδομένων και των δικαιωμάτων πνευματικής ιδιοκτησίας
-2. Βελτιστοποίηση του χρόνου φόρτωσης για μεγάλα αρχεία
-3. Υλοποίηση ενός φιλικού προς το χρήστη interface
-4. Αποτελεσματική διαχείριση της βάσης δεδομένων MongoDB
-5. Υλοποίηση των διαφορετικών επιπέδων πρόσβασης και δικαιωμάτων
-
-## Συνεισφορά
-
-Εάν επιθυμείτε να συνεισφέρετε στο έργο, ακολουθήστε τα παρακάτω βήματα:
-
-1. Κάντε fork το αποθετήριο
-2. Δημιουργήστε ένα νέο branch για τη λειτουργία (`git checkout -b feature/amazing-feature`)
-3. Ρυθμίστε το περιβάλλον ανάπτυξης σύμφωνα με τις οδηγίες εγκατάστασης παραπάνω
-4. Κάντε commit τις αλλαγές σας (`git commit -m 'Προσθήκη νέας λειτουργίας'`)
-5. Κάντε push στο branch (`git push origin feature/amazing-feature`)
-6. Ανοίξτε ένα Pull Request
-
-## Επικοινωνία
-
-### anastasios.tsalkos@gmail.com
-### christos.daglaroglou@gmail.com
+<p align="center">
+  <b>English</b> | <a href="README.el.md">Ελληνικά</a>
+</p>
 
 ---
 
-Δημιουργήθηκε με ❤️ από φοιτητές για φοιτητές
+![UniNotes Logo](https://i.imgur.com/jMGS9uL.gif)
+
+## Project Description
+
+UniNotes is an online platform for sharing and managing notes for university students. It allows users to upload, search, and share academic notes organized by semester and course.
+
+## Technologies
+
+  - .NET 9.0
+  - Blazor
+  - MongoDB
+  - HTML/CSS/JavaScript
+
+## Installation and Execution Instructions
+
+### Prerequisites
+
+  - .NET 9.0 SDK
+  - MongoDB (locally or on a cloud service)
+
+### Installation Steps
+
+1.  **Clone the repository**
+
+    ```
+    git clone https://github.com/yourusername/UniNotes.git
+    cd UniNotes
+    ```
+
+2.  **Setup MongoDB**
+
+      - Create an account on MongoDB Atlas or install MongoDB locally
+      - Create a new database for UniNotes
+
+3.  **Configure AppSettings**
+
+      - Create an `appsettings.json` file or rename `appsettings.template.json` to `appsettings.json` in the main project folder (UniNotes/)
+      - Use the template below, replacing `<CONNECTION_STRING>` with your MongoDB connection string and `<WEBHOOK_URL>` with your Discord Webhook URLs:
+
+    <!-- end list -->
+
+    ```json
+     {
+     "ConnectionStrings": {
+         "MongoDb": "<CONNECTION_STRING>"
+     },
+     "Logging": {
+         "LogLevel": {
+         "Default": "Information",
+         "Microsoft.AspNetCore": "Warning"
+         }
+     },
+     "AllowedHosts": "*",
+     "DiscordWebhook": {
+         "ReportUrl": "<WEBHOOK_URL>",
+         "SecretaryUrl": "<WEBHOOK_URL>"
+         }
+     }
+    ```
+
+    **Note**: Some versions of Visual Studio create this file automatically, but for users outside of Windows or on other IDEs, it is necessary to create it manually. This file is not included in the repository for security reasons.
+
+4.  **Install Dependencies and Run**
+
+    ```
+    dotnet restore
+    dotnet run
+    ```
+
+5.  **Access the Application**
+
+      - Open your browser and navigate to `http://localhost:5073` or `https://localhost:7073`
+
+## Application Structure and Pages
+
+### Main Pages
+
+  - **Login.razor**: User login page
+  - **Register.razor**: New user registration page
+  - **Dashboard.razor**: Main user dashboard after login
+  - **Notes.razor**: View and search notes from all users
+  - **MyNotes.razor**: Manage the user's personal notes
+  - **Upload.razor**: Page for uploading new notes
+  - **Settings.razor**: User profile settings
+  - **Credits.razor**: Information about the creators
+
+## Functionality
+
+#### User Management
+
+  - User registration and login
+  - User profile and settings management
+  - Different access levels (regular users, moderators, secretariat)
+
+#### Note Management
+
+  - Uploading notes in various formats (PDF, Word, images)
+  - Categorization by semester and course
+  - Search and filtering of notes
+  - Viewing notes with an embedded viewer
+
+#### User Communication
+
+  - Rating notes (future feature)
+  - Reporting problematic notes (future feature)
+  - Saving favorite notes (future feature)
+
+## Todo List
+
+### 1\) QOL and necessary updates:
+
+  - [x] 1.1) If you go to /dashboard and refresh, you should stay logged in (whichever page you go to, if you refresh, it should throw you to the dashboard or landing)
+  - [x] 1.2) We need to change the way we switch from page to page
+  - [x] 1.3) On every page, there should be an option to go to all other pages
+  - [x] 1.4) Back function on register and login
+  - [x] 1.5) Translate the entire site to Greek
+  - [x] 1.6) Create a README.MD
+  - [x] 1.7) Make the view file work on every note
+  - [x] 1.8) Make the "Notes Forum" scrollable for mobile devices
+
+### 2\) Remaining user functions:
+
+  - [x] 2.1) Add ratings to notes
+  - [x] 2.2) Add a report bug function
+  - [x] 2.3) Add a report note function
+  - [x] 2.4) Add favorites for notes
+  - [x] 2.5) Add view profile for each user and average rating from their notes
+  - [x] 2.6) Add tags to notes
+  - [x] 2.7) Add download function for notes
+
+### 3\) Create moderator role, which has the same features as users and:
+
+  - [x] 3.1) Check notes
+  - [x] 3.3) Check courses
+  - [x] 3.4) Update courses
+
+### 4\) We need to add the secretariat
+
+  - [x] 4.1) Implementation of secretariat functions
+  - [x] 4.2) User and permission management
+
+## Development Challenge
+
+UniNotes is being developed to offer a comprehensive solution for students to share and access quality notes. The main development challenges include:
+
+1.  Ensuring data security and intellectual property rights
+2.  Optimizing loading times for large files
+3.  Implementing a user-friendly interface
+4.  Effective management of the MongoDB database
+5.  Implementation of different access levels and permissions
+
+## Contribution
+
+If you wish to contribute to the project, please follow the steps below:
+
+1.  Fork the repository
+2.  Create a new branch for the feature (`git checkout -b feature/amazing-feature`)
+3.  Set up the development environment according to the installation instructions above
+4.  Commit your changes (`git commit -m 'Add new feature'`)
+5.  Push to the branch (`git push origin feature/amazing-feature`)
+6.  Open a Pull Request
+
+## Contact
+
+### anastasios.tsalkos@gmail.com
+
+### christos.daglaroglou@gmail.com
+
+### panoschatzikallias@gmail.com
+
+-----
+
+Created with ❤️ by students for students
