@@ -139,6 +139,12 @@
 4. Αποτελεσματική διαχείριση της βάσης δεδομένων MongoDB
 5. Υλοποίηση των διαφορετικών επιπέδων πρόσβασης και δικαιωμάτων
 
+## Στιγμιότυπα
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/010df0ac-e612-4c33-a1f0-6dc789c5f589" />
+<img width="1919" height="1079" alt="image2" src="https://github.com/user-attachments/assets/428e409c-be3e-4abf-be11-5899c82cc48c" />
+<img width="1919" height="1079" alt="image3" src="https://github.com/user-attachments/assets/d3029730-460c-47b8-a72a-3dde85a43541" />
+<img width="1919" height="1079" alt="image4" src="https://github.com/user-attachments/assets/b8d08d66-35ff-42be-aa50-3465fe74ed67" />
+
 ## Συνεισφορά
 
 Εάν επιθυμείτε να συνεισφέρετε στο έργο, ακολουθήστε τα παρακάτω βήματα:
